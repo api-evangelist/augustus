@@ -1,0 +1,64 @@
+generated: '2026-07-18'
+method: searched
+source: openapi/augustus-openapi-original.yml
+docs:
+- https://docs.augustus.com/v1/authentication
+- https://docs.augustus.com/reference/authentication
+- https://docs.augustus.com/v1/scopes
+summary:
+  types:
+  - http
+  - apiKey
+  api_key_in:
+  - header
+  oauth2_flows: []
+  notes: >-
+    Augustus uses scoped bearer API keys. Two API generations authenticate
+    differently. All requests must be over HTTPS; plain HTTP or unauthenticated
+    requests fail. Keys can optionally be restricted to IP addresses / CIDR
+    ranges (IPv4 + IPv6) at creation time.
+schemes:
+- name: BearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  api: Augustus Banking API (2026-05-01)
+  header: 'Authorization: Bearer {api_key}'
+  description: >-
+    The 2026-05-01 Augustus Banking API authenticates with a bearer token in the
+    standard Authorization header. Keys are environment-prefixed (e.g. sandbox.,
+    prod.) and otherwise opaque. Each key carries one or more scopes.
+  key_prefixes:
+  - sandbox.
+  - prod.
+  sources:
+  - openapi/augustus-openapi-original.yml
+- name: IvyApiKey
+  type: apiKey
+  in: header
+  parameter: X-Ivy-Api-Key
+  api: Ivy API (2023-01-01)
+  description: >-
+    The legacy Ivy Open Banking API authenticates with the X-Ivy-Api-Key header.
+    Existing Ivy customers keep using their keys unchanged. Keys are managed and
+    rotated in the Augustus Dashboard.
+  sources:
+  - https://docs.augustus.com/reference/authentication
+scopes_model:
+  shape: 'resource:action'
+  actions:
+  - read
+  - write
+  enforcement: Every request; a 403 insufficient_scope carries a required_scopes array.
+  catalogue_endpoint: GET /v1/scopes
+  reference: scopes/augustus-scopes.yml
+errors:
+- status: 401
+  code: authentication_required
+  when: Missing or invalid API key
+- status: 403
+  code: permission_denied
+  when: Valid key but insufficient permissions (non-scope check)
+- status: 403
+  code: insufficient_scope
+  when: Valid key missing one or more required scopes
