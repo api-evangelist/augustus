@@ -1,0 +1,279 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Quotes API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Quotes
+paths:
+  /v1/quotes/indicative:
+    get:
+      description: Returns an indicative quote for a currency pair. Not persisted or holdable.
+      operationId: QuotesController_getIndicativeQuote
+      parameters:
+      - name: source_currency
+        required: true
+        in: query
+        description: Source currency code.
+        schema:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+      - name: target_currency
+        required: true
+        in: query
+        description: Target currency code.
+        schema:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+      - name: source_amount
+        required: false
+        in: query
+        description: Source amount as a string decimal. Defaults to 1 unit if omitted.
+        schema:
+          pattern: ^\d+(\.\d+)?$
+          type: string
+      responses:
+        '200':
+          description: The indicative quote
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetIndicativeQuoteResponseDto'
+      summary: Get indicative quote
+      tags:
+      - Quotes
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst indicative = await client.quotes.indicative.retrieve({\n  source_currency: 'EUR',\n  target_currency: 'EUR',\n});\n\nconsole.log(indicative.fee);"
+  /v1/quotes/{id}:
+    get:
+      description: Retrieves a persisted quote by ID.
+      operationId: QuotesController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the quote.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The quote resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveQuoteResponseDto'
+      summary: Retrieve quote
+      tags:
+      - Quotes
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst quote = await client.quotes.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(quote.id);"
+components:
+  schemas:
+    RetrieveQuoteResponseDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the quote.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - quote
+        status:
+          description: Current status of the quote.
+          type: string
+          enum:
+          - pending
+          - quote_accepted
+          - order_pending
+          - order_failed
+          - order_completed
+          - withdrawal_pending
+          - withdrawal_failed
+          - withdrawal_completed
+          - completed
+          - failed
+        funding_status:
+          description: Current funding status of the quote.
+          type: string
+          enum:
+          - pending
+          - sent
+          - completed
+          - failed
+          - on_hold
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        target_amount:
+          description: Target amount as a string decimal.
+          type: string
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        exchange_rate:
+          description: Exchange rate applied.
+          type: string
+        venue:
+          description: Execution venue (e.g. "kraken").
+          type: string
+        expires_at:
+          description: ISO 8601 UTC timestamp when the quote expires.
+          type: string
+          format: date-time
+        created_at:
+          description: ISO 8601 UTC timestamp when the quote was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the quote was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - status
+      - funding_status
+      - source_amount
+      - source_currency
+      - target_amount
+      - target_currency
+      - exchange_rate
+      - venue
+      - expires_at
+      - created_at
+      - updated_at
+    GetIndicativeQuoteResponseDto:
+      type: object
+      properties:
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        target_amount:
+          description: Target amount as a string decimal.
+          type: string
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        rate:
+          description: Conversion rate applied.
+          type: string
+        venue:
+          description: Venue the quote was fetched from.
+          type: string
+        fee:
+          description: Conversion fee, or null if no fee applies.
+          type: object
+          properties:
+            amount:
+              description: Fee amount as a string decimal.
+              type: string
+            currency:
+              description: Fee currency code.
+              type: string
+              enum:
+              - EUR
+              - GBP
+              - USD
+              - USDC
+              - BTC
+              - ETH
+              - SOL
+              - POL
+          required:
+          - amount
+          - currency
+          nullable: true
+        quoted_at:
+          description: ISO 8601 UTC timestamp when the quote was fetched.
+          type: string
+          format: date-time
+      required:
+      - source_amount
+      - source_currency
+      - target_amount
+      - target_currency
+      - rate
+      - venue
+      - fee
+      - quoted_at
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

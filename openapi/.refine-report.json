@@ -1,0 +1,38 @@
+{
+  "provider": "augustus",
+  "sources": [
+    "augustus-account-programs-api-openapi.yml",
+    "augustus-accounts-api-openapi.yml",
+    "augustus-api-key-api-openapi.yml",
+    "augustus-api-versions-api-openapi.yml",
+    "augustus-conversions-api-openapi.yml",
+    "augustus-deposits-api-openapi.yml",
+    "augustus-events-api-openapi.yml",
+    "augustus-payouts-api-openapi.yml",
+    "augustus-quotes-api-openapi.yml",
+    "augustus-returns-api-openapi.yml",
+    "augustus-scopes-api-openapi.yml",
+    "augustus-webhook-deliveries-api-openapi.yml",
+    "augustus-webhook-subscriptions-api-openapi.yml"
+  ],
+  "outputs": [
+    "augustus-account-programs-api-openapi.yml",
+    "augustus-accounts-api-openapi.yml",
+    "augustus-api-key-api-openapi.yml",
+    "augustus-api-versions-api-openapi.yml",
+    "augustus-conversions-api-openapi.yml",
+    "augustus-deposits-api-openapi.yml",
+    "augustus-events-api-openapi.yml",
+    "augustus-payouts-api-openapi.yml",
+    "augustus-quotes-api-openapi.yml",
+    "augustus-returns-api-openapi.yml",
+    "augustus-scopes-api-openapi.yml",
+    "augustus-webhook-deliveries-api-openapi.yml",
+    "augustus-webhook-subscriptions-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

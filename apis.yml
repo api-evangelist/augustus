@@ -1,26 +1,356 @@
 aid: augustus
 name: Augustus
-description: 'Augustus is a company surfaced as a portfolio company of creandum and added to the API Evangelist
-  network as a stub for enrichment. Sector: fintech. This profile is a lead awaiting the enrichment pipeline.'
+description: >-
+  Augustus (formerly Ivy, getivy.io) is a global payments and banking platform
+  that lets developers move money between fiat and stablecoins, accept Open
+  Banking bank payments, send payouts, run FX conversions, and hold balances
+  through a single REST API. Building blocks include accounts and virtual
+  accounts, account programs, checkout sessions and orders, deposits, payouts,
+  refunds and returns, conversions and quotes, plus webhooks for real-time
+  events. Augustus runs the Ivy Open Banking API (version 2023-01-01) alongside
+  the newer Augustus Banking API (version 2026-05-01), authenticates with
+  scoped bearer API keys, supports idempotent POSTs and cursor pagination, and
+  is building an AI-native, stablecoin-based clearing bank. Backed by Creandum
+  and Valar Ventures.
 url: https://raw.githubusercontent.com/api-evangelist/augustus/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - creandum
-x-tier: stub
-x-tier-reason: portfolio-lead
+- valar-ventures
+x-tier: profiled
+x-tier-reason: enriched-from-stub
+x-formerly: Ivy (getivy.io)
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
 specificationVersion: '0.20'
+image: https://a.storyblok.com/f/292219090989234/1920x1080/ea9e21e94c/website-header.png
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-18'
 tags:
 - Company
 - Fintech
-apis: []
+- Payments
+- Banking
+- Open Banking
+- Stablecoin
+- Payouts
+- Foreign Exchange
+- Webhooks
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- aid: augustus:ivy-api
+  name: Ivy API (Open Banking)
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Open Banking
+  - Payments
+  - Checkout
+  - PSD2
+  properties:
+  - url: https://docs.augustus.com/reference/introduction
+    type: Documentation
+  - url: https://docs.augustus.com/api-reference/checkout/create-a-checkout-session
+    type: APIReference
+  - url: https://docs.augustus.com/docs/payin/instant-bank-transfer/payment-integration
+    type: GettingStarted
+  description: >-
+    The 2023-01-01 Ivy API for Open Banking pay-ins and Manual Bank Transfer. Checkout sessions, orders,
+    customers, refunds, banks, capabilities, and beneficiary payouts. Existing Ivy customers keep using
+    this API with their current keys, webhooks, and integrations. Authenticates with the X-Ivy-Api-Key
+    header.
+- aid: augustus:augustus-account-programs-api
+  name: Augustus Account Programs API
+  description: The Account Programs API from Augustus — 3 operation(s) for account programs.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Account Programs
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-account-programs-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-accounts-api
+  name: Augustus Accounts API
+  description: The Accounts API from Augustus — 6 operation(s) for accounts.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-accounts-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-api-key-api
+  name: Augustus API Key API
+  description: The API Key API from Augustus — 1 operation(s) for api key.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - API Key
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-api-key-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-api-versions-api
+  name: Augustus API Versions API
+  description: The API Versions API from Augustus — 1 operation(s) for api versions.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - API Versions
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-api-versions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-conversions-api
+  name: Augustus Conversions API
+  description: The Conversions API from Augustus — 2 operation(s) for conversions.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Conversions
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-conversions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-deposits-api
+  name: Augustus Deposits API
+  description: The Deposits API from Augustus — 2 operation(s) for deposits.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Deposits
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-deposits-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-events-api
+  name: Augustus Events API
+  description: The Events API from Augustus — 2 operation(s) for events.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Events
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-events-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-payouts-api
+  name: Augustus Payouts API
+  description: The Payouts API from Augustus — 2 operation(s) for payouts.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Payouts
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-payouts-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-quotes-api
+  name: Augustus Quotes API
+  description: The Quotes API from Augustus — 2 operation(s) for quotes.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Quotes
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-quotes-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-returns-api
+  name: Augustus Returns API
+  description: The Returns API from Augustus — 2 operation(s) for returns.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Returns
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-returns-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-scopes-api
+  name: Augustus Scopes API
+  description: The Scopes API from Augustus — 1 operation(s) for scopes.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Scopes
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-scopes-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-webhook-deliveries-api
+  name: Augustus Webhook Deliveries API
+  description: The Webhook Deliveries API from Augustus — 3 operation(s) for webhook deliveries.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Webhook Deliveries
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-webhook-deliveries-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-webhook-subscriptions-api
+  name: Augustus Webhook Subscriptions API
+  description: The Webhook Subscriptions API from Augustus — 3 operation(s) for webhook subscriptions.
+  humanURL: https://docs.augustus.com/v1/introduction
+  baseURL: https://api.augustus.com
+  tags:
+  - Webhook Subscriptions
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-webhook-subscriptions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.augustus.com/v1/introduction
+  - type: APIReference
+    url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
+  - type: GettingStarted
+    url: https://docs.augustus.com/docs/basics/introduction
 common:
+- type: DomainSecurity
+  url: security/augustus-domain-security.yml
+- type: AgenticAccess
+  url: agentic-access/augustus-agentic-access.yml
+- type: Authentication
+  url: authentication/augustus-authentication.yml
 - type: Website
-  url: https://www.getivy.io/
+  url: https://augustus.com/
+- type: DeveloperPortal
+  url: https://docs.augustus.com
+- type: Documentation
+  url: https://docs.augustus.com/docs/basics/introduction
+- type: APIReference
+  url: https://docs.augustus.com/v1/introduction
+- type: GettingStarted
+  url: https://docs.augustus.com/docs/basics/introduction
+- type: Authentication
+  url: https://docs.augustus.com/v1/authentication
+- type: SignUp
+  url: https://dashboard.augustus.com/sign-up
+- type: Login
+  url: https://dashboard.augustus.com
+- type: Support
+  url: https://augustus.com/company/contact
+- type: TermsOfService
+  url: https://augustus.com/legal/terms
+- type: PrivacyPolicy
+  url: https://augustus.com/legal/privacy
+- type: StatusPage
+  url: https://status.getivy.io
+- type: OpenAPI
+  url: openapi/augustus-openapi-original.yml
+- type: Packages
+  url: packages/augustus-packages.yml
+- type: SDKs
+  url: packages/augustus-packages.yml
+- type: MCPServer
+  url: mcp/augustus-mcp.yml
+- type: LLMsTxt
+  url: llms/augustus-llms.txt
+- type: Overlay
+  url: overlays/augustus-banking-overlay.yaml
+- type: Conformance
+  url: conformance/augustus-conformance.yml
+- type: ErrorCatalog
+  url: errors/augustus-error-codes.yml
+- type: DeclineCodes
+  url: errors/augustus-decline-codes.yml
+- type: Lifecycle
+  url: lifecycle/augustus-lifecycle.yml
+- type: Deprecation
+  url: https://docs.augustus.com/v1/versioning
+- type: OAuthScopes
+  url: scopes/augustus-scopes.yml
+- type: Sandbox
+  url: sandbox/augustus-sandbox.yml
+- type: Conventions
+  url: conventions/augustus-conventions.yml
+- type: Idempotency
+  url: conventions/augustus-conventions.yml
+- type: DataModel
+  url: data-model/augustus-data-model.yml
+- type: Webhooks
+  url: asyncapi/augustus-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence

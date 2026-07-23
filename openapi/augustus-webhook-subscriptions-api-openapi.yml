@@ -1,0 +1,425 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Webhook Subscriptions API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Webhook Subscriptions
+paths:
+  /v1/webhook_subscriptions:
+    post:
+      description: Creates a new webhook subscription.
+      operationId: WebhookSubscriptionsController_create
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Webhook subscription creation parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSubscriptionBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Create webhook subscription
+      tags:
+      - Webhook Subscriptions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.create({\n  events: ['payout.created'],\n  url: 'https://example.com',\n});\n\nconsole.log(webhookSubscription.id);"
+    get:
+      description: Lists webhook subscriptions for the merchant with cursor-based pagination.
+      operationId: WebhookSubscriptionsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Paginated list of webhook subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookSubscriptionsResponseDto'
+      summary: List webhook subscriptions
+      tags:
+      - Webhook Subscriptions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const webhookSubscriptionListResponse of client.webhookSubscriptions.list()) {\n  console.log(webhookSubscriptionListResponse.id);\n}"
+  /v1/webhook_subscriptions/{id}:
+    get:
+      description: Retrieves a webhook subscription by ID.
+      operationId: WebhookSubscriptionsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the webhook subscription.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The webhook subscription resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Retrieve webhook subscription
+      tags:
+      - Webhook Subscriptions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.retrieve(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookSubscription.id);"
+    post:
+      description: Updates the URL and/or subscribed events.
+      operationId: WebhookSubscriptionsController_update
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the webhook subscription.
+        schema:
+          format: uuid
+          type: string
+      - name: Idempotency-Key
+        in: header
+        description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Fields to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWebhookSubscriptionBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Update webhook subscription
+      tags:
+      - Webhook Subscriptions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.update(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookSubscription.id);"
+    delete:
+      description: Permanently deletes a webhook subscription. This cannot be undone.
+      operationId: WebhookSubscriptionsController_delete
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the webhook subscription.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The deleted webhook subscription resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Delete webhook subscription
+      tags:
+      - Webhook Subscriptions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.delete(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookSubscription.id);"
+  /v1/webhook_subscriptions/{id}/send_test_event:
+    post:
+      description: Dispatches a signed `ping.test` event to this subscription's URL through the same pipeline as real events. Useful for verifying your receiver's reachability and signature verification in any environment without creating a real business event. Test-event failures do not affect the subscription's health counters or trigger failure-notification emails.
+      operationId: WebhookSubscriptionsController_sendTestEvent
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the webhook subscription.
+        schema:
+          format: uuid
+          type: string
+      - name: Idempotency-Key
+        in: header
+        description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The newly created webhook event. Poll its delivery via `GET /v1/webhook_deliveries?event_id={id}` for receiver status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResourceDto'
+      summary: Send test event
+      tags:
+      - Webhook Subscriptions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.webhookSubscriptions.sendTestEvent(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(response.id);"
+components:
+  schemas:
+    EventResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - event
+        event_type:
+          description: Event type.
+          type: string
+          enum:
+          - payout.created
+          - payout.initiated
+          - payout.paid
+          - payout.failed
+          - return.initiated
+          - return.paid
+          - return.failed
+          - return.returned
+          - deposit.received
+          - conversion.created
+          - conversion.completed
+          - conversion.failed
+          - ping.test
+        api_version:
+          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+          type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the event was created.
+          type: string
+          format: date-time
+        data:
+          description: Event payload. Shape matches the resource schema for `event_type`.
+          type: object
+          additionalProperties: {}
+      required:
+      - id
+      - type
+      - event_type
+      - api_version
+      - created_at
+      - data
+    CreateWebhookSubscriptionBodyDto:
+      type: object
+      properties:
+        url:
+          description: The HTTPS URL where webhook events will be delivered.
+          type: string
+          format: uri
+        events:
+          description: Event types to subscribe to. Use ["*"] for all events.
+          type: array
+          minItems: 1
+          items:
+            description: Event type to subscribe to. Use "*" for all events.
+            type: string
+            enum:
+            - payout.created
+            - payout.initiated
+            - payout.paid
+            - payout.failed
+            - return.initiated
+            - return.paid
+            - return.failed
+            - return.returned
+            - deposit.received
+            - conversion.created
+            - conversion.completed
+            - conversion.failed
+            - '*'
+      required:
+      - url
+      - events
+    UpdateWebhookSubscriptionBodyDto:
+      type: object
+      properties:
+        url:
+          description: The HTTPS URL where webhook events will be delivered.
+          type: string
+          format: uri
+        events:
+          description: Event types to subscribe to. Use ["*"] for all events.
+          type: array
+          minItems: 1
+          items:
+            description: Event type to subscribe to. Use "*" for all events.
+            type: string
+            enum:
+            - payout.created
+            - payout.initiated
+            - payout.paid
+            - payout.failed
+            - return.initiated
+            - return.paid
+            - return.failed
+            - return.returned
+            - deposit.received
+            - conversion.created
+            - conversion.completed
+            - conversion.failed
+            - '*'
+    WebhookSubscriptionResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the webhook subscription.
+          type: string
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - webhook_subscription
+        url:
+          description: The HTTPS URL where webhook events are delivered.
+          type: string
+        events:
+          description: Event types this subscription receives.
+          type: array
+          items:
+            description: Event type the subscription receives.
+            type: string
+            enum:
+            - payout.created
+            - payout.initiated
+            - payout.paid
+            - payout.failed
+            - return.initiated
+            - return.paid
+            - return.failed
+            - return.returned
+            - deposit.received
+            - conversion.created
+            - conversion.completed
+            - conversion.failed
+        created_at:
+          description: ISO 8601 UTC timestamp when the subscription was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the subscription was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - url
+      - events
+      - created_at
+      - updated_at
+    ListWebhookSubscriptionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the webhook subscription.
+                type: string
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - webhook_subscription
+              url:
+                description: The HTTPS URL where webhook events are delivered.
+                type: string
+              events:
+                description: Event types this subscription receives.
+                type: array
+                items:
+                  description: Event type the subscription receives.
+                  type: string
+                  enum:
+                  - payout.created
+                  - payout.initiated
+                  - payout.paid
+                  - payout.failed
+                  - return.initiated
+                  - return.paid
+                  - return.failed
+                  - return.returned
+                  - deposit.received
+                  - conversion.created
+                  - conversion.completed
+                  - conversion.failed
+              created_at:
+                description: ISO 8601 UTC timestamp when the subscription was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the subscription was last updated.
+                type: string
+                format: date-time
+            required:
+            - id
+            - type
+            - url
+            - events
+            - created_at
+            - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

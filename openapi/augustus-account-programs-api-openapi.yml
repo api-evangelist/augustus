@@ -1,0 +1,244 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Account Programs
+paths:
+  /v1/account_programs:
+    get:
+      description: Lists account programs for the merchant with cursor-based pagination.
+      operationId: AccountProgramsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Paginated list of account programs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAccountProgramsResponseDto'
+      summary: List account programs
+      tags:
+      - Account Programs
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const accountProgramListResponse of client.accountPrograms.list()) {\n  console.log(accountProgramListResponse.id);\n}"
+  /v1/account_programs/{id}/balance:
+    get:
+      description: Returns the aggregated available balance for all virtual accounts under the account program.
+      operationId: AccountProgramsController_retrieveBalance
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the account program.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: Account program balance snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProgramBalanceResourceDto'
+      summary: Retrieve account program balance
+      tags:
+      - Account Programs
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accountPrograms.retrieveBalance(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(response.id);"
+  /v1/account_programs/{id}:
+    get:
+      description: Retrieves an account program by ID.
+      operationId: AccountProgramsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the account program.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The account program resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProgramResourceDto'
+      summary: Retrieve account program
+      tags:
+      - Account Programs
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst accountProgram = await client.accountPrograms.retrieve(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(accountProgram.id);"
+components:
+  schemas:
+    AccountProgramResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the account program.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - account_program
+        label:
+          description: Human-readable label for the account program.
+          type: string
+        account_program_type:
+          description: 'Which for-benefit-of (FBO) program model applies: `fbo_program` (merchant program) or `fbo_sponsored` (sponsored program).'
+          type: string
+          enum:
+          - fbo_program
+          - fbo_sponsored
+        status:
+          description: Account program lifecycle status. Closed programs are not returned by this endpoint.
+          type: string
+          enum:
+          - active
+          - frozen
+        created_at:
+          description: ISO 8601 UTC timestamp when the account program was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the account program was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - label
+      - account_program_type
+      - status
+      - created_at
+      - updated_at
+    AccountProgramBalanceResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the account program.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - account_program_balance
+        amount:
+          description: Total available balance as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: ISO 4217 currency code for the balance.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+        as_of:
+          description: ISO 8601 UTC timestamp when this balance snapshot was produced.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - amount
+      - currency
+      - as_of
+    ListAccountProgramsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the account program.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - account_program
+              label:
+                description: Human-readable label for the account program.
+                type: string
+              account_program_type:
+                description: 'Which for-benefit-of (FBO) program model applies: `fbo_program` (merchant program) or `fbo_sponsored` (sponsored program).'
+                type: string
+                enum:
+                - fbo_program
+                - fbo_sponsored
+              status:
+                description: Account program lifecycle status. Closed programs are not returned by this endpoint.
+                type: string
+                enum:
+                - active
+                - frozen
+              created_at:
+                description: ISO 8601 UTC timestamp when the account program was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the account program was last updated.
+                type: string
+                format: date-time
+            required:
+            - id
+            - type
+            - label
+            - account_program_type
+            - status
+            - created_at
+            - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

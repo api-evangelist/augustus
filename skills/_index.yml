@@ -1,0 +1,25 @@
+generated: '2026-07-18'
+method: generated
+source: openapi/augustus-openapi-original.yml
+description: >-
+  Packaged Agent Skills for the Augustus Banking API (2026-05-01). Each skill is
+  grounded in real operationIds from openapi/augustus-openapi-original.yml plus
+  the idempotency, pagination, scope, and error conventions captured in
+  conventions/, scopes/, and errors/.
+skills:
+- file: augustus-create-payout.md
+  name: Create and track a payout
+  api: openapi/augustus-openapi-original.yml
+  operations: [PayoutsController_create, PayoutsController_retrieve, PayoutsController_list]
+- file: augustus-open-account-and-check-balance.md
+  name: Open an account and check its balance
+  api: openapi/augustus-openapi-original.yml
+  operations: [AccountsController_create, AccountsController_retrieve, AccountsController_balance, AccountProgramsController_retrieveBalance]
+- file: augustus-fx-conversion.md
+  name: Quote and execute an FX conversion
+  api: openapi/augustus-openapi-original.yml
+  operations: [QuotesController_getIndicativeQuote, ConversionsController_create, ConversionsController_retrieve, ConversionsController_list]
+- file: augustus-subscribe-webhooks.md
+  name: Subscribe to and verify webhooks
+  api: openapi/augustus-openapi-original.yml
+  operations: [WebhookSubscriptionsController_create, WebhookSubscriptionsController_sendTestEvent, WebhookDeliveriesController_list, WebhookDeliveriesController_redeliver, EventsController_list]

@@ -1,0 +1,316 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Webhook Deliveries API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Webhook Deliveries
+paths:
+  /v1/webhook_deliveries/{id}:
+    get:
+      description: Retrieves a webhook delivery by ID.
+      operationId: WebhookDeliveriesController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the webhook delivery.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The webhook delivery resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryResourceDto'
+      summary: Retrieve webhook delivery
+      tags:
+      - Webhook Deliveries
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookDelivery = await client.webhookDeliveries.retrieve(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookDelivery.id);"
+  /v1/webhook_deliveries:
+    get:
+      description: Lists webhook deliveries for the merchant with cursor-based pagination. Deliveries are retained for 30 days.
+      operationId: WebhookDeliveriesController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: event_id
+        required: false
+        in: query
+        description: Filter by event ID.
+        schema:
+          format: uuid
+          type: string
+      - name: subscription_id
+        required: false
+        in: query
+        description: Filter by webhook subscription ID.
+        schema:
+          format: uuid
+          type: string
+      - name: status
+        required: false
+        in: query
+        description: Filter by delivery status.
+        schema:
+          type: string
+          enum:
+          - pending
+          - delivered
+          - failed
+          - processing
+          - ignored
+      - name: created_at.gte
+        required: false
+        in: query
+        description: Include deliveries whose created_at is greater than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      - name: created_at.lte
+        required: false
+        in: query
+        description: Include deliveries whose created_at is less than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          description: Paginated list of webhook deliveries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookDeliveriesResponseDto'
+      summary: List webhook deliveries
+      tags:
+      - Webhook Deliveries
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const webhookDeliveryListResponse of client.webhookDeliveries.list()) {\n  console.log(webhookDeliveryListResponse.id);\n}"
+  /v1/webhook_deliveries/{id}/redeliver:
+    post:
+      description: Triggers a fresh delivery attempt of the event to the same webhook subscription.
+      operationId: WebhookDeliveriesController_redeliver
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the webhook delivery.
+        schema:
+          format: uuid
+          type: string
+      - name: Idempotency-Key
+        in: header
+        description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The new webhook delivery resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryResourceDto'
+      summary: Redeliver webhook
+      tags:
+      - Webhook Deliveries
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.webhookDeliveries.redeliver('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.id);"
+components:
+  schemas:
+    WebhookDeliveryResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the webhook delivery.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - webhook_delivery
+        event_id:
+          description: Identifier of the event this delivery was for.
+          type: string
+          format: uuid
+        subscription_id:
+          description: Identifier of the webhook subscription this delivery targeted.
+          type: string
+          format: uuid
+        status:
+          description: Current status of the delivery.
+          type: string
+          enum:
+          - pending
+          - delivered
+          - failed
+          - processing
+          - ignored
+        attempts:
+          description: Ordered list of HTTP delivery attempts for this delivery.
+          type: array
+          items:
+            type: object
+            properties:
+              attempted_at:
+                description: ISO 8601 UTC timestamp when this attempt resolved.
+                type: string
+                format: date-time
+              status:
+                description: Current status of the delivery.
+                type: string
+                enum:
+                - pending
+                - delivered
+                - failed
+                - processing
+                - ignored
+              status_code:
+                description: HTTP status code returned by the receiver for this attempt.
+                type: integer
+            required:
+            - attempted_at
+            - status
+            - status_code
+        created_at:
+          description: ISO 8601 UTC timestamp when the delivery was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the delivery was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - event_id
+      - subscription_id
+      - status
+      - attempts
+      - created_at
+      - updated_at
+    ListWebhookDeliveriesResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the webhook delivery.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - webhook_delivery
+              event_id:
+                description: Identifier of the event this delivery was for.
+                type: string
+                format: uuid
+              subscription_id:
+                description: Identifier of the webhook subscription this delivery targeted.
+                type: string
+                format: uuid
+              status:
+                description: Current status of the delivery.
+                type: string
+                enum:
+                - pending
+                - delivered
+                - failed
+                - processing
+                - ignored
+              attempts:
+                description: Ordered list of HTTP delivery attempts for this delivery.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    attempted_at:
+                      description: ISO 8601 UTC timestamp when this attempt resolved.
+                      type: string
+                      format: date-time
+                    status:
+                      description: Current status of the delivery.
+                      type: string
+                      enum:
+                      - pending
+                      - delivered
+                      - failed
+                      - processing
+                      - ignored
+                    status_code:
+                      description: HTTP status code returned by the receiver for this attempt.
+                      type: integer
+                  required:
+                  - attempted_at
+                  - status
+                  - status_code
+              created_at:
+                description: ISO 8601 UTC timestamp when the delivery was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the delivery was last updated.
+                type: string
+                format: date-time
+            required:
+            - id
+            - type
+            - event_id
+            - subscription_id
+            - status
+            - attempts
+            - created_at
+            - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

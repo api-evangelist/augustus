@@ -1,0 +1,199 @@
+generated: '2026-07-18'
+method: derived
+status: candidate
+source: openapi/augustus-openapi-original.yml
+note: >-
+  No official hosted/remote Augustus MCP server was found. This is a candidate
+  tool list derived one-to-one from the Augustus Banking API OpenAPI operations,
+  to seed an MCP server. Status: candidate.
+server:
+  name: augustus
+  transport: http
+  base_url: https://api.augustus.com
+  auth: Bearer API key (Authorization header)
+tools:
+- name: account_programs_list
+  description: List account programs
+  method: GET
+  path: /v1/account_programs
+  source_operation: openapi/augustus-openapi-original.yml#AccountProgramsController_list
+- name: account_programs_retrieve_balance
+  description: Retrieve account program balance
+  method: GET
+  path: /v1/account_programs/{id}/balance
+  source_operation: openapi/augustus-openapi-original.yml#AccountProgramsController_retrieveBalance
+- name: account_programs_retrieve
+  description: Retrieve account program
+  method: GET
+  path: /v1/account_programs/{id}
+  source_operation: openapi/augustus-openapi-original.yml#AccountProgramsController_retrieve
+- name: accounts_list
+  description: List accounts
+  method: GET
+  path: /v1/accounts
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_list
+- name: accounts_create
+  description: Create account
+  method: POST
+  path: /v1/accounts
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_create
+- name: accounts_retrieve
+  description: Retrieve account
+  method: GET
+  path: /v1/accounts/{id}
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_retrieve
+- name: accounts_balance
+  description: Retrieve account balance
+  method: GET
+  path: /v1/accounts/{id}/balance
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_balance
+- name: accounts_freeze
+  description: Freeze account
+  method: POST
+  path: /v1/accounts/{id}/freeze
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_freeze
+- name: accounts_close
+  description: Close account
+  method: POST
+  path: /v1/accounts/{id}/close
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_close
+- name: accounts_unfreeze
+  description: Unfreeze account
+  method: POST
+  path: /v1/accounts/{id}/unfreeze
+  source_operation: openapi/augustus-openapi-original.yml#AccountsController_unfreeze
+- name: api_key_introspect
+  description: Introspect current API key
+  method: GET
+  path: /v1/api_key
+  source_operation: openapi/augustus-openapi-original.yml#ApiKeyController_introspect
+- name: api_versions_list
+  description: List API versions
+  method: GET
+  path: /v1/api_versions
+  source_operation: openapi/augustus-openapi-original.yml#ApiVersionsController_list
+- name: conversions_list
+  description: List conversions
+  method: GET
+  path: /v1/conversions
+  source_operation: openapi/augustus-openapi-original.yml#ConversionsController_list
+- name: conversions_create
+  description: Create conversion
+  method: POST
+  path: /v1/conversions
+  source_operation: openapi/augustus-openapi-original.yml#ConversionsController_create
+- name: conversions_retrieve
+  description: Retrieve conversion
+  method: GET
+  path: /v1/conversions/{id}
+  source_operation: openapi/augustus-openapi-original.yml#ConversionsController_retrieve
+- name: deposits_retrieve
+  description: Retrieve deposit
+  method: GET
+  path: /v1/deposits/{id}
+  source_operation: openapi/augustus-openapi-original.yml#DepositsController_retrieve
+- name: deposits_list
+  description: List deposits
+  method: GET
+  path: /v1/deposits
+  source_operation: openapi/augustus-openapi-original.yml#DepositsController_list
+- name: events_retrieve
+  description: Retrieve event
+  method: GET
+  path: /v1/events/{id}
+  source_operation: openapi/augustus-openapi-original.yml#EventsController_retrieve
+- name: events_list
+  description: List events
+  method: GET
+  path: /v1/events
+  source_operation: openapi/augustus-openapi-original.yml#EventsController_list
+- name: payouts_list
+  description: List payouts
+  method: GET
+  path: /v1/payouts
+  source_operation: openapi/augustus-openapi-original.yml#PayoutsController_list
+- name: payouts_create
+  description: Create payout
+  method: POST
+  path: /v1/payouts
+  source_operation: openapi/augustus-openapi-original.yml#PayoutsController_create
+- name: payouts_retrieve
+  description: Retrieve payout
+  method: GET
+  path: /v1/payouts/{id}
+  source_operation: openapi/augustus-openapi-original.yml#PayoutsController_retrieve
+- name: quotes_get_indicative_quote
+  description: Get indicative quote
+  method: GET
+  path: /v1/quotes/indicative
+  source_operation: openapi/augustus-openapi-original.yml#QuotesController_getIndicativeQuote
+- name: quotes_retrieve
+  description: Retrieve quote
+  method: GET
+  path: /v1/quotes/{id}
+  source_operation: openapi/augustus-openapi-original.yml#QuotesController_retrieve
+- name: returns_list
+  description: List returns
+  method: GET
+  path: /v1/returns
+  source_operation: openapi/augustus-openapi-original.yml#ReturnsController_list
+- name: returns_create
+  description: Create return
+  method: POST
+  path: /v1/returns
+  source_operation: openapi/augustus-openapi-original.yml#ReturnsController_create
+- name: returns_retrieve
+  description: Retrieve return
+  method: GET
+  path: /v1/returns/{id}
+  source_operation: openapi/augustus-openapi-original.yml#ReturnsController_retrieve
+- name: scopes_list
+  description: List scopes
+  method: GET
+  path: /v1/scopes
+  source_operation: openapi/augustus-openapi-original.yml#ScopesController_list
+- name: webhook_deliveries_retrieve
+  description: Retrieve webhook delivery
+  method: GET
+  path: /v1/webhook_deliveries/{id}
+  source_operation: openapi/augustus-openapi-original.yml#WebhookDeliveriesController_retrieve
+- name: webhook_deliveries_list
+  description: List webhook deliveries
+  method: GET
+  path: /v1/webhook_deliveries
+  source_operation: openapi/augustus-openapi-original.yml#WebhookDeliveriesController_list
+- name: webhook_deliveries_redeliver
+  description: Redeliver webhook
+  method: POST
+  path: /v1/webhook_deliveries/{id}/redeliver
+  source_operation: openapi/augustus-openapi-original.yml#WebhookDeliveriesController_redeliver
+- name: webhook_subscriptions_create
+  description: Create webhook subscription
+  method: POST
+  path: /v1/webhook_subscriptions
+  source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_create
+- name: webhook_subscriptions_list
+  description: List webhook subscriptions
+  method: GET
+  path: /v1/webhook_subscriptions
+  source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_list
+- name: webhook_subscriptions_retrieve
+  description: Retrieve webhook subscription
+  method: GET
+  path: /v1/webhook_subscriptions/{id}
+  source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_retrieve
+- name: webhook_subscriptions_update
+  description: Update webhook subscription
+  method: POST
+  path: /v1/webhook_subscriptions/{id}
+  source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_update
+- name: webhook_subscriptions_delete
+  description: Delete webhook subscription
+  method: DELETE
+  path: /v1/webhook_subscriptions/{id}
+  source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_delete
+- name: webhook_subscriptions_send_test_event
+  description: Send test event
+  method: POST
+  path: /v1/webhook_subscriptions/{id}/send_test_event
+  source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_sendTestEvent

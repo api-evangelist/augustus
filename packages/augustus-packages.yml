@@ -1,0 +1,28 @@
+generated: '2026-07-18'
+method: searched
+source:
+- https://registry.npmjs.org/@augustusbank/typescript-sdk
+- https://registry.npmjs.org/@getivy/node-sdk
+- https://docs.augustus.com/v1/introduction
+description: >-
+  First-party client libraries for Augustus. The 2026-05-01 Augustus Banking API
+  ships @augustusbank/typescript-sdk; the 2023-01-01 Ivy API ships
+  @getivy/node-sdk. Both are official TypeScript libraries maintained by
+  Augustus (generated via Stainless).
+packages:
+- language: typescript
+  registry: npm
+  name: '@augustusbank/typescript-sdk'
+  url: https://www.npmjs.com/package/@augustusbank/typescript-sdk
+  install: npm install @augustusbank/typescript-sdk
+  latest_version: 0.15.0
+  api: Augustus Banking API (2026-05-01)
+  official: true
+- language: typescript
+  registry: npm
+  name: '@getivy/node-sdk'
+  url: https://www.npmjs.com/package/@getivy/node-sdk
+  install: npm install @getivy/node-sdk
+  latest_version: 2.7.0
+  api: Ivy API (2023-01-01)
+  official: true

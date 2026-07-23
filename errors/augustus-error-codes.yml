@@ -1,0 +1,115 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.augustus.com/v1/errors
+docs:
+- https://docs.augustus.com/v1/errors
+- https://docs.augustus.com/reference/errors
+description: >-
+  The Augustus Banking API (2026-05-01) error registry. All errors return a flat
+  JSON object (not RFC 9457 problem+json) with a stable machine-readable code.
+  Branch on code, never on message.
+envelope:
+  format: flat-json
+  fields:
+  - name: category
+    required: true
+    description: 'Broad classification: api_error, authentication_error, idempotency_error, invalid_request_error, rate_limit_error'
+  - name: code
+    required: true
+    description: Machine-readable error code for programmatic handling
+  - name: message
+    required: true
+    description: Human-readable description; not a stable contract
+  - name: param
+    required: true
+    description: Request parameter that caused the error, or null
+  - name: doc_url
+    required: true
+    description: Link to documentation explaining the error
+  - name: correlation_id
+    required: true
+    description: Unique request identifier, also returned as the Correlation-Id response header
+categories:
+- id: api_error
+  meaning: Server-side failure. You did nothing wrong. Retry may help.
+- id: authentication_error
+  meaning: Missing or invalid API key.
+- id: idempotency_error
+  meaning: Idempotency key conflict (reuse with different params).
+- id: invalid_request_error
+  meaning: 'Client-side problem: bad parameters, not found, state conflict.'
+- id: rate_limit_error
+  meaning: Too many requests. Back off and retry.
+codes:
+- code: parameter_invalid
+  category: invalid_request_error
+  http: 400
+  when: Request parameter fails validation
+- code: parameter_missing
+  category: invalid_request_error
+  http: 400
+  when: Required parameter not provided
+- code: validation_error
+  category: invalid_request_error
+  http: 400
+  when: Request body fails schema validation
+- code: api_version_error
+  category: invalid_request_error
+  http: 400
+  when: Unknown or unsupported api-version header value
+- code: invalid_cursor
+  category: invalid_request_error
+  http: 400
+  when: Pagination cursor is malformed or could not be read
+- code: cursor_mismatch
+  category: invalid_request_error
+  http: 400
+  when: Pagination cursor was issued for different filters
+- code: authentication_required
+  category: authentication_error
+  http: 401
+  when: Missing or invalid API key
+- code: permission_denied
+  category: invalid_request_error
+  http: 403
+  when: Valid key, but forbidden by a non-scope check (feature flag, enabled surface, beneficiary allowlist)
+- code: insufficient_scope
+  category: invalid_request_error
+  http: 403
+  when: Valid key, but missing required scopes. Carries an additional required_scopes array.
+- code: resource_not_found
+  category: invalid_request_error
+  http: 404
+  when: Resource does not exist
+- code: method_not_allowed
+  category: invalid_request_error
+  http: 405
+  when: HTTP method not supported on this endpoint
+- code: conflict
+  category: invalid_request_error
+  http: 409
+  when: Business state conflict
+- code: idempotency_key_already_used
+  category: idempotency_error
+  http: 409
+  when: Key reuse with different parameters
+- code: request_in_progress
+  category: idempotency_error
+  http: 409
+  when: Concurrent request with same key
+- code: payload_too_large
+  category: invalid_request_error
+  http: 413
+  when: Request body exceeds the maximum size
+- code: rate_limit_exceeded
+  category: rate_limit_error
+  http: 429
+  when: Too many requests
+- code: internal_error
+  category: api_error
+  http: 500
+  when: Unexpected server failure
+- code: upstream_error
+  category: api_error
+  http: 500
+  when: A required upstream service returned an error

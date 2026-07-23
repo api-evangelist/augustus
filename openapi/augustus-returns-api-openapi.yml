@@ -1,0 +1,389 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Returns API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Returns
+paths:
+  /v1/returns:
+    get:
+      description: Lists deposit returns for the merchant with cursor-based pagination.
+      operationId: ReturnsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: status
+        required: false
+        in: query
+        description: Current status of the return.
+        schema:
+          type: string
+          enum:
+          - pending
+          - paid
+          - failed
+          - returned
+      - name: deposit_id
+        required: false
+        in: query
+        description: Filter returns belonging to this deposit.
+        schema:
+          format: uuid
+          type: string
+      - name: created_at.gte
+        required: false
+        in: query
+        description: Include returns whose created_at is greater than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      - name: created_at.lte
+        required: false
+        in: query
+        description: Include returns whose created_at is less than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          description: Paginated list of returns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReturnsResponseDto'
+      summary: List returns
+      tags:
+      - Returns
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const returnListResponse of client.returns.list()) {\n  console.log(returnListResponse.id);\n}"
+    post:
+      description: Initiates a return of funds from a deposit to the source.
+      operationId: ReturnsController_create
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Deposit to return and optional payment rail.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReturnBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResourceDto'
+      summary: Create return
+      tags:
+      - Returns
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst _return = await client.returns.create({ deposit_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' });\n\nconsole.log(_return.id);"
+  /v1/returns/{id}:
+    get:
+      description: Retrieves a return by ID.
+      operationId: ReturnsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the return.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The return resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResourceDto'
+      summary: Retrieve return
+      tags:
+      - Returns
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst _return = await client.returns.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(_return.id);"
+components:
+  schemas:
+    CreateReturnBodyDto:
+      type: object
+      properties:
+        deposit_id:
+          description: Deposit to return funds from.
+          type: string
+          format: uuid
+        rail:
+          description: Payment rail when the deposit allows multiple schemes.
+          type: string
+          enum:
+          - sepa_instant
+          - sepa
+          - faster_payments
+      required:
+      - deposit_id
+    ReturnResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the return.
+          type: string
+          format: uuid
+        type:
+          description: Type of the resource.
+          type: string
+          enum:
+          - return
+        status:
+          description: Current status of the return.
+          type: string
+          enum:
+          - pending
+          - paid
+          - failed
+          - returned
+        deposit_id:
+          description: ID of the parent deposit.
+          type: string
+          format: uuid
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Currency code (ISO 4217 currency code or crypto currency code).
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            code:
+              description: Failure code.
+              type: string
+              enum:
+              - account_closed
+              - account_blocked
+              - insufficient_funds
+              - invalid_account_format
+              - invalid_instruction
+              - invalid_amount
+              - invalid_time
+              - duplicate_transaction
+              - payee_verification_failed
+              - system_error
+              - provider_system_error
+              - rejected_by_correspondent_bank
+              - blocked_by_review
+              - unknown
+              x-enumNames:
+              - ACCOUNT_CLOSED
+              - ACCOUNT_BLOCKED
+              - INSUFFICIENT_FUNDS
+              - INVALID_ACCOUNT_FORMAT
+              - INVALID_INSTRUCTION
+              - INVALID_AMOUNT
+              - INVALID_TIME
+              - DUPLICATE_TRANSACTION
+              - PAYEE_VERIFICATION_FAILED
+              - SYSTEM_ERROR
+              - PROVIDER_SYSTEM_ERROR
+              - REJECTED_BY_CORRESPONDENT_BANK
+              - BLOCKED_BY_REVIEW
+              - UNKNOWN
+            message:
+              description: Human-readable description of the failure.
+              type: string
+            retry:
+              description: Whether the return can be retried.
+              type: boolean
+          required:
+          - code
+          - message
+          - retry
+          nullable: true
+        created_at:
+          description: ISO 8601 UTC timestamp when the return was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the return was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - status
+      - deposit_id
+      - amount
+      - currency
+      - failure
+      - created_at
+      - updated_at
+    ListReturnsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the return.
+                type: string
+                format: uuid
+              type:
+                description: Type of the resource.
+                type: string
+                enum:
+                - return
+              status:
+                description: Current status of the return.
+                type: string
+                enum:
+                - pending
+                - paid
+                - failed
+                - returned
+              deposit_id:
+                description: ID of the parent deposit.
+                type: string
+                format: uuid
+              amount:
+                description: Amount as a string decimal (e.g. "100.50").
+                type: string
+              currency:
+                description: Currency code (ISO 4217 currency code or crypto currency code).
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+              failure:
+                description: Failure details when status is failed, otherwise null.
+                type: object
+                properties:
+                  code:
+                    description: Failure code.
+                    type: string
+                    enum:
+                    - account_closed
+                    - account_blocked
+                    - insufficient_funds
+                    - invalid_account_format
+                    - invalid_instruction
+                    - invalid_amount
+                    - invalid_time
+                    - duplicate_transaction
+                    - payee_verification_failed
+                    - system_error
+                    - provider_system_error
+                    - rejected_by_correspondent_bank
+                    - blocked_by_review
+                    - unknown
+                    x-enumNames:
+                    - ACCOUNT_CLOSED
+                    - ACCOUNT_BLOCKED
+                    - INSUFFICIENT_FUNDS
+                    - INVALID_ACCOUNT_FORMAT
+                    - INVALID_INSTRUCTION
+                    - INVALID_AMOUNT
+                    - INVALID_TIME
+                    - DUPLICATE_TRANSACTION
+                    - PAYEE_VERIFICATION_FAILED
+                    - SYSTEM_ERROR
+                    - PROVIDER_SYSTEM_ERROR
+                    - REJECTED_BY_CORRESPONDENT_BANK
+                    - BLOCKED_BY_REVIEW
+                    - UNKNOWN
+                  message:
+                    description: Human-readable description of the failure.
+                    type: string
+                  retry:
+                    description: Whether the return can be retried.
+                    type: boolean
+                required:
+                - code
+                - message
+                - retry
+                nullable: true
+              created_at:
+                description: ISO 8601 UTC timestamp when the return was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the return was last updated.
+                type: string
+                format: date-time
+            required:
+            - id
+            - type
+            - status
+            - deposit_id
+            - amount
+            - currency
+            - failure
+            - created_at
+            - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

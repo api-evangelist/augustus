@@ -1,0 +1,95 @@
+generated: '2026-07-18'
+method: searched
+source:
+- https://docs.augustus.com/v1/introduction
+- https://docs.augustus.com/reference/idempotency
+- https://docs.augustus.com/v1/pagination
+- https://docs.augustus.com/v1/versioning
+- https://docs.augustus.com/v1/errors
+- https://docs.augustus.com/reference/metadata
+description: >-
+  Cross-cutting request/response semantics for the Augustus / Ivy APIs, captured
+  from the developer docs and the OpenAPI. Covers authentication, idempotency,
+  pagination, versioning, metadata, request tracing, and the error envelope.
+authentication:
+  style: Scoped bearer API keys
+  banking_api: 'Authorization: Bearer {api_key} (keys prefixed sandbox./prod.)'
+  ivy_api: 'X-Ivy-Api-Key: {api_key}'
+  transport: HTTPS required
+  reference: authentication/augustus-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  applies_to: Mutating POST requests
+  key_format: UUID v4 or any string up to 255 characters, unique per operation
+  scope: Scoped to the merchant account
+  behavior: >-
+    Re-sending the same key with identical parameters returns the cached response
+    without re-executing. Reuse with different parameters returns a 409
+    idempotency_key_already_used; a concurrent request with the same key returns
+    409 request_in_progress.
+  optional: true
+  sdk_note: The Node SDK auto-generates a UUID v4 idempotency key for every covered POST.
+  covered_endpoints:
+  - POST /api/service/beneficiary-payout/create
+  - POST /api/service/checkout/session/create
+  - POST /api/service/checkout/session/expire
+  - POST /api/service/customer/create
+  - POST /api/service/customer/delete
+  - POST /api/service/customer/update
+  - POST /api/service/fx/execute
+  - POST /api/service/order/create
+  - POST /api/service/order/expire
+  - POST /api/service/payout/create
+  - POST /api/service/refund/create
+  - POST /api/service/subaccount/create
+  - POST /api/service/webhook-subscription/create
+  - POST /api/service/webhook-subscription/delete
+  - POST /api/service/webhook-subscription/update
+  deprecated: >-
+    POST /api/service/fx/execute previously accepted an idempotencyKey body field
+    (still works, deprecated) — use the Idempotency-Key header instead.
+pagination:
+  style: cursor
+  order: created_at descending (newest first)
+  request_param: cursor
+  response_fields:
+    data: array of resource objects
+    has_more: boolean, whether more results exist beyond this page
+    next_cursor: opaque cursor for the next page, null when has_more is false
+  errors:
+  - invalid_cursor
+  - cursor_mismatch
+versioning:
+  scheme: date-based
+  banking_api_header: api-version
+  ivy_api_header: X-Ivy-Version
+  current: '2026-05-01'
+  response_echo: Every /v1/* response echoes the resolved api-version header
+  additive_unversioned: New fields, enum values and endpoints ship immediately
+  reference: lifecycle/augustus-lifecycle.yml
+metadata:
+  supported: true
+  max_keys: 50
+  max_key_length: 40
+  max_value_length: 500
+  note: >-
+    Arbitrary key-value data on most updatable objects; not used for processing
+    logic. Do not store sensitive data. Metadata transfers from a Checkout
+    Session to the resulting Order on successful payment.
+request_tracing:
+  header: Correlation-Id
+  returned_on: all responses (and in error bodies as correlation_id)
+error_envelope:
+  format: Flat JSON (not RFC 9457 problem+json)
+  fields:
+  - category
+  - code
+  - message
+  - param
+  - doc_url
+  - correlation_id
+  branch_on: code (never parse message)
+  reference: errors/augustus-error-codes.yml
+rate_limiting:
+  signal: 429 rate_limit_exceeded (category rate_limit_error)

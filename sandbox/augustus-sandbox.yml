@@ -1,0 +1,44 @@
+generated: '2026-07-18'
+method: searched
+source:
+- https://docs.augustus.com/docs/basics/test-mode-sandbox
+- https://docs.augustus.com/v1/authentication
+- https://docs.augustus.com/reference/authentication
+docs:
+- https://docs.augustus.com/docs/basics/test-mode-sandbox
+- https://docs.augustus.com/docs/payin/instant-bank-transfer/test-your-integration
+description: >-
+  Augustus Test Mode lets developers exercise the integration without moving real
+  money. Test and Live are fully isolated: objects created in one mode are not
+  accessible in the other. The mode is determined by the API key and base URL,
+  not by any code toggle. No real test-card values are published — Open Banking
+  flows are simulated from the Dashboard Sandbox Tools.
+modes:
+- name: test
+  key_prefix: sandbox.
+  base_urls:
+    banking_api: https://api.sandbox.augustus.com
+    ivy_api: https://api.sand.getivy.de
+  notes: Payments are not processed; success and error scenarios are simulated from the Dashboard.
+- name: live
+  key_prefix: prod.
+  base_urls:
+    banking_api: https://api.augustus.com
+    ivy_api: https://api.getivy.de
+  notes: Real bank accounts, real payment authorizations and flows.
+key_format:
+  banking_api: Environment-prefixed bearer keys (sandbox., prod.), otherwise opaque
+  ivy_api: X-Ivy-Api-Key managed in the Dashboard
+isolation: Test Mode and Live Mode objects are never shared (e.g. a test order cannot be used in a live payment).
+simulation:
+  where: Augustus Dashboard > Sandbox Tools tab
+  capabilities:
+  - Simulate success and error payment scenarios
+  - Simulate payout scenarios
+  webhook_test:
+  - Trigger a ping.test event via the send-test-event endpoint / webhook-subscription ping
+test_values:
+  note: >-
+    Augustus does not publish static magic test card/IBAN values; Open Banking
+    test flows are driven interactively via Dashboard Sandbox Tools. No test
+    values are invented here.

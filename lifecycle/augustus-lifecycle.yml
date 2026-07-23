@@ -1,0 +1,46 @@
+generated: '2026-07-18'
+method: searched
+source:
+- https://docs.augustus.com/v1/versioning
+- https://docs.augustus.com/reference/api-versions
+- https://status.getivy.io
+description: >-
+  Versioning, deprecation, and operational-transparency posture for the Augustus
+  / Ivy APIs. Date-based versioning; previous versions supported at least 24
+  months after a new version releases.
+versioning:
+  scheme: date-based
+  current: '2026-05-01'
+  banking_api_header: api-version
+  ivy_api_header: X-Ivy-Version
+  versions:
+  - version: '2023-01-01'
+    label: Ivy API
+    status: active
+  - version: '2026-05-01'
+    label: Augustus Banking API
+    status: latest
+  additive_unversioned: New fields, enum values, endpoints, and headers ship immediately (not versioned)
+  docs: https://docs.augustus.com/v1/versioning
+deprecation:
+  policy_url: https://docs.augustus.com/v1/versioning
+  support_window: Previous API version supported for at least 24 months after a new version releases
+  breaking_changes:
+  - Removing an endpoint
+  - Removing or renaming a parameter or response field
+  - Adding a new required parameter
+  - Making an optional parameter required
+  - Changing a parameter/response field type
+  - Removing enum values
+  - Adding a new validation rule to an existing parameter
+  - Changing authentication or authorization requirements
+  field_level_deprecation:
+  - 'errors.devMessage (Ivy API): deprecated'
+  - 'errors.statusCode (Ivy API): deprecated'
+  - 'errors.data (Ivy API): deprecated'
+  - 'fx/execute idempotencyKey body field: deprecated in favor of Idempotency-Key header'
+status_page:
+  url: https://status.getivy.io
+  provider: Better Stack
+sla:
+  note: Not publicly published

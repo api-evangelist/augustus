@@ -1,0 +1,85 @@
+generated: '2026-07-18'
+method: derived
+source: openapi/augustus-openapi-original.yml
+docs: https://docs.augustus.com/v1/introduction
+description: >-
+  Entity-relationship model for the Augustus Banking API (2026-05-01), derived
+  from the OpenAPI component schemas and id-reference fields (e.g. a payout
+  references its source_account_id). All resources are identified by UUIDs and
+  carry created_at / updated_at; most updatable objects carry a metadata map.
+entities:
+- name: account_program
+  schema: AccountProgramResourceDto
+  description: A program grouping virtual accounts; exposes an aggregated balance.
+- name: account
+  schema: AccountResourceDto
+  description: Holds fiat and stablecoin funds; can be created, frozen, unfrozen, and closed.
+  relationships:
+  - type: belongs_to
+    target: account_program
+    via: account_program_id
+- name: balance
+  schema: AccountBalanceResourceDto
+  description: Available balance for an account or account program, broken down by currency.
+  relationships:
+  - type: belongs_to
+    target: account
+    via: account_id
+- name: payout
+  schema: PayoutResourceDto
+  description: Outgoing payment to a beneficiary (IBAN/BIC, sort code, ABA, or crypto wallet).
+  relationships:
+  - type: belongs_to
+    target: account
+    via: source_account_id
+- name: deposit
+  schema: DepositResourceDto
+  description: Incoming fiat or crypto transfer received into an account.
+  relationships:
+  - type: belongs_to
+    target: account
+    via: account_id
+- name: return
+  schema: ReturnResourceDto
+  description: A return of funds from a deposit back to the source.
+  relationships:
+  - type: belongs_to
+    target: deposit
+    via: deposit_id
+- name: conversion
+  schema: ConversionResourceDto
+  description: An executed FX conversion between currencies.
+- name: quote
+  schema: RetrieveQuoteResponseDto
+  description: A persisted or indicative FX quote for a currency pair.
+- name: api_key
+  schema: ApiKeyResourceDto
+  description: The authenticating API key resource, with its scopes and authorization context.
+- name: webhook_subscription
+  schema: WebhookSubscriptionResourceDto
+  description: An HTTPS endpoint plus the list of event types it receives.
+- name: webhook_delivery
+  schema: WebhookDeliveryResourceDto
+  description: A single delivery attempt of an event to a subscription, replayable.
+  relationships:
+  - type: belongs_to
+    target: webhook_subscription
+    via: subscription_id
+  - type: belongs_to
+    target: event
+    via: event_id
+- name: event
+  schema: EventResourceDto
+  description: A resource.action webhook event whose payload snapshots the underlying resource. Retained 30 days.
+financial_address_types:
+- IbanFinancialAddress
+- SortCodeFinancialAddress
+- AbaFinancialAddress
+- CryptoWalletFinancialAddress
+conventions:
+  id_format: UUID
+  common_fields:
+  - id
+  - created_at
+  - updated_at
+  - metadata

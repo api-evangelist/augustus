@@ -1,0 +1,93 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs API Versions API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: API Versions
+paths:
+  /v1/api_versions:
+    get:
+      description: 'Returns the catalogue of publicly available Augustus Banking API versions, ordered oldest to newest. New accounts and unpinned merchants resolve to the entry with `is_latest: true`. Public: no authentication required.'
+      operationId: ApiVersionsController_list
+      parameters: []
+      responses:
+        '200':
+          description: API version catalogue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApiVersionsResponseDto'
+      summary: List API versions
+      tags:
+      - API Versions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst apiVersions = await client.apiVersions.list();\n\nconsole.log(apiVersions.data);"
+components:
+  schemas:
+    ListApiVersionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - api_version
+              name:
+                description: Version identifier as sent in the `api-version` request header.
+                type: string
+              released_at:
+                description: When this version became publicly available, ISO 8601 UTC.
+                type: string
+                format: date-time
+              is_latest:
+                description: True for the most recently published version. New accounts and unpinned merchants resolve to this version.
+                type: boolean
+              deprecated_at:
+                description: When this version was marked deprecated, ISO 8601 UTC. Null if not deprecated.
+                type: string
+                format: date-time
+                nullable: true
+              sunset_at:
+                description: When this version will stop being served, ISO 8601 UTC. Null if no sunset is scheduled.
+                type: string
+                format: date-time
+                nullable: true
+            required:
+            - type
+            - name
+            - released_at
+            - is_latest
+            - deprecated_at
+            - sunset_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

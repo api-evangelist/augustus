@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs API Key API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: API Key
+paths:
+  /v1/api_key:
+    get:
+      description: Returns the API key resource for the key authenticating this request. Useful for verifying which key is in use and discovering its current authorization context without inferring it from rejected requests.
+      operationId: ApiKeyController_introspect
+      parameters: []
+      responses:
+        '200':
+          description: The authenticated API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResourceDto'
+      summary: Introspect current API key
+      tags:
+      - API Key
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.apiKeys.introspect();\n\nconsole.log(response.id);"
+components:
+  schemas:
+    ApiKeyResourceDto:
+      type: object
+      properties:
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - api_key
+        id:
+          description: Unique identifier of the API key.
+          type: string
+        merchant_id:
+          description: Identifier of the merchant the key belongs to.
+          type: string
+        scopes:
+          description: The effective set of scopes for this key. Stored aliases (e.g. `full_access`, `read_only`) are always expanded to concrete `resource:action` scopes against the current registry before they appear here.
+          type: array
+          items:
+            type: string
+            enum:
+            - payouts:read
+            - payouts:write
+            - deposits:read
+            - returns:read
+            - returns:write
+            - conversions:read
+            - conversions:write
+            - quotes:read
+            - accounts:read
+            - accounts:write
+            - account_programs:read
+            - webhook_subscriptions:read
+            - webhook_subscriptions:write
+            - events:read
+            - webhook_deliveries:read
+            - webhook_deliveries:write
+        ip_allow_list:
+          description: IP addresses or CIDR ranges this key is permitted to authenticate from. An empty array means the key is not IP-restricted.
+          type: array
+          items:
+            type: string
+        expires_at:
+          description: ISO 8601 UTC timestamp at which this key expires. `null` if the key has no expiry.
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          description: ISO 8601 UTC timestamp at which this key was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp of the last update to this key (e.g. roll, IP allowlist change, revoke). `null` if the key has not been updated since creation.
+          type: string
+          format: date-time
+          nullable: true
+        api_version:
+          description: Effective API version for the request (header value or merchant pin).
+          type: string
+      required:
+      - type
+      - id
+      - merchant_id
+      - scopes
+      - ip_allow_list
+      - expires_at
+      - created_at
+      - updated_at
+      - api_version
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

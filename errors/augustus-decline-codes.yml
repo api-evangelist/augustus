@@ -1,0 +1,74 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.augustus.com/docs/payin/instant-bank-transfer/failure-reasons
+docs: https://docs.augustus.com/docs/payin/instant-bank-transfer/failure-reasons
+description: >-
+  Open Banking payment failure classifications for the Ivy / Augustus pay-in
+  flow. When an order_updated webhook fires with a failed or canceled status, the
+  payload carries a two-level statusClassification { primary, secondary }. This
+  is the Open-Banking analogue of card decline codes; it complements the
+  API-level error registry in errors/augustus-error-codes.yml.
+envelope_field: statusClassification
+envelope_shape:
+  primary: Broad failure category (one of three)
+  secondary: Specific reason within the category
+emitted_on: order_updated webhook event with failed or canceled status
+primary_classifications:
+- code: payment_authorization_failed
+  meaning: Rejected during the authorization phase, typically due to user action or bank restrictions.
+  scenarios:
+  - User rejected or cancelled the payment in their bank app
+  - User input the wrong credentials with their bank
+  - User's account has restrictions preventing instant transfers
+- code: payment_execution_failed
+  meaning: Authorized but failed during execution, usually technical or account-related.
+  scenarios:
+  - Insufficient funds in the account
+  - Account limits exceeded
+  - International transfer blocked by the bank
+  - Payment rejected by the bank
+  - Bank system errors or maintenance
+  - Payment not settled within the required timeframe
+- code: payment_abandoned
+  meaning: Started but never completed, often due to user inaction.
+  scenarios:
+  - User closed the browser/app during payment
+  - Session timed out before completion
+  - User cancelled the payment bank-side
+secondary_classifications:
+- code: wrong_credentials
+  description: User entered incorrect bank credentials during authentication
+- code: incorrect_2fa_response
+  description: User provided incorrect two-factor authentication response
+- code: pin_blocked
+  description: User's PIN is blocked, e.g. after multiple failed attempts
+- code: no_active_tan_methods_available
+  description: No active TAN (Transaction Authentication Number) methods available
+- code: timeout
+  description: The payment request timed out due to slow response from bank systems
+- code: connection_to_bank_failed
+  description: The user's bank is not responding to the payment request
+- code: bank_error
+  description: The bank's system returned an error during processing
+- code: bank_under_maintenance
+  description: The user's bank is currently under maintenance
+- code: insufficient_funds
+  description: The user's account has insufficient funds for the payment
+- code: account_limit_exceeded
+  description: The payment exceeds the user's account transfer limits
+- code: international_transfer_blocked
+  description: International transfers are blocked for this account
+- code: international_transfer_limit_exceeded
+  description: The payment exceeds international transfer limits
+- code: instant_transfers_not_enabled
+  description: Instant transfers are not enabled for this account
+- code: user_blocked
+  description: The user's account is blocked or restricted
+- code: unsupported_bank_account
+  description: The bank account type is not supported for the requested transfer
+- code: payment_rejected
+  description: The payment was explicitly rejected by the bank
+- code: cancelled
+  description: The payment was cancelled by the user or bank
+- code: payment_not_settled
+  description: The payment was not settled within the required timeframe

@@ -1,0 +1,46 @@
+generated: '2026-07-18'
+method: derived
+source:
+- openapi/augustus-openapi-original.yml
+- https://docs.augustus.com/reference/idempotency
+- https://docs.augustus.com/v1/pagination
+- https://docs.augustus.com/v1/versioning
+- https://www.getivy.io/product/payments
+description: >-
+  Cross-cutting standards posture for the Augustus / Ivy APIs, derived from the
+  OpenAPI and developer docs plus documented Open Banking / PSD2 payment flows.
+  No SOC 2 / ISO 27001 / PCI trust-center certifications were found published, so
+  no Compliance pointer is asserted.
+standards:
+- id: psd2-open-banking
+  conforms: true
+  evidence: >-
+    Ivy Open Banking pay-ins are authenticated directly by the customer's bank
+    using PSD2-compliant flows (docs + product pages).
+- id: idempotency-key
+  conforms: true
+  evidence: Mutating POSTs accept an Idempotency-Key header (reference/idempotency).
+- id: cursor-pagination
+  conforms: true
+  evidence: List endpoints use cursor-based pagination with has_more / next_cursor (v1/pagination).
+- id: date-based-versioning
+  conforms: true
+  evidence: api-version / X-Ivy-Version date headers with a 24-month support window.
+- id: oauth2
+  conforms: false
+  evidence: Authentication is scoped bearer API keys, not OAuth 2.0.
+- id: openid-connect
+  conforms: false
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: Errors return a flat JSON envelope, not application/problem+json.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset/Deprecation header support documented; deprecation is version-window based.
+- id: webhooks
+  conforms: true
+  evidence: Signed webhook subscriptions/deliveries with resource.action events (v1/webhooks).
+- id: fapi
+  conforms: false
+- id: fhir
+  conforms: false

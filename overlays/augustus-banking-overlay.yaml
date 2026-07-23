@@ -1,0 +1,33 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Augustus Banking API
+  version: 1.0.0
+extends: openapi/augustus-openapi-original.yml
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: augustus
+    x-apievangelist-formerly: Ivy (getivy.io)
+    x-apievangelist-generation: '2026-05-01'
+    x-apievangelist-idempotency:
+      supported: true
+      header: Idempotency-Key
+      scope: merchant-account
+    x-apievangelist-pagination:
+      style: cursor
+      response_fields: [data, has_more, next_cursor]
+    x-apievangelist-versioning:
+      scheme: date-based
+      header: api-version
+      current: '2026-05-01'
+    x-apievangelist-request-id-header: Correlation-Id
+    x-apievangelist-error-envelope:
+      format: flat-json
+      fields: [category, code, message, param, doc_url, correlation_id]
+    x-apievangelist-status-page: https://status.getivy.io
+    x-apievangelist-docs: https://docs.augustus.com
+- target: $.components.securitySchemes.BearerAuth
+  update:
+    x-apievangelist-key-prefixes: [sandbox., prod.]
+    x-apievangelist-scopes-endpoint: GET /v1/scopes
+    x-apievangelist-scopes-doc: scopes/augustus-scopes.yml

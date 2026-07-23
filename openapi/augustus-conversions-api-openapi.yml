@@ -1,0 +1,399 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Conversions API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Conversions
+paths:
+  /v1/conversions:
+    get:
+      description: Returns a paginated list of conversions.
+      operationId: ConversionsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: status
+        required: false
+        in: query
+        description: Filter by conversion status.
+        schema:
+          type: string
+          enum:
+          - pending
+          - completed
+          - failed
+      - name: source_currency
+        required: false
+        in: query
+        description: Filter by source currency code.
+        schema:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+      - name: target_currency
+        required: false
+        in: query
+        description: Filter by target currency code.
+        schema:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+      responses:
+        '200':
+          description: List of conversions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConversionsResponseDto'
+      summary: List conversions
+      tags:
+      - Conversions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const conversionListResponse of client.conversions.list()) {\n  console.log(conversionListResponse.id);\n}"
+    post:
+      description: Creates and executes a conversion.
+      operationId: ConversionsController_create
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Conversion parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversionBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResourceDto'
+      summary: Create conversion
+      tags:
+      - Conversions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst conversion = await client.conversions.create({\n  source_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n  source_amount: '321669910225',\n  target_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n});\n\nconsole.log(conversion.id);"
+  /v1/conversions/{id}:
+    get:
+      description: Retrieves a conversion by ID.
+      operationId: ConversionsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the conversion.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The conversion resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResourceDto'
+      summary: Retrieve conversion
+      tags:
+      - Conversions
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst conversion = await client.conversions.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(conversion.id);"
+components:
+  schemas:
+    ConversionResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the conversion.
+          type: string
+          format: uuid
+        quote_id:
+          description: ID of the associated quote, or null.
+          type: string
+          format: uuid
+          nullable: true
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - conversion
+        status:
+          description: Current status of the conversion.
+          type: string
+          enum:
+          - pending
+          - completed
+          - failed
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        source_account_id:
+          description: ID of the source account, or null.
+          type: string
+          nullable: true
+        target_account_id:
+          description: ID of the target account, or null.
+          type: string
+          nullable: true
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            message:
+              description: Human-readable description of the failure.
+              type: string
+          required:
+          - message
+          nullable: true
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the conversion was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the conversion was last updated.
+          type: string
+          format: date-time
+        completed_at:
+          description: ISO 8601 UTC timestamp when the conversion completed, or null.
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - quote_id
+      - type
+      - status
+      - source_amount
+      - source_currency
+      - target_currency
+      - source_account_id
+      - target_account_id
+      - failure
+      - metadata
+      - created_at
+      - updated_at
+      - completed_at
+    ListConversionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the conversion.
+                type: string
+                format: uuid
+              quote_id:
+                description: ID of the associated quote, or null.
+                type: string
+                format: uuid
+                nullable: true
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - conversion
+              status:
+                description: Current status of the conversion.
+                type: string
+                enum:
+                - pending
+                - completed
+                - failed
+              source_amount:
+                description: Source amount as a string decimal.
+                type: string
+              source_currency:
+                description: Source currency code.
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+              target_currency:
+                description: Target currency code.
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+              source_account_id:
+                description: ID of the source account, or null.
+                type: string
+                nullable: true
+              target_account_id:
+                description: ID of the target account, or null.
+                type: string
+                nullable: true
+              failure:
+                description: Failure details when status is failed, otherwise null.
+                type: object
+                properties:
+                  message:
+                    description: Human-readable description of the failure.
+                    type: string
+                required:
+                - message
+                nullable: true
+              metadata:
+                description: Key-value pairs stored with the conversion.
+                type: object
+                additionalProperties:
+                  type: string
+              created_at:
+                description: ISO 8601 UTC timestamp when the conversion was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the conversion was last updated.
+                type: string
+                format: date-time
+              completed_at:
+                description: ISO 8601 UTC timestamp when the conversion completed, or null.
+                type: string
+                format: date-time
+                nullable: true
+            required:
+            - id
+            - quote_id
+            - type
+            - status
+            - source_amount
+            - source_currency
+            - target_currency
+            - source_account_id
+            - target_account_id
+            - failure
+            - metadata
+            - created_at
+            - updated_at
+            - completed_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+    CreateConversionBodyDto:
+      type: object
+      properties:
+        source_account_id:
+          description: ID of the source account to debit.
+          type: string
+          format: uuid
+        target_account_id:
+          description: ID of the target account to credit.
+          type: string
+          format: uuid
+        source_amount:
+          description: Amount to convert as a string decimal (e.g. "100.50").
+          type: string
+          pattern: ^\d+(\.\d+)?$
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - source_account_id
+      - target_account_id
+      - source_amount
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

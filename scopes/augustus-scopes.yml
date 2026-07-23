@@ -1,0 +1,64 @@
+generated: '2026-07-18'
+method: searched
+source: https://docs.augustus.com/v1/scopes
+docs: https://docs.augustus.com/v1/scopes
+note: >-
+  Augustus does not use OAuth. Scopes gate scoped bearer API keys (not OAuth
+  access tokens). Every API key carries one or more scopes of the shape
+  resource:action, enforced on every request. GET /v1/scopes is the live,
+  public (no-auth) source of truth, filtered by the request's api-version
+  header. A 403 insufficient_scope response carries a required_scopes array.
+catalogue_endpoint: GET /v1/scopes
+scope_shape: 'resource:action'
+actions:
+- read
+- write
+scopes:
+- scope: payouts:read
+  description: View payouts and their status
+- scope: payouts:write
+  description: Initiate and manage payouts
+- scope: deposits:read
+  description: View deposits
+- scope: returns:read
+  description: View deposit returns
+- scope: returns:write
+  description: Initiate deposit returns
+- scope: conversions:read
+  description: View FX conversions
+- scope: conversions:write
+  description: Initiate FX conversions
+- scope: quotes:read
+  description: View FX quotes (persisted and indicative)
+- scope: accounts:read
+  description: View accounts and holders
+- scope: accounts:write
+  description: Create and manage accounts
+- scope: account_programs:read
+  description: View account programs and their lifecycle status
+- scope: webhook_subscriptions:read
+  description: View webhook subscriptions
+- scope: webhook_subscriptions:write
+  description: Create, modify, and delete webhook subscriptions; send test events
+- scope: events:read
+  description: View webhook events and their payloads
+- scope: webhook_deliveries:read
+  description: View webhook delivery history and outcomes
+- scope: webhook_deliveries:write
+  description: Redeliver webhook deliveries
+aliases:
+- alias: full_access
+  expands_to: Every scope in the catalogue (auto-gains scopes added later)
+- alias: read_only
+  expands_to: Every :read scope
+- alias: '*:read'
+  expands_to: Every :read scope
+- alias: '<resource>:*'
+  expands_to: Every action for a resource (e.g. payouts:*)
+recommended_sets:
+- use_case: Server-side payouts integration
+  scopes: payouts:* events:read webhook_subscriptions:write webhook_deliveries:read
+- use_case: Read-only BI / analytics
+  scopes: read_only
+- use_case: Webhook receiver only
+  scopes: events:read webhook_deliveries:*

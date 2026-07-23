@@ -1,0 +1,517 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Deposits API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Deposits
+paths:
+  /v1/deposits/{id}:
+    get:
+      description: Retrieves a deposit by ID.
+      operationId: DepositsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the deposit.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The deposit resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositResourceDto'
+      summary: Retrieve deposit
+      tags:
+      - Deposits
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst deposit = await client.deposits.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(deposit.id);"
+  /v1/deposits:
+    get:
+      description: Lists deposits for the merchant with cursor-based pagination.
+      operationId: DepositsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: status
+        required: false
+        in: query
+        description: Filter by deposit status.
+        schema:
+          type: string
+          enum:
+          - received
+          - in_return
+          - returned
+          - return_failed
+          - return_returned
+      - name: created_at.gte
+        required: false
+        in: query
+        description: Include deposits whose created_at is greater than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      - name: created_at.lte
+        required: false
+        in: query
+        description: Include deposits whose created_at is less than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          description: Paginated list of deposits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDepositsResponseDto'
+      summary: List deposits
+      tags:
+      - Deposits
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const depositListResponse of client.deposits.list()) {\n  console.log(depositListResponse.id);\n}"
+components:
+  schemas:
+    ListDepositsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the deposit.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - deposit
+              status:
+                description: Current status of the deposit.
+                type: string
+                enum:
+                - received
+                - in_return
+                - returned
+                - return_failed
+                - return_returned
+              amount:
+                description: Amount as a string decimal (e.g. "100.50").
+                type: string
+              currency:
+                description: Supported fiat or crypto currency code for the deposit amount.
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+              source:
+                description: Counterparty bank account or crypto wallet that sent the funds.
+                oneOf:
+                - type: object
+                  properties:
+                    type:
+                      description: Discriminator for IBAN source.
+                      type: string
+                      enum:
+                      - iban
+                    iban:
+                      description: International Bank Account Number.
+                      type: string
+                    account_holder_name:
+                      description: Name of the account holder.
+                      type: string
+                    bic:
+                      description: Bank Identifier Code, or null if not provided.
+                      type: string
+                      nullable: true
+                  required:
+                  - type
+                  - iban
+                  - account_holder_name
+                  - bic
+                - type: object
+                  properties:
+                    type:
+                      description: Discriminator for UK sort code source.
+                      type: string
+                      enum:
+                      - sort_code
+                    sort_code:
+                      description: UK sort code (6 digits).
+                      type: string
+                    account_number:
+                      description: UK account number (8 digits).
+                      type: string
+                    account_holder_name:
+                      description: Name of the account holder.
+                      type: string
+                  required:
+                  - type
+                  - sort_code
+                  - account_number
+                  - account_holder_name
+                - type: object
+                  properties:
+                    type:
+                      description: Discriminator for ABA wire source.
+                      type: string
+                      enum:
+                      - aba
+                    routing_number:
+                      description: ABA routing number (9 digits).
+                      type: string
+                    account_number:
+                      description: Bank account number.
+                      type: string
+                    account_holder_name:
+                      description: Name of the account holder.
+                      type: string
+                  required:
+                  - type
+                  - routing_number
+                  - account_number
+                  - account_holder_name
+                - type: object
+                  properties:
+                    type:
+                      description: Discriminator for crypto wallet source.
+                      type: string
+                      enum:
+                      - crypto_wallet
+                    address:
+                      description: Wallet address on the specified blockchain.
+                      type: string
+                    blockchain:
+                      description: Blockchain network for the crypto wallet.
+                      type: string
+                      enum:
+                      - bitcoin
+                      - ethereum
+                      - solana
+                      - polygon
+                      - bitcoin_testnet4
+                      - ethereum_sepolia
+                      - solana_devnet
+                      - polygon_amoy
+                  required:
+                  - type
+                  - address
+                  - blockchain
+              destination_account_id:
+                description: ID of the merchant account that received the deposit.
+                type: string
+                format: uuid
+              bank_statement_reference:
+                description: Reference visible on the bank statement, or null when not applicable.
+                type: string
+                nullable: true
+              rail:
+                description: Payment rail or blockchain used for the deposit.
+                type: string
+                enum:
+                - sepa_instant
+                - faster_payments
+                - sepa
+                - elixir
+                - express_elixir
+                - sek_account_to_account
+                - sumclearing
+                - straksclearing
+                - swift
+                - internal
+                - target
+                - ach
+                - fedwire
+                - btc
+                - btc_testnet4
+                - eth
+                - eth_sepolia
+                - sol
+                - sol_devnet
+                - matic
+                - matic_amoy
+                nullable: true
+              tx_hash:
+                description: Transaction hash for crypto deposits, or null when not known.
+                type: string
+                nullable: true
+              returns:
+                description: Array of deposit return IDs associated with this deposit.
+                type: array
+                items:
+                  type: string
+                  format: uuid
+              created_at:
+                description: ISO 8601 UTC timestamp when the deposit was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the deposit was last updated.
+                type: string
+                format: date-time
+            required:
+            - id
+            - type
+            - status
+            - amount
+            - currency
+            - source
+            - destination_account_id
+            - bank_statement_reference
+            - rail
+            - tx_hash
+            - returns
+            - created_at
+            - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+    DepositResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the deposit.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - deposit
+        status:
+          description: Current status of the deposit.
+          type: string
+          enum:
+          - received
+          - in_return
+          - returned
+          - return_failed
+          - return_returned
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Supported fiat or crypto currency code for the deposit amount.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        source:
+          description: Counterparty bank account or crypto wallet that sent the funds.
+          oneOf:
+          - type: object
+            properties:
+              type:
+                description: Discriminator for IBAN source.
+                type: string
+                enum:
+                - iban
+              iban:
+                description: International Bank Account Number.
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+              bic:
+                description: Bank Identifier Code, or null if not provided.
+                type: string
+                nullable: true
+            required:
+            - type
+            - iban
+            - account_holder_name
+            - bic
+          - type: object
+            properties:
+              type:
+                description: Discriminator for UK sort code source.
+                type: string
+                enum:
+                - sort_code
+              sort_code:
+                description: UK sort code (6 digits).
+                type: string
+              account_number:
+                description: UK account number (8 digits).
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+            required:
+            - type
+            - sort_code
+            - account_number
+            - account_holder_name
+          - type: object
+            properties:
+              type:
+                description: Discriminator for ABA wire source.
+                type: string
+                enum:
+                - aba
+              routing_number:
+                description: ABA routing number (9 digits).
+                type: string
+              account_number:
+                description: Bank account number.
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+            required:
+            - type
+            - routing_number
+            - account_number
+            - account_holder_name
+          - type: object
+            properties:
+              type:
+                description: Discriminator for crypto wallet source.
+                type: string
+                enum:
+                - crypto_wallet
+              address:
+                description: Wallet address on the specified blockchain.
+                type: string
+              blockchain:
+                description: Blockchain network for the crypto wallet.
+                type: string
+                enum:
+                - bitcoin
+                - ethereum
+                - solana
+                - polygon
+                - bitcoin_testnet4
+                - ethereum_sepolia
+                - solana_devnet
+                - polygon_amoy
+            required:
+            - type
+            - address
+            - blockchain
+        destination_account_id:
+          description: ID of the merchant account that received the deposit.
+          type: string
+          format: uuid
+        bank_statement_reference:
+          description: Reference visible on the bank statement, or null when not applicable.
+          type: string
+          nullable: true
+        rail:
+          description: Payment rail or blockchain used for the deposit.
+          type: string
+          enum:
+          - sepa_instant
+          - faster_payments
+          - sepa
+          - elixir
+          - express_elixir
+          - sek_account_to_account
+          - sumclearing
+          - straksclearing
+          - swift
+          - internal
+          - target
+          - ach
+          - fedwire
+          - btc
+          - btc_testnet4
+          - eth
+          - eth_sepolia
+          - sol
+          - sol_devnet
+          - matic
+          - matic_amoy
+          nullable: true
+        tx_hash:
+          description: Transaction hash for crypto deposits, or null when not known.
+          type: string
+          nullable: true
+        returns:
+          description: Array of deposit return IDs associated with this deposit.
+          type: array
+          items:
+            type: string
+            format: uuid
+        created_at:
+          description: ISO 8601 UTC timestamp when the deposit was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the deposit was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - status
+      - amount
+      - currency
+      - source
+      - destination_account_id
+      - bank_statement_reference
+      - rail
+      - tx_hash
+      - returns
+      - created_at
+      - updated_at
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

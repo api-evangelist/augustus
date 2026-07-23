@@ -1,0 +1,5813 @@
+openapi: 3.1.0
+paths:
+  /v1/account_programs:
+    get:
+      description: Lists account programs for the merchant with cursor-based pagination.
+      operationId: AccountProgramsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list of account programs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAccountProgramsResponseDto'
+      summary: List account programs
+      tags:
+        - Account Programs
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            // Automatically fetches more pages as needed.
+
+            for await (const accountProgramListResponse of
+            client.accountPrograms.list()) {
+              console.log(accountProgramListResponse.id);
+            }
+  /v1/account_programs/{id}/balance:
+    get:
+      description: >-
+        Returns the aggregated available balance for all virtual accounts under
+        the account program.
+      operationId: AccountProgramsController_retrieveBalance
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account program.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: Account program balance snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProgramBalanceResourceDto'
+      summary: Retrieve account program balance
+      tags:
+        - Account Programs
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const response = await client.accountPrograms.retrieveBalance(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+            console.log(response.id);
+  /v1/account_programs/{id}:
+    get:
+      description: Retrieves an account program by ID.
+      operationId: AccountProgramsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account program.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The account program resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProgramResourceDto'
+      summary: Retrieve account program
+      tags:
+        - Account Programs
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const accountProgram = await client.accountPrograms.retrieve(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+            console.log(accountProgram.id);
+  /v1/accounts:
+    get:
+      description: Returns a paginated list of accounts.
+      operationId: AccountsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: account_number
+          required: false
+          in: query
+          description: >-
+            Filter by exact fiat account number. Crypto wallets are excluded
+            when set.
+          schema:
+            minLength: 1
+            type: string
+        - name: account_holder_name
+          required: false
+          in: query
+          description: >-
+            Filter by account holder name (case-insensitive phrase match).
+            Crypto wallets are excluded when set.
+          schema:
+            minLength: 1
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter by account status.
+          schema:
+            type: string
+            enum:
+              - pending
+              - active
+              - frozen
+        - name: parent_id
+          required: false
+          in: query
+          description: ID of the account program to list virtual accounts for.
+          schema:
+            format: uuid
+            pattern: >-
+              ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+            type: string
+      responses:
+        '200':
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAccountsResponseDto'
+      summary: List accounts
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            // Automatically fetches more pages as needed.
+            for await (const accountListResponse of client.accounts.list()) {
+              console.log(accountListResponse.id);
+            }
+    post:
+      description: Creates a new account.
+      operationId: AccountsController_create
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Account parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountBodyDto'
+      responses:
+        '200':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResourceDto'
+      summary: Create account
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const account = await client.accounts.create({
+              account_program_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+              account_type: 'virtual_account',
+              beneficiary_data: {
+                country_of_citizenship: 'US',
+                date_of_birth: '2019-12-27',
+                identification: { type: 'ssn', value: '732-66-9102' },
+                legal_name: 'x',
+                residential_address: {
+                  city: 'x',
+                  country: 'US',
+                  postal_code: 'x',
+                  state: 'xx',
+                  street_line_1: 'x',
+                },
+              },
+            });
+
+            console.log(account.id);
+  /v1/accounts/{id}:
+    get:
+      description: Retrieves an account by ID.
+      operationId: AccountsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account.
+          schema:
+            format: uuid
+            pattern: >-
+              ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+            type: string
+      responses:
+        '200':
+          description: The account resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResourceDto'
+      summary: Retrieve account
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const account = await
+            client.accounts.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(account.id);
+  /v1/accounts/{id}/balance:
+    get:
+      description: Retrieves the available balance for an account.
+      operationId: AccountsController_balance
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account.
+          schema:
+            format: uuid
+            pattern: >-
+              ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+            type: string
+      responses:
+        '200':
+          description: The account balance resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountBalanceResourceDto'
+      summary: Retrieve account balance
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const response = await
+            client.accounts.retrieveBalance('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(response.account_id);
+  /v1/accounts/{id}/freeze:
+    post:
+      description: Freezes an account
+      operationId: AccountsController_freeze
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account.
+          schema:
+            format: uuid
+            pattern: >-
+              ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account frozen successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResourceDto'
+      summary: Freeze account
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const response = await
+            client.accounts.freeze('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(response.id);
+  /v1/accounts/{id}/close:
+    post:
+      description: Closes an account
+      operationId: AccountsController_close
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account.
+          schema:
+            format: uuid
+            pattern: >-
+              ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Close account parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloseAccountBodyDto'
+      responses:
+        '200':
+          description: Account closed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResourceDto'
+      summary: Close account
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const response = await
+            client.accounts.close('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {
+              reason: 'aml_risk_fraud',
+            });
+
+
+            console.log(response.id);
+  /v1/accounts/{id}/unfreeze:
+    post:
+      description: Unfreezes an account
+      operationId: AccountsController_unfreeze
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the account.
+          schema:
+            format: uuid
+            pattern: >-
+              ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account unfrozen successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountResourceDto'
+      summary: Unfreeze account
+      tags:
+        - Accounts
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const response = await
+            client.accounts.unfreeze('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(response.id);
+  /v1/api_key:
+    get:
+      description: >-
+        Returns the API key resource for the key authenticating this request.
+        Useful for verifying which key is in use and discovering its current
+        authorization context without inferring it from rejected requests.
+      operationId: ApiKeyController_introspect
+      parameters: []
+      responses:
+        '200':
+          description: The authenticated API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResourceDto'
+      summary: Introspect current API key
+      tags:
+        - API Key
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const response = await client.apiKeys.introspect();
+
+            console.log(response.id);
+  /v1/api_versions:
+    get:
+      description: >-
+        Returns the catalogue of publicly available Augustus Banking API
+        versions, ordered oldest to newest. New accounts and unpinned merchants
+        resolve to the entry with `is_latest: true`. Public: no authentication
+        required.
+      operationId: ApiVersionsController_list
+      parameters: []
+      responses:
+        '200':
+          description: API version catalogue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListApiVersionsResponseDto'
+      summary: List API versions
+      tags:
+        - API Versions
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const apiVersions = await client.apiVersions.list();
+
+            console.log(apiVersions.data);
+  /v1/conversions:
+    get:
+      description: Returns a paginated list of conversions.
+      operationId: ConversionsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter by conversion status.
+          schema:
+            type: string
+            enum:
+              - pending
+              - completed
+              - failed
+        - name: source_currency
+          required: false
+          in: query
+          description: Filter by source currency code.
+          schema:
+            type: string
+            enum:
+              - EUR
+              - GBP
+              - USD
+              - USDC
+              - BTC
+              - ETH
+              - SOL
+              - POL
+        - name: target_currency
+          required: false
+          in: query
+          description: Filter by target currency code.
+          schema:
+            type: string
+            enum:
+              - EUR
+              - GBP
+              - USD
+              - USDC
+              - BTC
+              - ETH
+              - SOL
+              - POL
+      responses:
+        '200':
+          description: List of conversions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListConversionsResponseDto'
+      summary: List conversions
+      tags:
+        - Conversions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            // Automatically fetches more pages as needed.
+
+            for await (const conversionListResponse of
+            client.conversions.list()) {
+              console.log(conversionListResponse.id);
+            }
+    post:
+      description: Creates and executes a conversion.
+      operationId: ConversionsController_create
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Conversion parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConversionBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResourceDto'
+      summary: Create conversion
+      tags:
+        - Conversions
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const conversion = await client.conversions.create({
+              source_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+              source_amount: '321669910225',
+              target_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            });
+
+            console.log(conversion.id);
+  /v1/conversions/{id}:
+    get:
+      description: Retrieves a conversion by ID.
+      operationId: ConversionsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the conversion.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The conversion resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionResourceDto'
+      summary: Retrieve conversion
+      tags:
+        - Conversions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const conversion = await
+            client.conversions.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(conversion.id);
+  /v1/deposits/{id}:
+    get:
+      description: Retrieves a deposit by ID.
+      operationId: DepositsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the deposit.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The deposit resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositResourceDto'
+      summary: Retrieve deposit
+      tags:
+        - Deposits
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const deposit = await
+            client.deposits.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(deposit.id);
+  /v1/deposits:
+    get:
+      description: Lists deposits for the merchant with cursor-based pagination.
+      operationId: DepositsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter by deposit status.
+          schema:
+            type: string
+            enum:
+              - received
+              - in_return
+              - returned
+              - return_failed
+              - return_returned
+        - name: created_at.gte
+          required: false
+          in: query
+          description: >-
+            Include deposits whose created_at is greater than or equal to this
+            ISO 8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+        - name: created_at.lte
+          required: false
+          in: query
+          description: >-
+            Include deposits whose created_at is less than or equal to this ISO
+            8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+      responses:
+        '200':
+          description: Paginated list of deposits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDepositsResponseDto'
+      summary: List deposits
+      tags:
+        - Deposits
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            // Automatically fetches more pages as needed.
+            for await (const depositListResponse of client.deposits.list()) {
+              console.log(depositListResponse.id);
+            }
+  /v1/events/{id}:
+    get:
+      description: Retrieves a webhook event by ID.
+      operationId: EventsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the event.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The event resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResourceDto'
+      summary: Retrieve event
+      tags:
+        - Events
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const event = await
+            client.events.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(event.id);
+  /v1/events:
+    get:
+      description: >-
+        Lists webhook events for the merchant with cursor-based pagination.
+        Events are retained for 30 days.
+      operationId: EventsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: event_type
+          required: false
+          in: query
+          description: Filter by event type.
+          schema:
+            type: string
+            enum:
+              - payout.created
+              - payout.initiated
+              - payout.paid
+              - payout.failed
+              - return.initiated
+              - return.paid
+              - return.failed
+              - return.returned
+              - deposit.received
+              - conversion.created
+              - conversion.completed
+              - conversion.failed
+              - ping.test
+        - name: created_at.gte
+          required: false
+          in: query
+          description: >-
+            Include events whose created_at is greater than or equal to this ISO
+            8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+        - name: created_at.lte
+          required: false
+          in: query
+          description: >-
+            Include events whose created_at is less than or equal to this ISO
+            8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+      responses:
+        '200':
+          description: Paginated list of events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEventsResponseDto'
+      summary: List events
+      tags:
+        - Events
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            // Automatically fetches more pages as needed.
+            for await (const eventListResponse of client.events.list()) {
+              console.log(eventListResponse.id);
+            }
+  /v1/payouts:
+    get:
+      description: Lists payouts for the merchant with cursor-based pagination.
+      operationId: PayoutsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter by payout status.
+          schema:
+            type: string
+            enum:
+              - pending
+              - paid
+              - failed
+        - name: created_at.gte
+          required: false
+          in: query
+          description: >-
+            Include payouts whose created_at is greater than or equal to this
+            ISO 8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+        - name: created_at.lte
+          required: false
+          in: query
+          description: >-
+            Include payouts whose created_at is less than or equal to this ISO
+            8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+        - name: currencies
+          required: false
+          in: query
+          description: >-
+            Filter to these currency codes. Use a separate `currencies` query
+            parameter for each value (e.g. `?currencies=EUR&currencies=USD`).
+          schema:
+            minItems: 1
+            type: array
+            items:
+              type: string
+              enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+      responses:
+        '200':
+          description: Paginated list of payouts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPayoutsResponseDto'
+      summary: List payouts
+      tags:
+        - Payouts
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            // Automatically fetches more pages as needed.
+            for await (const payoutListResponse of client.payouts.list()) {
+              console.log(payoutListResponse.id);
+            }
+    post:
+      description: Creates a new payout.
+      operationId: PayoutsController_create
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Payout creation parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePayoutBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutResourceDto'
+      summary: Create payout
+      tags:
+        - Payouts
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const payout = await client.payouts.create({
+              amount: 'amount',
+              currency: 'EUR',
+              destination: {
+                account_holder_name: 'account_holder_name',
+                iban: 'iban',
+                type: 'iban',
+              },
+              reference: 'reference',
+              source_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            });
+
+            console.log(payout.id);
+  /v1/payouts/{id}:
+    get:
+      description: Retrieves a payout by ID.
+      operationId: PayoutsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the payout.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The payout resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutResourceDto'
+      summary: Retrieve payout
+      tags:
+        - Payouts
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const payout = await
+            client.payouts.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(payout.id);
+  /v1/quotes/indicative:
+    get:
+      description: >-
+        Returns an indicative quote for a currency pair. Not persisted or
+        holdable.
+      operationId: QuotesController_getIndicativeQuote
+      parameters:
+        - name: source_currency
+          required: true
+          in: query
+          description: Source currency code.
+          schema:
+            type: string
+            enum:
+              - EUR
+              - GBP
+              - USD
+              - USDC
+              - BTC
+              - ETH
+              - SOL
+              - POL
+        - name: target_currency
+          required: true
+          in: query
+          description: Target currency code.
+          schema:
+            type: string
+            enum:
+              - EUR
+              - GBP
+              - USD
+              - USDC
+              - BTC
+              - ETH
+              - SOL
+              - POL
+        - name: source_amount
+          required: false
+          in: query
+          description: Source amount as a string decimal. Defaults to 1 unit if omitted.
+          schema:
+            pattern: ^\d+(\.\d+)?$
+            type: string
+      responses:
+        '200':
+          description: The indicative quote
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetIndicativeQuoteResponseDto'
+      summary: Get indicative quote
+      tags:
+        - Quotes
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const indicative = await client.quotes.indicative.retrieve({
+              source_currency: 'EUR',
+              target_currency: 'EUR',
+            });
+
+            console.log(indicative.fee);
+  /v1/quotes/{id}:
+    get:
+      description: Retrieves a persisted quote by ID.
+      operationId: QuotesController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the quote.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The quote resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveQuoteResponseDto'
+      summary: Retrieve quote
+      tags:
+        - Quotes
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const quote = await
+            client.quotes.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(quote.id);
+  /v1/returns:
+    get:
+      description: Lists deposit returns for the merchant with cursor-based pagination.
+      operationId: ReturnsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Current status of the return.
+          schema:
+            type: string
+            enum:
+              - pending
+              - paid
+              - failed
+              - returned
+        - name: deposit_id
+          required: false
+          in: query
+          description: Filter returns belonging to this deposit.
+          schema:
+            format: uuid
+            type: string
+        - name: created_at.gte
+          required: false
+          in: query
+          description: >-
+            Include returns whose created_at is greater than or equal to this
+            ISO 8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+        - name: created_at.lte
+          required: false
+          in: query
+          description: >-
+            Include returns whose created_at is less than or equal to this ISO
+            8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+      responses:
+        '200':
+          description: Paginated list of returns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListReturnsResponseDto'
+      summary: List returns
+      tags:
+        - Returns
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            // Automatically fetches more pages as needed.
+            for await (const returnListResponse of client.returns.list()) {
+              console.log(returnListResponse.id);
+            }
+    post:
+      description: Initiates a return of funds from a deposit to the source.
+      operationId: ReturnsController_create
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Deposit to return and optional payment rail.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReturnBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResourceDto'
+      summary: Create return
+      tags:
+        - Returns
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const _return = await client.returns.create({ deposit_id:
+            '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' });
+
+
+            console.log(_return.id);
+  /v1/returns/{id}:
+    get:
+      description: Retrieves a return by ID.
+      operationId: ReturnsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the return.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The return resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnResourceDto'
+      summary: Retrieve return
+      tags:
+        - Returns
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const _return = await
+            client.returns.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(_return.id);
+  /v1/scopes:
+    get:
+      description: >-
+        Returns the catalogue of scopes available to API keys. The list is
+        filtered by the `Api-Version` request header and defaults to the latest
+        version when the header is omitted. Public: no authentication required.
+      operationId: ScopesController_list
+      parameters: []
+      responses:
+        '200':
+          description: Scope catalogue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListScopesResponseDto'
+      summary: List scopes
+      tags:
+        - Scopes
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const scopes = await client.scopes.list();
+
+            console.log(scopes.data);
+  /v1/webhook_deliveries/{id}:
+    get:
+      description: Retrieves a webhook delivery by ID.
+      operationId: WebhookDeliveriesController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the webhook delivery.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The webhook delivery resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryResourceDto'
+      summary: Retrieve webhook delivery
+      tags:
+        - Webhook Deliveries
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const webhookDelivery = await client.webhookDeliveries.retrieve(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+            console.log(webhookDelivery.id);
+  /v1/webhook_deliveries:
+    get:
+      description: >-
+        Lists webhook deliveries for the merchant with cursor-based pagination.
+        Deliveries are retained for 30 days.
+      operationId: WebhookDeliveriesController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+        - name: event_id
+          required: false
+          in: query
+          description: Filter by event ID.
+          schema:
+            format: uuid
+            type: string
+        - name: subscription_id
+          required: false
+          in: query
+          description: Filter by webhook subscription ID.
+          schema:
+            format: uuid
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter by delivery status.
+          schema:
+            type: string
+            enum:
+              - pending
+              - delivered
+              - failed
+              - processing
+              - ignored
+        - name: created_at.gte
+          required: false
+          in: query
+          description: >-
+            Include deliveries whose created_at is greater than or equal to this
+            ISO 8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+        - name: created_at.lte
+          required: false
+          in: query
+          description: >-
+            Include deliveries whose created_at is less than or equal to this
+            ISO 8601 timestamp.
+          schema:
+            format: date-time
+            type: string
+      responses:
+        '200':
+          description: Paginated list of webhook deliveries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookDeliveriesResponseDto'
+      summary: List webhook deliveries
+      tags:
+        - Webhook Deliveries
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            // Automatically fetches more pages as needed.
+
+            for await (const webhookDeliveryListResponse of
+            client.webhookDeliveries.list()) {
+              console.log(webhookDeliveryListResponse.id);
+            }
+  /v1/webhook_deliveries/{id}/redeliver:
+    post:
+      description: >-
+        Triggers a fresh delivery attempt of the event to the same webhook
+        subscription.
+      operationId: WebhookDeliveriesController_redeliver
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the webhook delivery.
+          schema:
+            format: uuid
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The new webhook delivery resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryResourceDto'
+      summary: Redeliver webhook
+      tags:
+        - Webhook Deliveries
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const response = await
+            client.webhookDeliveries.redeliver('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');
+
+
+            console.log(response.id);
+  /v1/webhook_subscriptions:
+    post:
+      description: Creates a new webhook subscription.
+      operationId: WebhookSubscriptionsController_create
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Webhook subscription creation parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSubscriptionBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Create webhook subscription
+      tags:
+        - Webhook Subscriptions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const webhookSubscription = await
+            client.webhookSubscriptions.create({
+              events: ['payout.created'],
+              url: 'https://example.com',
+            });
+
+
+            console.log(webhookSubscription.id);
+    get:
+      description: >-
+        Lists webhook subscriptions for the merchant with cursor-based
+        pagination.
+      operationId: WebhookSubscriptionsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          description: Number of results per page (1-100). Defaults to 10.
+          schema:
+            minimum: 1
+            maximum: 100
+            exclusiveMaximum: false
+            exclusiveMinimum: false
+            default: 10
+            type: integer
+        - name: cursor
+          required: false
+          in: query
+          description: Opaque cursor from a previous next_cursor.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated list of webhook subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWebhookSubscriptionsResponseDto'
+      summary: List webhook subscriptions
+      tags:
+        - Webhook Subscriptions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            // Automatically fetches more pages as needed.
+
+            for await (const webhookSubscriptionListResponse of
+            client.webhookSubscriptions.list()) {
+              console.log(webhookSubscriptionListResponse.id);
+            }
+  /v1/webhook_subscriptions/{id}:
+    get:
+      description: Retrieves a webhook subscription by ID.
+      operationId: WebhookSubscriptionsController_retrieve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the webhook subscription.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The webhook subscription resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Retrieve webhook subscription
+      tags:
+        - Webhook Subscriptions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const webhookSubscription = await
+            client.webhookSubscriptions.retrieve(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+
+            console.log(webhookSubscription.id);
+    post:
+      description: Updates the URL and/or subscribed events.
+      operationId: WebhookSubscriptionsController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the webhook subscription.
+          schema:
+            format: uuid
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Fields to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateWebhookSubscriptionBodyDto'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Update webhook subscription
+      tags:
+        - Webhook Subscriptions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const webhookSubscription = await
+            client.webhookSubscriptions.update(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+
+            console.log(webhookSubscription.id);
+    delete:
+      description: Permanently deletes a webhook subscription. This cannot be undone.
+      operationId: WebhookSubscriptionsController_delete
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the webhook subscription.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: The deleted webhook subscription resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscriptionResourceDto'
+      summary: Delete webhook subscription
+      tags:
+        - Webhook Subscriptions
+      x-codeSamples:
+        - lang: JavaScript
+          source: >-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+
+            const webhookSubscription = await
+            client.webhookSubscriptions.delete(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+
+            console.log(webhookSubscription.id);
+  /v1/webhook_subscriptions/{id}/send_test_event:
+    post:
+      description: >-
+        Dispatches a signed `ping.test` event to this subscription's URL through
+        the same pipeline as real events. Useful for verifying your receiver's
+        reachability and signature verification in any environment without
+        creating a real business event. Test-event failures do not affect the
+        subscription's health counters or trigger failure-notification emails.
+      operationId: WebhookSubscriptionsController_sendTestEvent
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier of the webhook subscription.
+          schema:
+            format: uuid
+            type: string
+        - name: Idempotency-Key
+          in: header
+          description: >-
+            Idempotency key for safe retries. Reusing a key with an identical
+            request body returns the cached response. Reusing a key with a
+            different body returns 409.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >-
+            The newly created webhook event. Poll its delivery via `GET
+            /v1/webhook_deliveries?event_id={id}` for receiver status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResourceDto'
+      summary: Send test event
+      tags:
+        - Webhook Subscriptions
+      x-codeSamples:
+        - lang: JavaScript
+          source: |-
+            import Augustus from '@augustusbank/typescript-sdk';
+
+            const client = new Augustus({
+              apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted
+            });
+
+            const response = await client.webhookSubscriptions.sendTestEvent(
+              '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+            );
+
+            console.log(response.id);
+info:
+  title: Augustus Banking API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+tags: []
+servers:
+  - url: https://api.augustus.com
+    description: Production
+  - url: https://api.sandbox.augustus.com
+    description: Sandbox
+components:
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API
+  schemas:
+    ListPayoutsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the payout.
+                type: string
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - payout
+              status:
+                description: Current status of the payout.
+                type: string
+                enum:
+                  - pending
+                  - paid
+                  - failed
+                  - returned
+              source_account_id:
+                description: ID of the account that was debited.
+                type: string
+              amount:
+                description: Amount as a string decimal (e.g. "100.50").
+                type: string
+              currency:
+                description: >-
+                  Currency code (ISO 4217 currency code or crypto currency
+                  code).
+                type: string
+                enum:
+                  - EUR
+                  - GBP
+                  - USD
+                  - USDC
+                  - BTC
+                  - ETH
+                  - SOL
+                  - POL
+              destination:
+                description: Bank account or crypto wallet the payout was sent to.
+                oneOf:
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for IBAN financial address.
+                        type: string
+                        enum:
+                          - iban
+                      iban:
+                        description: International Bank Account Number.
+                        type: string
+                      account_holder_name:
+                        description: Name of the account holder.
+                        type: string
+                      bic:
+                        description: Bank Identifier Code, or null if not provided.
+                        type: string
+                        nullable: true
+                    required:
+                      - type
+                      - iban
+                      - account_holder_name
+                      - bic
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for UK sort code financial address.
+                        type: string
+                        enum:
+                          - sort_code
+                      sort_code:
+                        description: UK sort code (6 digits).
+                        type: string
+                      account_number:
+                        description: UK account number (8 digits).
+                        type: string
+                      account_holder_name:
+                        description: Name of the account holder.
+                        type: string
+                    required:
+                      - type
+                      - sort_code
+                      - account_number
+                      - account_holder_name
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for ABA wire financial address.
+                        type: string
+                        enum:
+                          - aba
+                      routing_number:
+                        description: ABA routing number (9 digits).
+                        type: string
+                      account_number:
+                        description: Bank account number.
+                        type: string
+                      account_holder_name:
+                        description: Name of the account holder.
+                        type: string
+                    required:
+                      - type
+                      - routing_number
+                      - account_number
+                      - account_holder_name
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for crypto wallet financial address.
+                        type: string
+                        enum:
+                          - crypto_wallet
+                      address:
+                        description: Wallet address on the specified blockchain.
+                        type: string
+                      blockchain:
+                        description: Blockchain network for the crypto wallet.
+                        type: string
+                        enum:
+                          - bitcoin
+                          - ethereum
+                          - solana
+                          - polygon
+                          - bitcoin_testnet4
+                          - ethereum_sepolia
+                          - solana_devnet
+                          - polygon_amoy
+                    required:
+                      - type
+                      - address
+                      - blockchain
+              reference:
+                description: Payment reference.
+                type: string
+              failure:
+                description: Failure details when status is failed, otherwise null.
+                type: object
+                properties:
+                  code:
+                    description: Failure code.
+                    type: string
+                    enum:
+                      - account_closed
+                      - account_blocked
+                      - insufficient_funds
+                      - invalid_account_format
+                      - invalid_instruction
+                      - invalid_amount
+                      - invalid_time
+                      - duplicate_transaction
+                      - payee_verification_failed
+                      - system_error
+                      - provider_system_error
+                      - rejected_by_correspondent_bank
+                      - blocked_by_review
+                      - unknown
+                    x-enumNames:
+                      - ACCOUNT_CLOSED
+                      - ACCOUNT_BLOCKED
+                      - INSUFFICIENT_FUNDS
+                      - INVALID_ACCOUNT_FORMAT
+                      - INVALID_INSTRUCTION
+                      - INVALID_AMOUNT
+                      - INVALID_TIME
+                      - DUPLICATE_TRANSACTION
+                      - PAYEE_VERIFICATION_FAILED
+                      - SYSTEM_ERROR
+                      - PROVIDER_SYSTEM_ERROR
+                      - REJECTED_BY_CORRESPONDENT_BANK
+                      - BLOCKED_BY_REVIEW
+                      - UNKNOWN
+                  message:
+                    description: Human-readable description of the failure.
+                    type: string
+                  retry:
+                    description: Whether the payout can be retried.
+                    type: boolean
+                required:
+                  - code
+                  - message
+                  - retry
+                nullable: true
+              metadata:
+                description: Key-value pairs stored with the payout.
+                type: object
+                additionalProperties:
+                  type: string
+              created_at:
+                description: ISO 8601 UTC timestamp when the payout was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the payout was last updated.
+                type: string
+                format: date-time
+            required:
+              - id
+              - type
+              - status
+              - source_account_id
+              - amount
+              - currency
+              - destination
+              - reference
+              - failure
+              - metadata
+              - created_at
+              - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    PayoutResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the payout.
+          type: string
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - payout
+        status:
+          description: Current status of the payout.
+          type: string
+          enum:
+            - pending
+            - paid
+            - failed
+            - returned
+        source_account_id:
+          description: ID of the account that was debited.
+          type: string
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Currency code (ISO 4217 currency code or crypto currency code).
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        destination:
+          description: Bank account or crypto wallet the payout was sent to.
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for IBAN financial address.
+                  type: string
+                  enum:
+                    - iban
+                iban:
+                  description: International Bank Account Number.
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+                bic:
+                  description: Bank Identifier Code, or null if not provided.
+                  type: string
+                  nullable: true
+              required:
+                - type
+                - iban
+                - account_holder_name
+                - bic
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for UK sort code financial address.
+                  type: string
+                  enum:
+                    - sort_code
+                sort_code:
+                  description: UK sort code (6 digits).
+                  type: string
+                account_number:
+                  description: UK account number (8 digits).
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+              required:
+                - type
+                - sort_code
+                - account_number
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for ABA wire financial address.
+                  type: string
+                  enum:
+                    - aba
+                routing_number:
+                  description: ABA routing number (9 digits).
+                  type: string
+                account_number:
+                  description: Bank account number.
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+              required:
+                - type
+                - routing_number
+                - account_number
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for crypto wallet financial address.
+                  type: string
+                  enum:
+                    - crypto_wallet
+                address:
+                  description: Wallet address on the specified blockchain.
+                  type: string
+                blockchain:
+                  description: Blockchain network for the crypto wallet.
+                  type: string
+                  enum:
+                    - bitcoin
+                    - ethereum
+                    - solana
+                    - polygon
+                    - bitcoin_testnet4
+                    - ethereum_sepolia
+                    - solana_devnet
+                    - polygon_amoy
+              required:
+                - type
+                - address
+                - blockchain
+        reference:
+          description: Payment reference.
+          type: string
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            code:
+              description: Failure code.
+              type: string
+              enum:
+                - account_closed
+                - account_blocked
+                - insufficient_funds
+                - invalid_account_format
+                - invalid_instruction
+                - invalid_amount
+                - invalid_time
+                - duplicate_transaction
+                - payee_verification_failed
+                - system_error
+                - provider_system_error
+                - rejected_by_correspondent_bank
+                - blocked_by_review
+                - unknown
+              x-enumNames:
+                - ACCOUNT_CLOSED
+                - ACCOUNT_BLOCKED
+                - INSUFFICIENT_FUNDS
+                - INVALID_ACCOUNT_FORMAT
+                - INVALID_INSTRUCTION
+                - INVALID_AMOUNT
+                - INVALID_TIME
+                - DUPLICATE_TRANSACTION
+                - PAYEE_VERIFICATION_FAILED
+                - SYSTEM_ERROR
+                - PROVIDER_SYSTEM_ERROR
+                - REJECTED_BY_CORRESPONDENT_BANK
+                - BLOCKED_BY_REVIEW
+                - UNKNOWN
+            message:
+              description: Human-readable description of the failure.
+              type: string
+            retry:
+              description: Whether the payout can be retried.
+              type: boolean
+          required:
+            - code
+            - message
+            - retry
+          nullable: true
+        metadata:
+          description: Key-value pairs stored with the payout.
+          type: object
+          additionalProperties:
+            type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the payout was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the payout was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - status
+        - source_account_id
+        - amount
+        - currency
+        - destination
+        - reference
+        - failure
+        - metadata
+        - created_at
+        - updated_at
+    CreatePayoutBodyDto:
+      type: object
+      properties:
+        source_account_id:
+          description: ID of the account to debit.
+          type: string
+          format: uuid
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Currency for the payout.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        destination:
+          description: Bank account or crypto wallet to send funds to.
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for IBAN financial address.
+                  type: string
+                  enum:
+                    - iban
+                iban:
+                  description: International Bank Account Number.
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+                bic:
+                  description: Bank Identifier Code.
+                  type: string
+              required:
+                - type
+                - iban
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for UK sort code financial address.
+                  type: string
+                  enum:
+                    - sort_code
+                sort_code:
+                  description: UK sort code (6 digits).
+                  type: string
+                account_number:
+                  description: UK account number (8 digits).
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+              required:
+                - type
+                - sort_code
+                - account_number
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for ABA wire financial address.
+                  type: string
+                  enum:
+                    - aba
+                routing_number:
+                  description: ABA routing number (9 digits).
+                  type: string
+                account_number:
+                  description: Bank account number.
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+              required:
+                - type
+                - routing_number
+                - account_number
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for crypto wallet financial address.
+                  type: string
+                  enum:
+                    - crypto_wallet
+                address:
+                  description: Wallet address on the specified blockchain.
+                  type: string
+                blockchain:
+                  description: Blockchain network for the crypto wallet.
+                  type: string
+                  enum:
+                    - bitcoin
+                    - ethereum
+                    - solana
+                    - polygon
+                    - bitcoin_testnet4
+                    - ethereum_sepolia
+                    - solana_devnet
+                    - polygon_amoy
+              required:
+                - type
+                - address
+                - blockchain
+        rail:
+          description: Payment rail. It is enforced when provided, otherwise auto-selected.
+          type: string
+          enum:
+            - sepa_instant
+            - sepa
+            - faster_payments
+        reference:
+          description: Payment reference.
+          type: string
+          maxLength: 140
+        metadata:
+          description: Key-value pairs stored with the payout.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - source_account_id
+        - amount
+        - currency
+        - destination
+        - reference
+    ListConversionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the conversion.
+                type: string
+                format: uuid
+              quote_id:
+                description: ID of the associated quote, or null.
+                type: string
+                format: uuid
+                nullable: true
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - conversion
+              status:
+                description: Current status of the conversion.
+                type: string
+                enum:
+                  - pending
+                  - completed
+                  - failed
+              source_amount:
+                description: Source amount as a string decimal.
+                type: string
+              source_currency:
+                description: Source currency code.
+                type: string
+                enum:
+                  - EUR
+                  - GBP
+                  - USD
+                  - USDC
+                  - BTC
+                  - ETH
+                  - SOL
+                  - POL
+              target_currency:
+                description: Target currency code.
+                type: string
+                enum:
+                  - EUR
+                  - GBP
+                  - USD
+                  - USDC
+                  - BTC
+                  - ETH
+                  - SOL
+                  - POL
+              source_account_id:
+                description: ID of the source account, or null.
+                type: string
+                nullable: true
+              target_account_id:
+                description: ID of the target account, or null.
+                type: string
+                nullable: true
+              failure:
+                description: Failure details when status is failed, otherwise null.
+                type: object
+                properties:
+                  message:
+                    description: Human-readable description of the failure.
+                    type: string
+                required:
+                  - message
+                nullable: true
+              metadata:
+                description: Key-value pairs stored with the conversion.
+                type: object
+                additionalProperties:
+                  type: string
+              created_at:
+                description: ISO 8601 UTC timestamp when the conversion was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the conversion was last updated.
+                type: string
+                format: date-time
+              completed_at:
+                description: ISO 8601 UTC timestamp when the conversion completed, or null.
+                type: string
+                format: date-time
+                nullable: true
+            required:
+              - id
+              - quote_id
+              - type
+              - status
+              - source_amount
+              - source_currency
+              - target_currency
+              - source_account_id
+              - target_account_id
+              - failure
+              - metadata
+              - created_at
+              - updated_at
+              - completed_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    ConversionResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the conversion.
+          type: string
+          format: uuid
+        quote_id:
+          description: ID of the associated quote, or null.
+          type: string
+          format: uuid
+          nullable: true
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - conversion
+        status:
+          description: Current status of the conversion.
+          type: string
+          enum:
+            - pending
+            - completed
+            - failed
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        source_account_id:
+          description: ID of the source account, or null.
+          type: string
+          nullable: true
+        target_account_id:
+          description: ID of the target account, or null.
+          type: string
+          nullable: true
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            message:
+              description: Human-readable description of the failure.
+              type: string
+          required:
+            - message
+          nullable: true
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the conversion was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the conversion was last updated.
+          type: string
+          format: date-time
+        completed_at:
+          description: ISO 8601 UTC timestamp when the conversion completed, or null.
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - quote_id
+        - type
+        - status
+        - source_amount
+        - source_currency
+        - target_currency
+        - source_account_id
+        - target_account_id
+        - failure
+        - metadata
+        - created_at
+        - updated_at
+        - completed_at
+    CreateConversionBodyDto:
+      type: object
+      properties:
+        source_account_id:
+          description: ID of the source account to debit.
+          type: string
+          format: uuid
+        target_account_id:
+          description: ID of the target account to credit.
+          type: string
+          format: uuid
+        source_amount:
+          description: Amount to convert as a string decimal (e.g. "100.50").
+          type: string
+          pattern: ^\d+(\.\d+)?$
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+        - source_account_id
+        - target_account_id
+        - source_amount
+    GetIndicativeQuoteResponseDto:
+      type: object
+      properties:
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        target_amount:
+          description: Target amount as a string decimal.
+          type: string
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        rate:
+          description: Conversion rate applied.
+          type: string
+        venue:
+          description: Venue the quote was fetched from.
+          type: string
+        fee:
+          description: Conversion fee, or null if no fee applies.
+          type: object
+          properties:
+            amount:
+              description: Fee amount as a string decimal.
+              type: string
+            currency:
+              description: Fee currency code.
+              type: string
+              enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+          required:
+            - amount
+            - currency
+          nullable: true
+        quoted_at:
+          description: ISO 8601 UTC timestamp when the quote was fetched.
+          type: string
+          format: date-time
+      required:
+        - source_amount
+        - source_currency
+        - target_amount
+        - target_currency
+        - rate
+        - venue
+        - fee
+        - quoted_at
+    RetrieveQuoteResponseDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the quote.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - quote
+        status:
+          description: Current status of the quote.
+          type: string
+          enum:
+            - pending
+            - quote_accepted
+            - order_pending
+            - order_failed
+            - order_completed
+            - withdrawal_pending
+            - withdrawal_failed
+            - withdrawal_completed
+            - completed
+            - failed
+        funding_status:
+          description: Current funding status of the quote.
+          type: string
+          enum:
+            - pending
+            - sent
+            - completed
+            - failed
+            - on_hold
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        target_amount:
+          description: Target amount as a string decimal.
+          type: string
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        exchange_rate:
+          description: Exchange rate applied.
+          type: string
+        venue:
+          description: Execution venue (e.g. "kraken").
+          type: string
+        expires_at:
+          description: ISO 8601 UTC timestamp when the quote expires.
+          type: string
+          format: date-time
+        created_at:
+          description: ISO 8601 UTC timestamp when the quote was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the quote was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - status
+        - funding_status
+        - source_amount
+        - source_currency
+        - target_amount
+        - target_currency
+        - exchange_rate
+        - venue
+        - expires_at
+        - created_at
+        - updated_at
+    IbanFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for IBAN financial address.
+          type: string
+          enum:
+            - iban
+        iban:
+          description: International Bank Account Number.
+          type: string
+        account_holder_name:
+          description: Name of the account holder.
+          type: string
+        bic:
+          type: string
+          description: Bank Identifier Code, or null if not provided.
+          nullable: true
+      required:
+        - type
+        - iban
+        - account_holder_name
+        - bic
+      additionalProperties: false
+    SortCodeFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for UK sort code financial address.
+          type: string
+          enum:
+            - sort_code
+        sort_code:
+          description: UK sort code (6 digits).
+          type: string
+        account_number:
+          description: UK account number (8 digits).
+          type: string
+        account_holder_name:
+          description: Name of the account holder.
+          type: string
+      required:
+        - type
+        - sort_code
+        - account_number
+        - account_holder_name
+      additionalProperties: false
+    AbaFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for ABA wire financial address.
+          type: string
+          enum:
+            - aba
+        routing_number:
+          description: ABA routing number (9 digits).
+          type: string
+        account_number:
+          description: Bank account number.
+          type: string
+        account_holder_name:
+          description: Name of the account holder.
+          type: string
+      required:
+        - type
+        - routing_number
+        - account_number
+        - account_holder_name
+      additionalProperties: false
+    CryptoWalletFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for crypto wallet financial address.
+          type: string
+          enum:
+            - crypto_wallet
+        address:
+          description: Wallet address on the specified blockchain.
+          type: string
+        blockchain:
+          description: Blockchain network for the crypto wallet.
+          type: string
+          enum:
+            - bitcoin
+            - ethereum
+            - solana
+            - polygon
+            - bitcoin_testnet4
+            - ethereum_sepolia
+            - solana_devnet
+            - polygon_amoy
+      required:
+        - type
+        - address
+        - blockchain
+      additionalProperties: false
+    ListAccountsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the account.
+                type: string
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - account
+              currency:
+                description: ISO 4217 currency code for the account.
+                type: string
+                enum:
+                  - EUR
+                  - GBP
+                  - USD
+                  - USDC
+                  - BTC
+                  - ETH
+                  - SOL
+                  - POL
+              account_type:
+                description: Type of the account.
+                type: string
+                enum:
+                  - virtual_account
+                  - payment_account
+                  - collateral_account
+              status:
+                description: Current status of the account.
+                type: string
+                enum:
+                  - pending
+                  - active
+                  - frozen
+                  - closed
+              asset_type:
+                description: Asset type of the account.
+                type: string
+                enum:
+                  - fiat
+                  - crypto
+              label:
+                description: Human-readable label for the account.
+                type: string
+              financial_addresses:
+                description: >-
+                  Payment identifiers (e.g. IBAN, account number, wallet
+                  address) through which this account can send or receive funds.
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/IbanFinancialAddress'
+                    - $ref: '#/components/schemas/SortCodeFinancialAddress'
+                    - $ref: '#/components/schemas/AbaFinancialAddress'
+                    - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+              created_at:
+                description: ISO 8601 UTC timestamp when the account was created.
+                type: string
+                format: date-time
+                pattern: >-
+                  ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              updated_at:
+                description: ISO 8601 UTC timestamp when the account was last updated.
+                type: string
+                format: date-time
+                pattern: >-
+                  ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            required:
+              - id
+              - type
+              - currency
+              - account_type
+              - status
+              - asset_type
+              - label
+              - financial_addresses
+              - created_at
+              - updated_at
+            additionalProperties: false
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+      additionalProperties: false
+    AccountResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the account.
+          type: string
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - account
+        currency:
+          description: ISO 4217 currency code for the account.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        account_type:
+          description: Type of the account.
+          type: string
+          enum:
+            - virtual_account
+            - payment_account
+            - collateral_account
+        status:
+          description: Current status of the account.
+          type: string
+          enum:
+            - pending
+            - active
+            - frozen
+            - closed
+        asset_type:
+          description: Asset type of the account.
+          type: string
+          enum:
+            - fiat
+            - crypto
+        label:
+          description: Human-readable label for the account.
+          type: string
+        financial_addresses:
+          description: >-
+            Payment identifiers (e.g. IBAN, account number, wallet address)
+            through which this account can send or receive funds.
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/IbanFinancialAddress'
+              - $ref: '#/components/schemas/SortCodeFinancialAddress'
+              - $ref: '#/components/schemas/AbaFinancialAddress'
+              - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+        created_at:
+          description: ISO 8601 UTC timestamp when the account was created.
+          type: string
+          format: date-time
+          pattern: >-
+            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+        updated_at:
+          description: ISO 8601 UTC timestamp when the account was last updated.
+          type: string
+          format: date-time
+          pattern: >-
+            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+      required:
+        - id
+        - type
+        - currency
+        - account_type
+        - status
+        - asset_type
+        - label
+        - financial_addresses
+        - created_at
+        - updated_at
+      additionalProperties: false
+    AccountBalanceResourceDto:
+      type: object
+      properties:
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - account_balance
+        account_id:
+          description: Unique identifier of the account.
+          type: string
+          format: uuid
+          pattern: >-
+            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+        amount:
+          description: Available balance amount as a decimal string.
+          type: string
+        currency:
+          description: ISO 4217 currency code for the balance.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        as_of:
+          description: ISO 8601 UTC timestamp when the balance was retrieved.
+          type: string
+          format: date-time
+          pattern: >-
+            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+      required:
+        - type
+        - account_id
+        - amount
+        - currency
+        - as_of
+      additionalProperties: false
+    UsBeneficiaryData:
+      type: object
+      properties:
+        legal_name:
+          description: Full legal name of the account holder.
+          type: string
+          minLength: 1
+          maxLength: 255
+        residential_address:
+          description: Residential address of the account holder.
+          anyOf:
+            - $ref: '#/components/schemas/UsResidentialAddress'
+            - $ref: '#/components/schemas/NonUsResidentialAddress'
+        date_of_birth:
+          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
+          type: string
+          format: date
+          pattern: >-
+            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        identification:
+          description: >-
+            Government-issued identification with type: "ssn" (Social Security
+            Number, format ###-##-####) or "itin" (Individual Taxpayer ID,
+            format 9##-##-####).
+          anyOf:
+            - $ref: '#/components/schemas/SsnIdentification'
+            - $ref: '#/components/schemas/ItinIdentification'
+        country_of_citizenship:
+          description: ISO 3166-1 alpha-2 country code of citizenship.
+          type: string
+          enum:
+            - US
+      required:
+        - legal_name
+        - residential_address
+        - date_of_birth
+        - identification
+        - country_of_citizenship
+      additionalProperties: false
+    UsResidentialAddress:
+      type: object
+      properties:
+        street_line_1:
+          description: Primary street address.
+          type: string
+          minLength: 1
+          maxLength: 255
+        street_line_2:
+          description: Secondary street address (apartment, suite, etc.).
+          type: string
+          maxLength: 255
+        city:
+          description: City name.
+          type: string
+          minLength: 1
+          maxLength: 255
+        state:
+          description: Two-letter state code.
+          type: string
+          minLength: 2
+          maxLength: 2
+        postal_code:
+          description: Postal or ZIP code.
+          type: string
+          minLength: 1
+          maxLength: 30
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          type: string
+          enum:
+            - US
+      required:
+        - street_line_1
+        - city
+        - state
+        - postal_code
+        - country
+      additionalProperties: false
+    NonUsResidentialAddress:
+      type: object
+      properties:
+        street_line_1:
+          description: Primary street address.
+          type: string
+          minLength: 1
+          maxLength: 255
+        street_line_2:
+          description: Secondary street address (apartment, suite, etc.).
+          type: string
+          maxLength: 255
+        city:
+          description: City name.
+          type: string
+          minLength: 1
+          maxLength: 255
+        postal_code:
+          description: Postal or ZIP code.
+          type: string
+          minLength: 1
+          maxLength: 30
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
+      required:
+        - street_line_1
+        - city
+        - postal_code
+        - country
+      additionalProperties: false
+    Alpha2CodeWithoutUs:
+      type: string
+      enum:
+        - AF
+        - AL
+        - DZ
+        - AS
+        - AD
+        - AO
+        - AI
+        - AQ
+        - AG
+        - AR
+        - AM
+        - AW
+        - AU
+        - AT
+        - AZ
+        - BS
+        - BH
+        - BD
+        - BB
+        - BY
+        - BE
+        - BZ
+        - BJ
+        - BM
+        - BT
+        - BO
+        - BA
+        - BW
+        - BV
+        - BR
+        - IO
+        - BN
+        - BG
+        - BF
+        - BI
+        - KH
+        - CM
+        - CA
+        - CV
+        - KY
+        - CF
+        - TD
+        - CL
+        - CN
+        - CX
+        - CC
+        - CO
+        - KM
+        - CG
+        - CD
+        - CK
+        - CR
+        - CI
+        - HR
+        - CU
+        - CY
+        - CZ
+        - DK
+        - DJ
+        - DM
+        - DO
+        - EC
+        - EG
+        - SV
+        - GQ
+        - ER
+        - EE
+        - ET
+        - FK
+        - FO
+        - FJ
+        - FI
+        - FR
+        - GF
+        - PF
+        - TF
+        - GA
+        - GM
+        - GE
+        - DE
+        - GH
+        - GI
+        - GR
+        - GL
+        - GD
+        - GP
+        - GU
+        - GT
+        - GN
+        - GW
+        - GY
+        - HT
+        - HM
+        - VA
+        - HN
+        - HK
+        - HU
+        - IS
+        - IN
+        - ID
+        - IR
+        - IQ
+        - IE
+        - IL
+        - IT
+        - JM
+        - JP
+        - JO
+        - KZ
+        - KE
+        - KI
+        - KP
+        - KR
+        - KW
+        - KG
+        - LA
+        - LV
+        - LB
+        - LS
+        - LR
+        - LY
+        - LI
+        - LT
+        - LU
+        - MO
+        - MG
+        - MW
+        - MY
+        - MV
+        - ML
+        - MT
+        - MH
+        - MQ
+        - MR
+        - MU
+        - YT
+        - MX
+        - FM
+        - MD
+        - MC
+        - MN
+        - MS
+        - MA
+        - MZ
+        - MM
+        - NA
+        - NR
+        - NP
+        - NL
+        - NC
+        - NZ
+        - NI
+        - NE
+        - NG
+        - NU
+        - NF
+        - MP
+        - MK
+        - 'NO'
+        - OM
+        - PK
+        - PW
+        - PS
+        - PA
+        - PG
+        - PY
+        - PE
+        - PH
+        - PN
+        - PL
+        - PT
+        - PR
+        - QA
+        - RE
+        - RO
+        - RU
+        - RW
+        - SH
+        - KN
+        - LC
+        - PM
+        - VC
+        - WS
+        - SM
+        - ST
+        - SA
+        - SN
+        - SC
+        - SL
+        - SG
+        - SK
+        - SI
+        - SB
+        - SO
+        - ZA
+        - GS
+        - ES
+        - LK
+        - SD
+        - SR
+        - SJ
+        - SZ
+        - SE
+        - CH
+        - SY
+        - TW
+        - TJ
+        - TZ
+        - TH
+        - TL
+        - TG
+        - TK
+        - TO
+        - TT
+        - TN
+        - TR
+        - TM
+        - TC
+        - TV
+        - UG
+        - UA
+        - AE
+        - GB
+        - UM
+        - UY
+        - UZ
+        - VU
+        - VE
+        - VN
+        - VG
+        - VI
+        - WF
+        - EH
+        - YE
+        - ZM
+        - ZW
+        - AX
+        - BQ
+        - CW
+        - GG
+        - IM
+        - JE
+        - ME
+        - BL
+        - MF
+        - RS
+        - SX
+        - SS
+        - XK
+    SsnIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - ssn
+        value:
+          type: string
+          pattern: ^\d{3}-\d{2}-\d{4}$
+      required:
+        - type
+        - value
+      additionalProperties: false
+    ItinIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - itin
+        value:
+          type: string
+          pattern: ^9\d{2}-\d{2}-\d{4}$
+      required:
+        - type
+        - value
+      additionalProperties: false
+    NonUsBeneficiaryData:
+      type: object
+      properties:
+        legal_name:
+          description: Full legal name of the account holder.
+          type: string
+          minLength: 1
+          maxLength: 255
+        residential_address:
+          description: Residential address of the account holder.
+          anyOf:
+            - $ref: '#/components/schemas/UsResidentialAddress'
+            - $ref: '#/components/schemas/NonUsResidentialAddress'
+        date_of_birth:
+          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
+          type: string
+          format: date
+          pattern: >-
+            ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        identification:
+          description: >-
+            Government-issued identification with type: "id" (generic
+            government-issued ID).
+          $ref: '#/components/schemas/IdIdentification'
+        country_of_citizenship:
+          description: ISO 3166-1 alpha-2 country code of citizenship.
+          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
+      required:
+        - legal_name
+        - residential_address
+        - date_of_birth
+        - identification
+        - country_of_citizenship
+      additionalProperties: false
+    IdIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - id
+        value:
+          type: string
+          minLength: 1
+      required:
+        - type
+        - value
+      additionalProperties: false
+    CreateAccountBodyDto:
+      type: object
+      properties:
+        account_program_id:
+          description: ID of the account program to create the account under.
+          type: string
+          format: uuid
+          pattern: >-
+            ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+        account_type:
+          description: Type of account. Currently only virtual account.
+          type: string
+          enum:
+            - virtual_account
+        beneficiary_data:
+          description: Personal information of the account beneficiary.
+          anyOf:
+            - $ref: '#/components/schemas/UsBeneficiaryData'
+            - $ref: '#/components/schemas/NonUsBeneficiaryData'
+      required:
+        - account_program_id
+        - account_type
+        - beneficiary_data
+      additionalProperties: false
+    CloseAccountBodyDto:
+      type: object
+      properties:
+        reason:
+          description: Reason for closing the account.
+          type: string
+          enum:
+            - aml_risk_fraud
+            - client_request
+      required:
+        - reason
+      additionalProperties: false
+    ListAccountProgramsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the account program.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - account_program
+              label:
+                description: Human-readable label for the account program.
+                type: string
+              account_program_type:
+                description: >-
+                  Which for-benefit-of (FBO) program model applies:
+                  `fbo_program` (merchant program) or `fbo_sponsored` (sponsored
+                  program).
+                type: string
+                enum:
+                  - fbo_program
+                  - fbo_sponsored
+              status:
+                description: >-
+                  Account program lifecycle status. Closed programs are not
+                  returned by this endpoint.
+                type: string
+                enum:
+                  - active
+                  - frozen
+              created_at:
+                description: ISO 8601 UTC timestamp when the account program was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: >-
+                  ISO 8601 UTC timestamp when the account program was last
+                  updated.
+                type: string
+                format: date-time
+            required:
+              - id
+              - type
+              - label
+              - account_program_type
+              - status
+              - created_at
+              - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    AccountProgramBalanceResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the account program.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - account_program_balance
+        amount:
+          description: Total available balance as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: ISO 4217 currency code for the balance.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+        as_of:
+          description: ISO 8601 UTC timestamp when this balance snapshot was produced.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - amount
+        - currency
+        - as_of
+    AccountProgramResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the account program.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - account_program
+        label:
+          description: Human-readable label for the account program.
+          type: string
+        account_program_type:
+          description: >-
+            Which for-benefit-of (FBO) program model applies: `fbo_program`
+            (merchant program) or `fbo_sponsored` (sponsored program).
+          type: string
+          enum:
+            - fbo_program
+            - fbo_sponsored
+        status:
+          description: >-
+            Account program lifecycle status. Closed programs are not returned
+            by this endpoint.
+          type: string
+          enum:
+            - active
+            - frozen
+        created_at:
+          description: ISO 8601 UTC timestamp when the account program was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the account program was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - label
+        - account_program_type
+        - status
+        - created_at
+        - updated_at
+    ListReturnsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the return.
+                type: string
+                format: uuid
+              type:
+                description: Type of the resource.
+                type: string
+                enum:
+                  - return
+              status:
+                description: Current status of the return.
+                type: string
+                enum:
+                  - pending
+                  - paid
+                  - failed
+                  - returned
+              deposit_id:
+                description: ID of the parent deposit.
+                type: string
+                format: uuid
+              amount:
+                description: Amount as a string decimal (e.g. "100.50").
+                type: string
+              currency:
+                description: >-
+                  Currency code (ISO 4217 currency code or crypto currency
+                  code).
+                type: string
+                enum:
+                  - EUR
+                  - GBP
+                  - USD
+                  - USDC
+                  - BTC
+                  - ETH
+                  - SOL
+                  - POL
+              failure:
+                description: Failure details when status is failed, otherwise null.
+                type: object
+                properties:
+                  code:
+                    description: Failure code.
+                    type: string
+                    enum:
+                      - account_closed
+                      - account_blocked
+                      - insufficient_funds
+                      - invalid_account_format
+                      - invalid_instruction
+                      - invalid_amount
+                      - invalid_time
+                      - duplicate_transaction
+                      - payee_verification_failed
+                      - system_error
+                      - provider_system_error
+                      - rejected_by_correspondent_bank
+                      - blocked_by_review
+                      - unknown
+                    x-enumNames:
+                      - ACCOUNT_CLOSED
+                      - ACCOUNT_BLOCKED
+                      - INSUFFICIENT_FUNDS
+                      - INVALID_ACCOUNT_FORMAT
+                      - INVALID_INSTRUCTION
+                      - INVALID_AMOUNT
+                      - INVALID_TIME
+                      - DUPLICATE_TRANSACTION
+                      - PAYEE_VERIFICATION_FAILED
+                      - SYSTEM_ERROR
+                      - PROVIDER_SYSTEM_ERROR
+                      - REJECTED_BY_CORRESPONDENT_BANK
+                      - BLOCKED_BY_REVIEW
+                      - UNKNOWN
+                  message:
+                    description: Human-readable description of the failure.
+                    type: string
+                  retry:
+                    description: Whether the return can be retried.
+                    type: boolean
+                required:
+                  - code
+                  - message
+                  - retry
+                nullable: true
+              created_at:
+                description: ISO 8601 UTC timestamp when the return was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the return was last updated.
+                type: string
+                format: date-time
+            required:
+              - id
+              - type
+              - status
+              - deposit_id
+              - amount
+              - currency
+              - failure
+              - created_at
+              - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    CreateReturnBodyDto:
+      type: object
+      properties:
+        deposit_id:
+          description: Deposit to return funds from.
+          type: string
+          format: uuid
+        rail:
+          description: Payment rail when the deposit allows multiple schemes.
+          type: string
+          enum:
+            - sepa_instant
+            - sepa
+            - faster_payments
+      required:
+        - deposit_id
+    ReturnResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the return.
+          type: string
+          format: uuid
+        type:
+          description: Type of the resource.
+          type: string
+          enum:
+            - return
+        status:
+          description: Current status of the return.
+          type: string
+          enum:
+            - pending
+            - paid
+            - failed
+            - returned
+        deposit_id:
+          description: ID of the parent deposit.
+          type: string
+          format: uuid
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Currency code (ISO 4217 currency code or crypto currency code).
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            code:
+              description: Failure code.
+              type: string
+              enum:
+                - account_closed
+                - account_blocked
+                - insufficient_funds
+                - invalid_account_format
+                - invalid_instruction
+                - invalid_amount
+                - invalid_time
+                - duplicate_transaction
+                - payee_verification_failed
+                - system_error
+                - provider_system_error
+                - rejected_by_correspondent_bank
+                - blocked_by_review
+                - unknown
+              x-enumNames:
+                - ACCOUNT_CLOSED
+                - ACCOUNT_BLOCKED
+                - INSUFFICIENT_FUNDS
+                - INVALID_ACCOUNT_FORMAT
+                - INVALID_INSTRUCTION
+                - INVALID_AMOUNT
+                - INVALID_TIME
+                - DUPLICATE_TRANSACTION
+                - PAYEE_VERIFICATION_FAILED
+                - SYSTEM_ERROR
+                - PROVIDER_SYSTEM_ERROR
+                - REJECTED_BY_CORRESPONDENT_BANK
+                - BLOCKED_BY_REVIEW
+                - UNKNOWN
+            message:
+              description: Human-readable description of the failure.
+              type: string
+            retry:
+              description: Whether the return can be retried.
+              type: boolean
+          required:
+            - code
+            - message
+            - retry
+          nullable: true
+        created_at:
+          description: ISO 8601 UTC timestamp when the return was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the return was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - status
+        - deposit_id
+        - amount
+        - currency
+        - failure
+        - created_at
+        - updated_at
+    PingResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the ping event.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - ping
+        merchant_id:
+          description: Identifier of the merchant the ping was dispatched for.
+          type: string
+        dispatched_at:
+          description: ISO 8601 UTC timestamp when the ping was dispatched.
+          type: string
+          format: date-time
+        message:
+          description: >-
+            Human-readable notice that this event was generated by the test
+            endpoint and does not reflect any real business activity.
+          type: string
+      required:
+        - id
+        - type
+        - merchant_id
+        - dispatched_at
+        - message
+    CreateWebhookSubscriptionBodyDto:
+      type: object
+      properties:
+        url:
+          description: The HTTPS URL where webhook events will be delivered.
+          type: string
+          format: uri
+        events:
+          description: Event types to subscribe to. Use ["*"] for all events.
+          type: array
+          minItems: 1
+          items:
+            description: Event type to subscribe to. Use "*" for all events.
+            type: string
+            enum:
+              - payout.created
+              - payout.initiated
+              - payout.paid
+              - payout.failed
+              - return.initiated
+              - return.paid
+              - return.failed
+              - return.returned
+              - deposit.received
+              - conversion.created
+              - conversion.completed
+              - conversion.failed
+              - '*'
+      required:
+        - url
+        - events
+    WebhookSubscriptionResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the webhook subscription.
+          type: string
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - webhook_subscription
+        url:
+          description: The HTTPS URL where webhook events are delivered.
+          type: string
+        events:
+          description: Event types this subscription receives.
+          type: array
+          items:
+            description: Event type the subscription receives.
+            type: string
+            enum:
+              - payout.created
+              - payout.initiated
+              - payout.paid
+              - payout.failed
+              - return.initiated
+              - return.paid
+              - return.failed
+              - return.returned
+              - deposit.received
+              - conversion.created
+              - conversion.completed
+              - conversion.failed
+        created_at:
+          description: ISO 8601 UTC timestamp when the subscription was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the subscription was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - url
+        - events
+        - created_at
+        - updated_at
+    ListWebhookSubscriptionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the webhook subscription.
+                type: string
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - webhook_subscription
+              url:
+                description: The HTTPS URL where webhook events are delivered.
+                type: string
+              events:
+                description: Event types this subscription receives.
+                type: array
+                items:
+                  description: Event type the subscription receives.
+                  type: string
+                  enum:
+                    - payout.created
+                    - payout.initiated
+                    - payout.paid
+                    - payout.failed
+                    - return.initiated
+                    - return.paid
+                    - return.failed
+                    - return.returned
+                    - deposit.received
+                    - conversion.created
+                    - conversion.completed
+                    - conversion.failed
+              created_at:
+                description: ISO 8601 UTC timestamp when the subscription was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the subscription was last updated.
+                type: string
+                format: date-time
+            required:
+              - id
+              - type
+              - url
+              - events
+              - created_at
+              - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    UpdateWebhookSubscriptionBodyDto:
+      type: object
+      properties:
+        url:
+          description: The HTTPS URL where webhook events will be delivered.
+          type: string
+          format: uri
+        events:
+          description: Event types to subscribe to. Use ["*"] for all events.
+          type: array
+          minItems: 1
+          items:
+            description: Event type to subscribe to. Use "*" for all events.
+            type: string
+            enum:
+              - payout.created
+              - payout.initiated
+              - payout.paid
+              - payout.failed
+              - return.initiated
+              - return.paid
+              - return.failed
+              - return.returned
+              - deposit.received
+              - conversion.created
+              - conversion.completed
+              - conversion.failed
+              - '*'
+    EventResourceDto:
+      type: object
+      properties:
+        id:
+          description: >-
+            Unique identifier of the event. Matches the envelope `id` delivered
+            in the webhook payload and is stable across subscription fan-out and
+            retries.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - event
+        event_type:
+          description: Event type.
+          type: string
+          enum:
+            - payout.created
+            - payout.initiated
+            - payout.paid
+            - payout.failed
+            - return.initiated
+            - return.paid
+            - return.failed
+            - return.returned
+            - deposit.received
+            - conversion.created
+            - conversion.completed
+            - conversion.failed
+            - ping.test
+        api_version:
+          description: >-
+            API version the event payload was rendered at. Stable across retries
+            and redeliveries, and mirrored in the webhook envelope `api_version`
+            field.
+          type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the event was created.
+          type: string
+          format: date-time
+        data:
+          description: Event payload. Shape matches the resource schema for `event_type`.
+          type: object
+          additionalProperties: {}
+      required:
+        - id
+        - type
+        - event_type
+        - api_version
+        - created_at
+        - data
+    DepositResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the deposit.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - deposit
+        status:
+          description: Current status of the deposit.
+          type: string
+          enum:
+            - received
+            - in_return
+            - returned
+            - return_failed
+            - return_returned
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Supported fiat or crypto currency code for the deposit amount.
+          type: string
+          enum:
+            - EUR
+            - GBP
+            - USD
+            - USDC
+            - BTC
+            - ETH
+            - SOL
+            - POL
+        source:
+          description: Counterparty bank account or crypto wallet that sent the funds.
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for IBAN source.
+                  type: string
+                  enum:
+                    - iban
+                iban:
+                  description: International Bank Account Number.
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+                bic:
+                  description: Bank Identifier Code, or null if not provided.
+                  type: string
+                  nullable: true
+              required:
+                - type
+                - iban
+                - account_holder_name
+                - bic
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for UK sort code source.
+                  type: string
+                  enum:
+                    - sort_code
+                sort_code:
+                  description: UK sort code (6 digits).
+                  type: string
+                account_number:
+                  description: UK account number (8 digits).
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+              required:
+                - type
+                - sort_code
+                - account_number
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for ABA wire source.
+                  type: string
+                  enum:
+                    - aba
+                routing_number:
+                  description: ABA routing number (9 digits).
+                  type: string
+                account_number:
+                  description: Bank account number.
+                  type: string
+                account_holder_name:
+                  description: Name of the account holder.
+                  type: string
+              required:
+                - type
+                - routing_number
+                - account_number
+                - account_holder_name
+            - type: object
+              properties:
+                type:
+                  description: Discriminator for crypto wallet source.
+                  type: string
+                  enum:
+                    - crypto_wallet
+                address:
+                  description: Wallet address on the specified blockchain.
+                  type: string
+                blockchain:
+                  description: Blockchain network for the crypto wallet.
+                  type: string
+                  enum:
+                    - bitcoin
+                    - ethereum
+                    - solana
+                    - polygon
+                    - bitcoin_testnet4
+                    - ethereum_sepolia
+                    - solana_devnet
+                    - polygon_amoy
+              required:
+                - type
+                - address
+                - blockchain
+        destination_account_id:
+          description: ID of the merchant account that received the deposit.
+          type: string
+          format: uuid
+        bank_statement_reference:
+          description: >-
+            Reference visible on the bank statement, or null when not
+            applicable.
+          type: string
+          nullable: true
+        rail:
+          description: Payment rail or blockchain used for the deposit.
+          type: string
+          enum:
+            - sepa_instant
+            - faster_payments
+            - sepa
+            - elixir
+            - express_elixir
+            - sek_account_to_account
+            - sumclearing
+            - straksclearing
+            - swift
+            - internal
+            - target
+            - ach
+            - fedwire
+            - btc
+            - btc_testnet4
+            - eth
+            - eth_sepolia
+            - sol
+            - sol_devnet
+            - matic
+            - matic_amoy
+          nullable: true
+        tx_hash:
+          description: Transaction hash for crypto deposits, or null when not known.
+          type: string
+          nullable: true
+        returns:
+          description: Array of deposit return IDs associated with this deposit.
+          type: array
+          items:
+            type: string
+            format: uuid
+        created_at:
+          description: ISO 8601 UTC timestamp when the deposit was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the deposit was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - status
+        - amount
+        - currency
+        - source
+        - destination_account_id
+        - bank_statement_reference
+        - rail
+        - tx_hash
+        - returns
+        - created_at
+        - updated_at
+    ListDepositsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the deposit.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - deposit
+              status:
+                description: Current status of the deposit.
+                type: string
+                enum:
+                  - received
+                  - in_return
+                  - returned
+                  - return_failed
+                  - return_returned
+              amount:
+                description: Amount as a string decimal (e.g. "100.50").
+                type: string
+              currency:
+                description: Supported fiat or crypto currency code for the deposit amount.
+                type: string
+                enum:
+                  - EUR
+                  - GBP
+                  - USD
+                  - USDC
+                  - BTC
+                  - ETH
+                  - SOL
+                  - POL
+              source:
+                description: >-
+                  Counterparty bank account or crypto wallet that sent the
+                  funds.
+                oneOf:
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for IBAN source.
+                        type: string
+                        enum:
+                          - iban
+                      iban:
+                        description: International Bank Account Number.
+                        type: string
+                      account_holder_name:
+                        description: Name of the account holder.
+                        type: string
+                      bic:
+                        description: Bank Identifier Code, or null if not provided.
+                        type: string
+                        nullable: true
+                    required:
+                      - type
+                      - iban
+                      - account_holder_name
+                      - bic
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for UK sort code source.
+                        type: string
+                        enum:
+                          - sort_code
+                      sort_code:
+                        description: UK sort code (6 digits).
+                        type: string
+                      account_number:
+                        description: UK account number (8 digits).
+                        type: string
+                      account_holder_name:
+                        description: Name of the account holder.
+                        type: string
+                    required:
+                      - type
+                      - sort_code
+                      - account_number
+                      - account_holder_name
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for ABA wire source.
+                        type: string
+                        enum:
+                          - aba
+                      routing_number:
+                        description: ABA routing number (9 digits).
+                        type: string
+                      account_number:
+                        description: Bank account number.
+                        type: string
+                      account_holder_name:
+                        description: Name of the account holder.
+                        type: string
+                    required:
+                      - type
+                      - routing_number
+                      - account_number
+                      - account_holder_name
+                  - type: object
+                    properties:
+                      type:
+                        description: Discriminator for crypto wallet source.
+                        type: string
+                        enum:
+                          - crypto_wallet
+                      address:
+                        description: Wallet address on the specified blockchain.
+                        type: string
+                      blockchain:
+                        description: Blockchain network for the crypto wallet.
+                        type: string
+                        enum:
+                          - bitcoin
+                          - ethereum
+                          - solana
+                          - polygon
+                          - bitcoin_testnet4
+                          - ethereum_sepolia
+                          - solana_devnet
+                          - polygon_amoy
+                    required:
+                      - type
+                      - address
+                      - blockchain
+              destination_account_id:
+                description: ID of the merchant account that received the deposit.
+                type: string
+                format: uuid
+              bank_statement_reference:
+                description: >-
+                  Reference visible on the bank statement, or null when not
+                  applicable.
+                type: string
+                nullable: true
+              rail:
+                description: Payment rail or blockchain used for the deposit.
+                type: string
+                enum:
+                  - sepa_instant
+                  - faster_payments
+                  - sepa
+                  - elixir
+                  - express_elixir
+                  - sek_account_to_account
+                  - sumclearing
+                  - straksclearing
+                  - swift
+                  - internal
+                  - target
+                  - ach
+                  - fedwire
+                  - btc
+                  - btc_testnet4
+                  - eth
+                  - eth_sepolia
+                  - sol
+                  - sol_devnet
+                  - matic
+                  - matic_amoy
+                nullable: true
+              tx_hash:
+                description: Transaction hash for crypto deposits, or null when not known.
+                type: string
+                nullable: true
+              returns:
+                description: Array of deposit return IDs associated with this deposit.
+                type: array
+                items:
+                  type: string
+                  format: uuid
+              created_at:
+                description: ISO 8601 UTC timestamp when the deposit was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the deposit was last updated.
+                type: string
+                format: date-time
+            required:
+              - id
+              - type
+              - status
+              - amount
+              - currency
+              - source
+              - destination_account_id
+              - bank_statement_reference
+              - rail
+              - tx_hash
+              - returns
+              - created_at
+              - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    ListEventsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: >-
+                  Unique identifier of the event. Matches the envelope `id`
+                  delivered in the webhook payload and is stable across
+                  subscription fan-out and retries.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - event
+              event_type:
+                description: Event type.
+                type: string
+                enum:
+                  - payout.created
+                  - payout.initiated
+                  - payout.paid
+                  - payout.failed
+                  - return.initiated
+                  - return.paid
+                  - return.failed
+                  - return.returned
+                  - deposit.received
+                  - conversion.created
+                  - conversion.completed
+                  - conversion.failed
+                  - ping.test
+              api_version:
+                description: >-
+                  API version the event payload was rendered at. Stable across
+                  retries and redeliveries, and mirrored in the webhook envelope
+                  `api_version` field.
+                type: string
+              created_at:
+                description: ISO 8601 UTC timestamp when the event was created.
+                type: string
+                format: date-time
+              data:
+                description: >-
+                  Event payload. Shape matches the resource schema for
+                  `event_type`.
+                type: object
+                additionalProperties: {}
+            required:
+              - id
+              - type
+              - event_type
+              - api_version
+              - created_at
+              - data
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    WebhookDeliveryResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the webhook delivery.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - webhook_delivery
+        event_id:
+          description: Identifier of the event this delivery was for.
+          type: string
+          format: uuid
+        subscription_id:
+          description: Identifier of the webhook subscription this delivery targeted.
+          type: string
+          format: uuid
+        status:
+          description: Current status of the delivery.
+          type: string
+          enum:
+            - pending
+            - delivered
+            - failed
+            - processing
+            - ignored
+        attempts:
+          description: Ordered list of HTTP delivery attempts for this delivery.
+          type: array
+          items:
+            type: object
+            properties:
+              attempted_at:
+                description: ISO 8601 UTC timestamp when this attempt resolved.
+                type: string
+                format: date-time
+              status:
+                description: Current status of the delivery.
+                type: string
+                enum:
+                  - pending
+                  - delivered
+                  - failed
+                  - processing
+                  - ignored
+              status_code:
+                description: HTTP status code returned by the receiver for this attempt.
+                type: integer
+            required:
+              - attempted_at
+              - status
+              - status_code
+        created_at:
+          description: ISO 8601 UTC timestamp when the delivery was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the delivery was last updated.
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - event_id
+        - subscription_id
+        - status
+        - attempts
+        - created_at
+        - updated_at
+    ListWebhookDeliveriesResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the webhook delivery.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                  - webhook_delivery
+              event_id:
+                description: Identifier of the event this delivery was for.
+                type: string
+                format: uuid
+              subscription_id:
+                description: Identifier of the webhook subscription this delivery targeted.
+                type: string
+                format: uuid
+              status:
+                description: Current status of the delivery.
+                type: string
+                enum:
+                  - pending
+                  - delivered
+                  - failed
+                  - processing
+                  - ignored
+              attempts:
+                description: Ordered list of HTTP delivery attempts for this delivery.
+                type: array
+                items:
+                  type: object
+                  properties:
+                    attempted_at:
+                      description: ISO 8601 UTC timestamp when this attempt resolved.
+                      type: string
+                      format: date-time
+                    status:
+                      description: Current status of the delivery.
+                      type: string
+                      enum:
+                        - pending
+                        - delivered
+                        - failed
+                        - processing
+                        - ignored
+                    status_code:
+                      description: >-
+                        HTTP status code returned by the receiver for this
+                        attempt.
+                      type: integer
+                  required:
+                    - attempted_at
+                    - status
+                    - status_code
+              created_at:
+                description: ISO 8601 UTC timestamp when the delivery was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the delivery was last updated.
+                type: string
+                format: date-time
+            required:
+              - id
+              - type
+              - event_id
+              - subscription_id
+              - status
+              - attempts
+              - created_at
+              - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    ListScopesResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - scope
+              id:
+                description: Scope identifier in `resource:action` format.
+                type: string
+                enum:
+                  - payouts:read
+                  - payouts:write
+                  - deposits:read
+                  - returns:read
+                  - returns:write
+                  - conversions:read
+                  - conversions:write
+                  - quotes:read
+                  - accounts:read
+                  - accounts:write
+                  - account_programs:read
+                  - webhook_subscriptions:read
+                  - webhook_subscriptions:write
+                  - events:read
+                  - webhook_deliveries:read
+                  - webhook_deliveries:write
+              description:
+                description: Human-readable description of the scope.
+                type: string
+              resource:
+                description: Resource the scope applies to.
+                type: string
+              action:
+                description: Action category.
+                type: string
+                enum:
+                  - read
+                  - write
+              available_from:
+                description: First API version that exposes this scope.
+                type: string
+              deprecated_in:
+                description: >-
+                  API version in which this scope was deprecated; null if not
+                  deprecated.
+                type: string
+                nullable: true
+            required:
+              - type
+              - id
+              - description
+              - resource
+              - action
+              - available_from
+              - deprecated_in
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+    ApiKeyResourceDto:
+      type: object
+      properties:
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+            - api_key
+        id:
+          description: Unique identifier of the API key.
+          type: string
+        merchant_id:
+          description: Identifier of the merchant the key belongs to.
+          type: string
+        scopes:
+          description: >-
+            The effective set of scopes for this key. Stored aliases (e.g.
+            `full_access`, `read_only`) are always expanded to concrete
+            `resource:action` scopes against the current registry before they
+            appear here.
+          type: array
+          items:
+            type: string
+            enum:
+              - payouts:read
+              - payouts:write
+              - deposits:read
+              - returns:read
+              - returns:write
+              - conversions:read
+              - conversions:write
+              - quotes:read
+              - accounts:read
+              - accounts:write
+              - account_programs:read
+              - webhook_subscriptions:read
+              - webhook_subscriptions:write
+              - events:read
+              - webhook_deliveries:read
+              - webhook_deliveries:write
+        ip_allow_list:
+          description: >-
+            IP addresses or CIDR ranges this key is permitted to authenticate
+            from. An empty array means the key is not IP-restricted.
+          type: array
+          items:
+            type: string
+        expires_at:
+          description: >-
+            ISO 8601 UTC timestamp at which this key expires. `null` if the key
+            has no expiry.
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          description: ISO 8601 UTC timestamp at which this key was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: >-
+            ISO 8601 UTC timestamp of the last update to this key (e.g. roll, IP
+            allowlist change, revoke). `null` if the key has not been updated
+            since creation.
+          type: string
+          format: date-time
+          nullable: true
+        api_version:
+          description: >-
+            Effective API version for the request (header value or merchant
+            pin).
+          type: string
+      required:
+        - type
+        - id
+        - merchant_id
+        - scopes
+        - ip_allow_list
+        - expires_at
+        - created_at
+        - updated_at
+        - api_version
+    ListApiVersionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - api_version
+              name:
+                description: >-
+                  Version identifier as sent in the `api-version` request
+                  header.
+                type: string
+              released_at:
+                description: When this version became publicly available, ISO 8601 UTC.
+                type: string
+                format: date-time
+              is_latest:
+                description: >-
+                  True for the most recently published version. New accounts and
+                  unpinned merchants resolve to this version.
+                type: boolean
+              deprecated_at:
+                description: >-
+                  When this version was marked deprecated, ISO 8601 UTC. Null if
+                  not deprecated.
+                type: string
+                format: date-time
+                nullable: true
+              sunset_at:
+                description: >-
+                  When this version will stop being served, ISO 8601 UTC. Null
+                  if no sunset is scheduled.
+                type: string
+                format: date-time
+                nullable: true
+            required:
+              - type
+              - name
+              - released_at
+              - is_latest
+              - deprecated_at
+              - sunset_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+        - data
+        - has_more
+        - next_cursor
+security:
+  - BearerAuth: []
+webhooks:
+  payout.created:
+    post:
+      summary: payout.created
+      x-mint:
+        metadata:
+          title: payout.created
+          sidebarTitle: payout.created
+      description: Sent when a payout is created.
+      operationId: webhook_payout_created
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - payout.created
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  payout.initiated:
+    post:
+      summary: payout.initiated
+      x-mint:
+        metadata:
+          title: payout.initiated
+          sidebarTitle: payout.initiated
+      description: Sent when a payout is initiated and processing has started.
+      operationId: webhook_payout_initiated
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - payout.initiated
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  payout.paid:
+    post:
+      summary: payout.paid
+      x-mint:
+        metadata:
+          title: payout.paid
+          sidebarTitle: payout.paid
+      description: Sent when a payout has been successfully delivered.
+      operationId: webhook_payout_paid
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - payout.paid
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  payout.failed:
+    post:
+      summary: payout.failed
+      x-mint:
+        metadata:
+          title: payout.failed
+          sidebarTitle: payout.failed
+      description: Sent when a payout has failed.
+      operationId: webhook_payout_failed
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - payout.failed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.initiated:
+    post:
+      summary: return.initiated
+      x-mint:
+        metadata:
+          title: return.initiated
+          sidebarTitle: return.initiated
+      description: Sent when a deposit return has been initiated.
+      operationId: webhook_return_initiated
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - return.initiated
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.paid:
+    post:
+      summary: return.paid
+      x-mint:
+        metadata:
+          title: return.paid
+          sidebarTitle: return.paid
+      description: Sent when a deposit return outbound payment has been paid.
+      operationId: webhook_return_paid
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - return.paid
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.failed:
+    post:
+      summary: return.failed
+      x-mint:
+        metadata:
+          title: return.failed
+          sidebarTitle: return.failed
+      description: Sent when a deposit return has failed.
+      operationId: webhook_return_failed
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - return.failed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.returned:
+    post:
+      summary: return.returned
+      x-mint:
+        metadata:
+          title: return.returned
+          sidebarTitle: return.returned
+      description: Sent when a succeeded deposit return was reversed or returned.
+      operationId: webhook_return_returned
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - return.returned
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  deposit.received:
+    post:
+      summary: deposit.received
+      x-mint:
+        metadata:
+          title: deposit.received
+          sidebarTitle: deposit.received
+      description: Sent when a deposit is received
+      operationId: webhook_deposit_received
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - deposit.received
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/DepositResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  conversion.created:
+    post:
+      summary: conversion.created
+      x-mint:
+        metadata:
+          title: conversion.created
+          sidebarTitle: conversion.created
+      description: Sent when a conversion is created and processing has started.
+      operationId: webhook_conversion_created
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - conversion.created
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ConversionResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  conversion.completed:
+    post:
+      summary: conversion.completed
+      x-mint:
+        metadata:
+          title: conversion.completed
+          sidebarTitle: conversion.completed
+      description: Sent when a conversion has completed successfully.
+      operationId: webhook_conversion_completed
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - conversion.completed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ConversionResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  conversion.failed:
+    post:
+      summary: conversion.failed
+      x-mint:
+        metadata:
+          title: conversion.failed
+          sidebarTitle: conversion.failed
+      description: Sent when a conversion has failed.
+      operationId: webhook_conversion_failed
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - conversion.failed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ConversionResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.
+  ping.test:
+    post:
+      summary: ping.test
+      x-mint:
+        metadata:
+          title: ping.test
+          sidebarTitle: ping.test
+      description: >-
+        Sent when a merchant explicitly triggers a test delivery to one of their
+        webhook subscriptions. Does not reflect any real business activity;
+        handlers should short-circuit on this event type.
+      operationId: webhook_ping_test
+      tags:
+        - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                    - ping.test
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: >-
+                    API version the payload was rendered at. Stable across
+                    retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PingResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+                - id
+                - type
+                - api_version
+                - payload
+                - date
+      responses:
+        '200':
+          description: Event received successfully.

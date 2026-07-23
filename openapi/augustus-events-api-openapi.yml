@@ -1,0 +1,229 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Events API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Events
+paths:
+  /v1/events/{id}:
+    get:
+      description: Retrieves a webhook event by ID.
+      operationId: EventsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the event.
+        schema:
+          format: uuid
+          type: string
+      responses:
+        '200':
+          description: The event resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResourceDto'
+      summary: Retrieve event
+      tags:
+      - Events
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst event = await client.events.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(event.id);"
+  /v1/events:
+    get:
+      description: Lists webhook events for the merchant with cursor-based pagination. Events are retained for 30 days.
+      operationId: EventsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          exclusiveMaximum: false
+          exclusiveMinimum: false
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: event_type
+        required: false
+        in: query
+        description: Filter by event type.
+        schema:
+          type: string
+          enum:
+          - payout.created
+          - payout.initiated
+          - payout.paid
+          - payout.failed
+          - return.initiated
+          - return.paid
+          - return.failed
+          - return.returned
+          - deposit.received
+          - conversion.created
+          - conversion.completed
+          - conversion.failed
+          - ping.test
+      - name: created_at.gte
+        required: false
+        in: query
+        description: Include events whose created_at is greater than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      - name: created_at.lte
+        required: false
+        in: query
+        description: Include events whose created_at is less than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          type: string
+      responses:
+        '200':
+          description: Paginated list of events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEventsResponseDto'
+      summary: List events
+      tags:
+      - Events
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const eventListResponse of client.events.list()) {\n  console.log(eventListResponse.id);\n}"
+components:
+  schemas:
+    EventResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - event
+        event_type:
+          description: Event type.
+          type: string
+          enum:
+          - payout.created
+          - payout.initiated
+          - payout.paid
+          - payout.failed
+          - return.initiated
+          - return.paid
+          - return.failed
+          - return.returned
+          - deposit.received
+          - conversion.created
+          - conversion.completed
+          - conversion.failed
+          - ping.test
+        api_version:
+          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+          type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the event was created.
+          type: string
+          format: date-time
+        data:
+          description: Event payload. Shape matches the resource schema for `event_type`.
+          type: object
+          additionalProperties: {}
+      required:
+      - id
+      - type
+      - event_type
+      - api_version
+      - created_at
+      - data
+    ListEventsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - event
+              event_type:
+                description: Event type.
+                type: string
+                enum:
+                - payout.created
+                - payout.initiated
+                - payout.paid
+                - payout.failed
+                - return.initiated
+                - return.paid
+                - return.failed
+                - return.returned
+                - deposit.received
+                - conversion.created
+                - conversion.completed
+                - conversion.failed
+                - ping.test
+              api_version:
+                description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+                type: string
+              created_at:
+                description: ISO 8601 UTC timestamp when the event was created.
+                type: string
+                format: date-time
+              data:
+                description: Event payload. Shape matches the resource schema for `event_type`.
+                type: object
+                additionalProperties: {}
+            required:
+            - id
+            - type
+            - event_type
+            - api_version
+            - created_at
+            - data
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

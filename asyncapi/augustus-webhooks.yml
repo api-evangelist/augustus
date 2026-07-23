@@ -1,0 +1,87 @@
+generated: '2026-07-18'
+method: searched
+source:
+- https://docs.augustus.com/v1/webhooks
+- https://api.getivy.de/openapi/webhooks/json
+- https://docs.augustus.com/webhook-getting-started/introduction
+spec_type: Webhooks
+description: >-
+  Augustus / Ivy webhook event catalog. Augustus delivers events to your server
+  as signed HTTP POST requests when things happen in your account. Events follow
+  the resource.action naming convention; the payload snapshots the resource at
+  event time. The verbatim webhook event OpenAPI (payload schemas) is saved
+  alongside as augustus-webhooks-openapi.json. Events are retained for 30 days.
+delivery:
+  transport: HTTPS POST
+  signature: Augustus signs each request with a per-subscription secret key (verify via the signature header).
+  envelope_fields:
+  - id
+  - type
+  - api_version
+  - payload
+  - date
+  subscription_management: Dashboard, REST API (webhook_subscriptions), or SDK
+  wildcard: Subscribe to ["*"] to receive every event type, including future ones.
+  replay: Failed deliveries can be redelivered via POST /v1/webhook_deliveries/{id}/redeliver
+raw_spec: asyncapi/augustus-webhooks-openapi.json
+events:
+- event: payout.created
+  description: A payout has been created
+- event: payout.initiated
+  description: A payout has been initiated
+- event: payout.paid
+  description: A payout has been paid
+- event: payout.failed
+  description: A payout has failed
+- event: payout.updated
+  description: A payout has been updated
+- event: payout_report.requested
+  description: A payout report has been requested
+- event: user_payout.initiated
+  description: A customer payout has been initiated
+- event: user_payout.paid
+  description: A customer payout has been paid
+- event: user_payout.failed
+  description: A customer payout has failed
+- event: deposit.received
+  description: A deposit has been received
+- event: return.initiated
+  description: A return has been initiated
+- event: return.returned
+  description: A return has been returned
+- event: return.succeeded
+  description: A return has succeeded
+- event: return.failed
+  description: A return has failed
+- event: fx.initiated
+  description: An FX has been initiated
+- event: fx.succeeded
+  description: An FX has succeeded
+- event: fx.failed
+  description: An FX has failed
+- event: conversion.created
+  description: A currency conversion has been created
+- event: order.created
+  description: An order has been created
+- event: order.updated
+  description: An order has been updated (carries statusClassification on failure/cancel)
+- event: checkout_session.created
+  description: A checkout session has been created
+- event: checkout_session.updated
+  description: A checkout session has been updated
+- event: checkout_session.completed
+  description: A checkout session has been completed
+- event: checkout_session.expired
+  description: A checkout session has expired
+- event: data_session.completed
+  description: A data session has been completed
+- event: refund.initiated
+  description: A refund initiated with /refund/create
+- event: refund.succeeded
+  description: A refund initiated with /refund/create succeeded
+- event: refund.failed
+  description: A refund initiated with /refund/create failed
+- event: merchant.updated
+  description: Your merchant account has been updated
+- event: ping.test
+  description: Test event triggered via /webhook-subscription/ping (no real business activity)

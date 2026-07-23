@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: Augustus Banking Account Programs Scopes API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Scopes
+paths:
+  /v1/scopes:
+    get:
+      description: 'Returns the catalogue of scopes available to API keys. The list is filtered by the `Api-Version` request header and defaults to the latest version when the header is omitted. Public: no authentication required.'
+      operationId: ScopesController_list
+      parameters: []
+      responses:
+        '200':
+          description: Scope catalogue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListScopesResponseDto'
+      summary: List scopes
+      tags:
+      - Scopes
+      x-codeSamples:
+      - lang: JavaScript
+        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst scopes = await client.scopes.list();\n\nconsole.log(scopes.data);"
+components:
+  schemas:
+    ListScopesResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                - scope
+              id:
+                description: Scope identifier in `resource:action` format.
+                type: string
+                enum:
+                - payouts:read
+                - payouts:write
+                - deposits:read
+                - returns:read
+                - returns:write
+                - conversions:read
+                - conversions:write
+                - quotes:read
+                - accounts:read
+                - accounts:write
+                - account_programs:read
+                - webhook_subscriptions:read
+                - webhook_subscriptions:write
+                - events:read
+                - webhook_deliveries:read
+                - webhook_deliveries:write
+              description:
+                description: Human-readable description of the scope.
+                type: string
+              resource:
+                description: Resource the scope applies to.
+                type: string
+              action:
+                description: Action category.
+                type: string
+                enum:
+                - read
+                - write
+              available_from:
+                description: First API version that exposes this scope.
+                type: string
+              deprecated_in:
+                description: API version in which this scope was deprecated; null if not deprecated.
+                type: string
+                nullable: true
+            required:
+            - type
+            - id
+            - description
+            - resource
+            - action
+            - available_from
+            - deprecated_in
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API
