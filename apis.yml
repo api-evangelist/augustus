@@ -314,7 +314,7 @@ common:
 - type: StatusPage
   url: https://status.getivy.io
 - type: OpenAPI
-  url: openapi/augustus-openapi-original.yml
+  url: openapi/_original/augustus-openapi-original.yml
 - type: Packages
   url: packages/augustus-packages.yml
 - type: SDKs
