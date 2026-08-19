@@ -1,0 +1,113 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs Payouts API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Payouts",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List payouts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/payouts",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page (1-100). Defaults to 10."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous next_cursor."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by payout status."
+              },
+              {
+                "name": "created_at.gte",
+                "value": "",
+                "type": "query",
+                "description": "Include payouts whose created_at is greater than or equal to this ISO 8601 timestamp."
+              },
+              {
+                "name": "created_at.lte",
+                "value": "",
+                "type": "query",
+                "description": "Include payouts whose created_at is less than or equal to this ISO 8601 timestamp."
+              },
+              {
+                "name": "currencies",
+                "value": "",
+                "type": "query",
+                "description": "Filter to these currency codes. Use a separate `currencies` query parameter for each value (e.g. `?currencies=EUR&currencies=USD`)."
+              }
+            ]
+          },
+          "docs": "Lists payouts for the merchant with cursor-based pagination."
+        },
+        {
+          "info": {
+            "name": "Create payout",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/payouts",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new payout."
+        },
+        {
+          "info": {
+            "name": "Retrieve payout",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/payouts/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the payout."
+              }
+            ]
+          },
+          "docs": "Retrieves a payout by ID."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

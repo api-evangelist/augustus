@@ -1,0 +1,87 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Account Programs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List account programs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/account_programs",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page (1-100). Defaults to 10."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous next_cursor."
+              }
+            ]
+          },
+          "docs": "Lists account programs for the merchant with cursor-based pagination."
+        },
+        {
+          "info": {
+            "name": "Retrieve account program balance",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/account_programs/:id/balance",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the account program."
+              }
+            ]
+          },
+          "docs": "Returns the aggregated available balance for all virtual accounts under the account program."
+        },
+        {
+          "info": {
+            "name": "Retrieve account program",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/account_programs/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the account program."
+              }
+            ]
+          },
+          "docs": "Retrieves an account program by ID."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

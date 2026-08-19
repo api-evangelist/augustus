@@ -1,0 +1,74 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs Quotes API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Quotes",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get indicative quote",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/quotes/indicative",
+            "params": [
+              {
+                "name": "source_currency",
+                "value": "",
+                "type": "query",
+                "description": "Source currency code."
+              },
+              {
+                "name": "target_currency",
+                "value": "",
+                "type": "query",
+                "description": "Target currency code."
+              },
+              {
+                "name": "source_amount",
+                "value": "",
+                "type": "query",
+                "description": "Source amount as a string decimal. Defaults to 1 unit if omitted."
+              }
+            ]
+          },
+          "docs": "Returns an indicative quote for a currency pair. Not persisted or holdable."
+        },
+        {
+          "info": {
+            "name": "Retrieve quote",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/quotes/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the quote."
+              }
+            ]
+          },
+          "docs": "Retrieves a persisted quote by ID."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

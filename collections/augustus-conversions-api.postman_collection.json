@@ -1,0 +1,384 @@
+{
+  "item": [
+    {
+      "id": "57c02c65-64c3-4cfa-86f6-444bd076ca46",
+      "name": "Conversions",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "4dd26fbb-be31-49cf-b131-39054fc5189d",
+          "name": "List conversions",
+          "request": {
+            "name": "List conversions",
+            "description": {
+              "content": "Returns a paginated list of conversions.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "conversions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of results per page (1-100). Defaults to 10."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous next_cursor."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by conversion status."
+                },
+                {
+                  "disabled": false,
+                  "key": "source_currency",
+                  "value": "<string>",
+                  "description": "Filter by source currency code."
+                },
+                {
+                  "disabled": false,
+                  "key": "target_currency",
+                  "value": "<string>",
+                  "description": "Filter by target currency code."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "81a1d274-c9c0-48e9-91e6-7a1e2ff8e36c",
+              "name": "List of conversions",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "conversions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "source_currency",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "target_currency",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"6a1a013d-e970-cc8b-1a89-b9711e5b1fa9\",\n      \"quote_id\": \"1a7238d9-3675-72dd-f01f-e633d96cd111\",\n      \"type\": \"conversion\",\n      \"status\": \"failed\",\n      \"source_amount\": \"string\",\n      \"source_currency\": \"USD\",\n      \"target_currency\": \"POL\",\n      \"source_account_id\": \"string\",\n      \"target_account_id\": \"string\",\n      \"failure\": {\n        \"message\": \"string\"\n      },\n      \"metadata\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\",\n        \"key_2\": \"string\"\n      },\n      \"created_at\": \"1947-03-22T00:52:47.446Z\",\n      \"updated_at\": \"1959-12-02T22:34:36.281Z\",\n      \"completed_at\": \"2023-09-28T17:39:23.305Z\"\n    },\n    {\n      \"id\": \"070e214d-be6e-b885-fe14-c95108fc4edf\",\n      \"quote_id\": \"ccfa340f-9858-e51b-9d23-44fdca4fdda9\",\n      \"type\": \"conversion\",\n      \"status\": \"pending\",\n      \"source_amount\": \"string\",\n      \"source_currency\": \"BTC\",\n      \"target_currency\": \"GBP\",\n      \"source_account_id\": \"string\",\n      \"target_account_id\": \"string\",\n      \"failure\": {\n        \"message\": \"string\"\n      },\n      \"metadata\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\"\n      },\n      \"created_at\": \"2002-12-29T00:21:25.982Z\",\n      \"updated_at\": \"1970-11-02T03:51:07.010Z\",\n      \"completed_at\": \"2016-05-31T10:51:30.410Z\"\n    }\n  ],\n  \"has_more\": true,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "73e43732-8773-4d23-8abc-fb7525a8f2cd",
+          "name": "Create conversion",
+          "request": {
+            "name": "Create conversion",
+            "description": {
+              "content": "Creates and executes a conversion.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "conversions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source_account_id\": \"<uuid>\",\n  \"target_account_id\": \"<uuid>\",\n  \"source_amount\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0bb37175-1d53-4ab7-9aaf-aa320bc016e9",
+              "name": "Success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "conversions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"source_account_id\": \"<uuid>\",\n  \"target_account_id\": \"<uuid>\",\n  \"source_amount\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"0dc75531-ab45-9d0e-9d97-72c825ff3931\",\n  \"quote_id\": \"792b0797-e3e7-4fec-ba0c-74137dd9a65f\",\n  \"type\": \"conversion\",\n  \"status\": \"completed\",\n  \"source_amount\": \"string\",\n  \"source_currency\": \"SOL\",\n  \"target_currency\": \"SOL\",\n  \"source_account_id\": \"string\",\n  \"target_account_id\": \"string\",\n  \"failure\": {\n    \"message\": \"string\"\n  },\n  \"metadata\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  },\n  \"created_at\": \"2003-09-14T21:56:41.580Z\",\n  \"updated_at\": \"1969-07-08T12:00:36.932Z\",\n  \"completed_at\": \"1991-10-24T00:19:40.322Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9ca72844-7531-48f3-816c-d48ffa5d514b",
+          "name": "Retrieve conversion",
+          "request": {
+            "name": "Retrieve conversion",
+            "description": {
+              "content": "Retrieves a conversion by ID.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "conversions",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the conversion."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "34cca48f-f77c-48aa-9bfa-3b22c13de45c",
+              "name": "The conversion resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "conversions",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the conversion."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"0dc75531-ab45-9d0e-9d97-72c825ff3931\",\n  \"quote_id\": \"792b0797-e3e7-4fec-ba0c-74137dd9a65f\",\n  \"type\": \"conversion\",\n  \"status\": \"completed\",\n  \"source_amount\": \"string\",\n  \"source_currency\": \"SOL\",\n  \"target_currency\": \"SOL\",\n  \"source_account_id\": \"string\",\n  \"target_account_id\": \"string\",\n  \"failure\": {\n    \"message\": \"string\"\n  },\n  \"metadata\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  },\n  \"created_at\": \"2003-09-14T21:56:41.580Z\",\n  \"updated_at\": \"1969-07-08T12:00:36.932Z\",\n  \"completed_at\": \"1991-10-24T00:19:40.322Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "f307ae66-ce6e-49df-8db4-d38bc1bda052",
+    "name": "Augustus Banking Account Programs Conversions API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

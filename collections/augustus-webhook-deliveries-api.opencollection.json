@@ -1,0 +1,123 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs Webhook Deliveries API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Webhook Deliveries",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve webhook delivery",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/webhook_deliveries/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the webhook delivery."
+              }
+            ]
+          },
+          "docs": "Retrieves a webhook delivery by ID."
+        },
+        {
+          "info": {
+            "name": "List webhook deliveries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/webhook_deliveries",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page (1-100). Defaults to 10."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous next_cursor."
+              },
+              {
+                "name": "event_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by event ID."
+              },
+              {
+                "name": "subscription_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by webhook subscription ID."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by delivery status."
+              },
+              {
+                "name": "created_at.gte",
+                "value": "",
+                "type": "query",
+                "description": "Include deliveries whose created_at is greater than or equal to this ISO 8601 timestamp."
+              },
+              {
+                "name": "created_at.lte",
+                "value": "",
+                "type": "query",
+                "description": "Include deliveries whose created_at is less than or equal to this ISO 8601 timestamp."
+              }
+            ]
+          },
+          "docs": "Lists webhook deliveries for the merchant with cursor-based pagination. Deliveries are retained for 30 days."
+        },
+        {
+          "info": {
+            "name": "Redeliver webhook",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/webhook_deliveries/:id/redeliver",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the webhook delivery."
+              }
+            ]
+          },
+          "docs": "Triggers a fresh delivery attempt of the event to the same webhook subscription."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

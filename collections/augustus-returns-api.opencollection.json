@@ -1,0 +1,113 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs Returns API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Returns",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List returns",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/returns",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page (1-100). Defaults to 10."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous next_cursor."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Current status of the return."
+              },
+              {
+                "name": "deposit_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter returns belonging to this deposit."
+              },
+              {
+                "name": "created_at.gte",
+                "value": "",
+                "type": "query",
+                "description": "Include returns whose created_at is greater than or equal to this ISO 8601 timestamp."
+              },
+              {
+                "name": "created_at.lte",
+                "value": "",
+                "type": "query",
+                "description": "Include returns whose created_at is less than or equal to this ISO 8601 timestamp."
+              }
+            ]
+          },
+          "docs": "Lists deposit returns for the merchant with cursor-based pagination."
+        },
+        {
+          "info": {
+            "name": "Create return",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/returns",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Initiates a return of funds from a deposit to the source."
+        },
+        {
+          "info": {
+            "name": "Retrieve return",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/returns/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the return."
+              }
+            ]
+          },
+          "docs": "Retrieves a return by ID."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

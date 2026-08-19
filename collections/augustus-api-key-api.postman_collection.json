@@ -1,0 +1,121 @@
+{
+  "item": [
+    {
+      "id": "825203b5-8963-4e12-bccb-1ce9b0e1dcaf",
+      "name": "API Key",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "33c84318-5549-4563-b009-0437d308090b",
+          "name": "Introspect current API key",
+          "request": {
+            "name": "Introspect current API key",
+            "description": {
+              "content": "Returns the API key resource for the key authenticating this request. Useful for verifying which key is in use and discovering its current authorization context without inferring it from rejected requests.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "api_key"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "483e7068-cb7d-41e0-a9f6-8bca5a1f3b8e",
+              "name": "The authenticated API key",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "api_key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"type\": \"api_key\",\n  \"id\": \"string\",\n  \"merchant_id\": \"string\",\n  \"scopes\": [\n    \"webhook_deliveries:read\",\n    \"quotes:read\"\n  ],\n  \"ip_allow_list\": [\n    \"string\",\n    \"string\"\n  ],\n  \"expires_at\": \"1986-12-04T09:12:14.687Z\",\n  \"created_at\": \"1949-08-16T00:00:51.187Z\",\n  \"updated_at\": \"1965-04-04T16:13:46.936Z\",\n  \"api_version\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "024ecf1c-dac8-4d9a-813f-9efbc4416430",
+    "name": "Augustus Banking Account Programs API Key API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

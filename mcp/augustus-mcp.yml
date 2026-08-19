@@ -2,10 +2,8 @@ generated: '2026-07-18'
 method: derived
 status: candidate
 source: openapi/augustus-openapi-original.yml
-note: >-
-  No official hosted/remote Augustus MCP server was found. This is a candidate
-  tool list derived one-to-one from the Augustus Banking API OpenAPI operations,
-  to seed an MCP server. Status: candidate.
+note: 'No official hosted/remote Augustus MCP server was found. This is a candidate tool list derived
+  one-to-one from the Augustus Banking API OpenAPI operations, to seed an MCP server. Status: candidate.'
 server:
   name: augustus
   transport: http
@@ -197,3 +195,9 @@ tools:
   method: POST
   path: /v1/webhook_subscriptions/{id}/send_test_event
   source_operation: openapi/augustus-openapi-original.yml#WebhookSubscriptionsController_sendTestEvent
+deployment:
+  mode: none
+  verified: derived
+  tools: 37
+  checked: '2026-08-12'
+  source: catalog MCP census

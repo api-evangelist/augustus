@@ -1,0 +1,271 @@
+{
+  "item": [
+    {
+      "id": "ff5800c5-1bb7-49f2-a8df-6e4fc0ced8c6",
+      "name": "Deposits",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "8abbeafe-450d-4127-8792-b126174bdaf3",
+          "name": "Retrieve deposit",
+          "request": {
+            "name": "Retrieve deposit",
+            "description": {
+              "content": "Retrieves a deposit by ID.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "deposits",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the deposit."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8a308d74-cc57-4c8b-9e66-205e46548e10",
+              "name": "The deposit resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "deposits",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the deposit."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"a51699d4-4379-aba6-da45-35f08f12d3c4\",\n  \"type\": \"deposit\",\n  \"status\": \"return_failed\",\n  \"amount\": \"string\",\n  \"currency\": \"USDC\",\n  \"source\": {\n    \"type\": \"iban\",\n    \"iban\": \"string\",\n    \"account_holder_name\": \"string\",\n    \"bic\": \"string\"\n  },\n  \"destination_account_id\": \"7af974a5-228b-09c3-6d71-7219b871453b\",\n  \"bank_statement_reference\": \"string\",\n  \"rail\": \"sepa\",\n  \"tx_hash\": \"string\",\n  \"returns\": [\n    \"9d36e145-0833-34bb-c106-83200907d75b\",\n    \"26f58ea0-b3bc-dd22-ed4c-0278db4ab2a6\"\n  ],\n  \"created_at\": \"1982-10-27T01:41:23.603Z\",\n  \"updated_at\": \"2010-08-03T12:51:32.941Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "bb3feae6-70ff-4016-8204-8d3c2e035c86",
+          "name": "List deposits",
+          "request": {
+            "name": "List deposits",
+            "description": {
+              "content": "Lists deposits for the merchant with cursor-based pagination.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "deposits"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of results per page (1-100). Defaults to 10."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous next_cursor."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by deposit status."
+                },
+                {
+                  "disabled": false,
+                  "key": "created_at.gte",
+                  "value": "<dateTime>",
+                  "description": "Include deposits whose created_at is greater than or equal to this ISO 8601 timestamp."
+                },
+                {
+                  "disabled": false,
+                  "key": "created_at.lte",
+                  "value": "<dateTime>",
+                  "description": "Include deposits whose created_at is less than or equal to this ISO 8601 timestamp."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "df5c2bce-09fd-43d9-8568-5e9269049ee4",
+              "name": "Paginated list of deposits",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "deposits"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "created_at.gte",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_at.lte",
+                      "value": "<dateTime>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"74541a7a-fdb5-3d9f-d41b-514df72996b4\",\n      \"type\": \"deposit\",\n      \"status\": \"returned\",\n      \"amount\": \"string\",\n      \"currency\": \"POL\",\n      \"source\": {\n        \"type\": \"iban\",\n        \"iban\": \"string\",\n        \"account_holder_name\": \"string\",\n        \"bic\": \"string\"\n      },\n      \"destination_account_id\": \"3719d382-d058-ac7c-1007-9aad2203a579\",\n      \"bank_statement_reference\": \"string\",\n      \"rail\": \"btc\",\n      \"tx_hash\": \"string\",\n      \"returns\": [\n        \"2fdb7c05-c78f-5501-5d97-a24ccfea1298\",\n        \"757307cd-db7a-9697-bd1c-3564dd1c6a7a\"\n      ],\n      \"created_at\": \"2001-04-11T00:34:25.907Z\",\n      \"updated_at\": \"1986-12-18T10:04:37.272Z\"\n    },\n    {\n      \"id\": \"d6653749-0889-5c41-54d5-b881aad91d5b\",\n      \"type\": \"deposit\",\n      \"status\": \"return_returned\",\n      \"amount\": \"string\",\n      \"currency\": \"USD\",\n      \"source\": {\n        \"type\": \"iban\",\n        \"iban\": \"string\",\n        \"account_holder_name\": \"string\",\n        \"bic\": \"string\"\n      },\n      \"destination_account_id\": \"3eb74acd-42e2-c5d7-2c62-49f262643cc1\",\n      \"bank_statement_reference\": \"string\",\n      \"rail\": \"fedwire\",\n      \"tx_hash\": \"string\",\n      \"returns\": [\n        \"09d072ac-17c7-6a9e-e566-4d363263537e\",\n        \"8b1b1d89-51ed-f958-b870-b8abe53cff48\"\n      ],\n      \"created_at\": \"2003-09-23T17:27:55.085Z\",\n      \"updated_at\": \"1982-04-23T03:42:26.046Z\"\n    }\n  ],\n  \"has_more\": false,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "35ac0611-a569-4354-86f0-45035233547b",
+    "name": "Augustus Banking Account Programs Deposits API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

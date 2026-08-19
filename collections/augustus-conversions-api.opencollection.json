@@ -1,0 +1,107 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs Conversions API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Conversions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List conversions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/conversions",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page (1-100). Defaults to 10."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous next_cursor."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by conversion status."
+              },
+              {
+                "name": "source_currency",
+                "value": "",
+                "type": "query",
+                "description": "Filter by source currency code."
+              },
+              {
+                "name": "target_currency",
+                "value": "",
+                "type": "query",
+                "description": "Filter by target currency code."
+              }
+            ]
+          },
+          "docs": "Returns a paginated list of conversions."
+        },
+        {
+          "info": {
+            "name": "Create conversion",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/conversions",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates and executes a conversion."
+        },
+        {
+          "info": {
+            "name": "Retrieve conversion",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/conversions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the conversion."
+              }
+            ]
+          },
+          "docs": "Retrieves a conversion by ID."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

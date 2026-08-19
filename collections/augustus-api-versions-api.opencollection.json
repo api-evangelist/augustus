@@ -1,0 +1,35 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs API Versions API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "API Versions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List API versions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/api_versions"
+          },
+          "docs": "Returns the catalogue of publicly available Augustus Banking API versions, ordered oldest to newest. New accounts and unpinned merchants resolve to the entry with `is_latest: true`. Public: no authentication required."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

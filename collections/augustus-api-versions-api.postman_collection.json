@@ -1,0 +1,121 @@
+{
+  "item": [
+    {
+      "id": "d2fdacf4-6be2-48d2-a76c-974eb7c2579f",
+      "name": "API Versions",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "c3956e59-7036-4658-b0cf-9d5d70ea2e43",
+          "name": "List API versions",
+          "request": {
+            "name": "List API versions",
+            "description": {
+              "content": "Returns the catalogue of publicly available Augustus Banking API versions, ordered oldest to newest. New accounts and unpinned merchants resolve to the entry with `is_latest: true`. Public: no authentication required.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "api_versions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "9d96f8e0-3c93-4d06-9a7f-d1371bcb71d1",
+              "name": "API version catalogue",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "api_versions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"api_version\",\n      \"name\": \"string\",\n      \"released_at\": \"2012-10-31T08:56:48.017Z\",\n      \"is_latest\": false,\n      \"deprecated_at\": \"1948-10-25T03:56:00.849Z\",\n      \"sunset_at\": \"2004-07-15T13:08:15.921Z\"\n    },\n    {\n      \"type\": \"api_version\",\n      \"name\": \"string\",\n      \"released_at\": \"1975-01-05T00:42:30.216Z\",\n      \"is_latest\": false,\n      \"deprecated_at\": \"2016-03-24T03:09:17.029Z\",\n      \"sunset_at\": \"2005-05-08T05:31:17.232Z\"\n    }\n  ],\n  \"has_more\": false,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "20517206-8539-4ea6-9818-062fdd1ba2d1",
+    "name": "Augustus Banking Account Programs API Versions API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs API Key API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "API Key",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Introspect current API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/api_key"
+          },
+          "docs": "Returns the API key resource for the key authenticating this request. Useful for verifying which key is in use and discovering its current authorization context without inferring it from rejected requests."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,394 @@
+{
+  "item": [
+    {
+      "id": "68366334-5cc0-4d25-a19f-5dffdc21e4a0",
+      "name": "Payouts",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "b8e19e70-d982-41c3-8fd3-fdeeb3de25a8",
+          "name": "List payouts",
+          "request": {
+            "name": "List payouts",
+            "description": {
+              "content": "Lists payouts for the merchant with cursor-based pagination.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "payouts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of results per page (1-100). Defaults to 10."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous next_cursor."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by payout status."
+                },
+                {
+                  "disabled": false,
+                  "key": "created_at.gte",
+                  "value": "<dateTime>",
+                  "description": "Include payouts whose created_at is greater than or equal to this ISO 8601 timestamp."
+                },
+                {
+                  "disabled": false,
+                  "key": "created_at.lte",
+                  "value": "<dateTime>",
+                  "description": "Include payouts whose created_at is less than or equal to this ISO 8601 timestamp."
+                },
+                {
+                  "disabled": false,
+                  "key": "currencies",
+                  "value": "<string>",
+                  "description": "Filter to these currency codes. Use a separate `currencies` query parameter for each value (e.g. `?currencies=EUR&currencies=USD`)."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "adfa1d38-5fdc-4707-8d11-6c7224cebe3f",
+              "name": "Paginated list of payouts",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payouts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "created_at.gte",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_at.lte",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "currencies",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"type\": \"payout\",\n      \"status\": \"returned\",\n      \"source_account_id\": \"string\",\n      \"amount\": \"string\",\n      \"currency\": \"SOL\",\n      \"destination\": {\n        \"type\": \"iban\",\n        \"iban\": \"string\",\n        \"account_holder_name\": \"string\",\n        \"bic\": \"string\"\n      },\n      \"reference\": \"string\",\n      \"failure\": {\n        \"code\": \"rejected_by_correspondent_bank\",\n        \"message\": \"string\",\n        \"retry\": false\n      },\n      \"metadata\": {\n        \"key_0\": \"string\"\n      },\n      \"created_at\": \"2026-01-02T13:45:26.698Z\",\n      \"updated_at\": \"1975-04-08T12:16:50.119Z\"\n    },\n    {\n      \"id\": \"string\",\n      \"type\": \"payout\",\n      \"status\": \"returned\",\n      \"source_account_id\": \"string\",\n      \"amount\": \"string\",\n      \"currency\": \"GBP\",\n      \"destination\": {\n        \"type\": \"iban\",\n        \"iban\": \"string\",\n        \"account_holder_name\": \"string\",\n        \"bic\": \"string\"\n      },\n      \"reference\": \"string\",\n      \"failure\": {\n        \"code\": \"unknown\",\n        \"message\": \"string\",\n        \"retry\": true\n      },\n      \"metadata\": {\n        \"key_0\": \"string\",\n        \"key_1\": \"string\"\n      },\n      \"created_at\": \"2011-11-19T09:41:32.578Z\",\n      \"updated_at\": \"2024-03-06T22:41:54.895Z\"\n    }\n  ],\n  \"has_more\": false,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5b054a2f-8e69-44e8-87a6-5eaf4d35cffe",
+          "name": "Create payout",
+          "request": {
+            "name": "Create payout",
+            "description": {
+              "content": "Creates a new payout.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "payouts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source_account_id\": \"<uuid>\",\n  \"amount\": \"<string>\",\n  \"currency\": \"<string>\",\n  \"destination\": {\n    \"type\": \"<string>\",\n    \"iban\": \"<string>\",\n    \"account_holder_name\": \"<string>\",\n    \"bic\": \"<string>\"\n  },\n  \"reference\": \"<string>\",\n  \"rail\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\",\n    \"key_1\": \"<string>\",\n    \"key_2\": \"<string>\",\n    \"key_3\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a415c0f9-7a3d-4439-94f1-45b117fcc854",
+              "name": "Success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payouts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"source_account_id\": \"<uuid>\",\n  \"amount\": \"<string>\",\n  \"currency\": \"<string>\",\n  \"destination\": {\n    \"type\": \"<string>\",\n    \"iban\": \"<string>\",\n    \"account_holder_name\": \"<string>\",\n    \"bic\": \"<string>\"\n  },\n  \"reference\": \"<string>\",\n  \"rail\": \"<string>\",\n  \"metadata\": {\n    \"key_0\": \"<string>\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"payout\",\n  \"status\": \"failed\",\n  \"source_account_id\": \"string\",\n  \"amount\": \"string\",\n  \"currency\": \"EUR\",\n  \"destination\": {\n    \"type\": \"iban\",\n    \"iban\": \"string\",\n    \"account_holder_name\": \"string\",\n    \"bic\": \"string\"\n  },\n  \"reference\": \"string\",\n  \"failure\": {\n    \"code\": \"system_error\",\n    \"message\": \"string\",\n    \"retry\": true\n  },\n  \"metadata\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\"\n  },\n  \"created_at\": \"2000-08-09T07:32:20.860Z\",\n  \"updated_at\": \"1995-05-23T16:04:04.345Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7f6d772c-924e-4380-a0bd-0607d871e008",
+          "name": "Retrieve payout",
+          "request": {
+            "name": "Retrieve payout",
+            "description": {
+              "content": "Retrieves a payout by ID.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "payouts",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the payout."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "fcae86e5-5214-4275-a800-6b0767cec320",
+              "name": "The payout resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "payouts",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the payout."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"payout\",\n  \"status\": \"failed\",\n  \"source_account_id\": \"string\",\n  \"amount\": \"string\",\n  \"currency\": \"EUR\",\n  \"destination\": {\n    \"type\": \"iban\",\n    \"iban\": \"string\",\n    \"account_holder_name\": \"string\",\n    \"bic\": \"string\"\n  },\n  \"reference\": \"string\",\n  \"failure\": {\n    \"code\": \"system_error\",\n    \"message\": \"string\",\n    \"retry\": true\n  },\n  \"metadata\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\"\n  },\n  \"created_at\": \"2000-08-09T07:32:20.860Z\",\n  \"updated_at\": \"1995-05-23T16:04:04.345Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "0ebe4c8d-d98b-484d-ae41-8e9cd60771c3",
+    "name": "Augustus Banking Account Programs Payouts API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

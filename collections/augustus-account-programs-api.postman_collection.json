@@ -1,0 +1,341 @@
+{
+  "item": [
+    {
+      "id": "fdff9c53-d3e4-4b43-9cb8-2e5b2ba191c9",
+      "name": "Account Programs",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9142158d-d62b-4c0d-93f4-04e567ee7bd6",
+          "name": "List account programs",
+          "request": {
+            "name": "List account programs",
+            "description": {
+              "content": "Lists account programs for the merchant with cursor-based pagination.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "account_programs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of results per page (1-100). Defaults to 10."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous next_cursor."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "7fd88ec0-41af-44ba-b3c4-9edf44b2c41b",
+              "name": "Paginated list of account programs",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "account_programs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"84ffec5e-dc48-d817-eaa4-99f6af0e0a1b\",\n      \"type\": \"account_program\",\n      \"label\": \"string\",\n      \"account_program_type\": \"fbo_program\",\n      \"status\": \"active\",\n      \"created_at\": \"2020-08-04T17:09:16.460Z\",\n      \"updated_at\": \"1974-04-08T05:03:43.015Z\"\n    },\n    {\n      \"id\": \"4c9d1893-71fb-e9cb-5da2-5a44ee1d41ab\",\n      \"type\": \"account_program\",\n      \"label\": \"string\",\n      \"account_program_type\": \"fbo_program\",\n      \"status\": \"frozen\",\n      \"created_at\": \"1960-02-11T20:00:51.059Z\",\n      \"updated_at\": \"1963-07-15T12:47:01.580Z\"\n    }\n  ],\n  \"has_more\": true,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e963a6bb-2d48-40fb-818c-ccb0c0a6d2b6",
+          "name": "Retrieve account program balance",
+          "request": {
+            "name": "Retrieve account program balance",
+            "description": {
+              "content": "Returns the aggregated available balance for all virtual accounts under the account program.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "account_programs",
+                ":id",
+                "balance"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account program."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "2999a148-1890-4133-bd6c-3fb58c2ae50d",
+              "name": "Account program balance snapshot",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "account_programs",
+                    ":id",
+                    "balance"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account program."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"845980c5-ea99-09ff-7ef7-4f5562fc9e16\",\n  \"type\": \"account_program_balance\",\n  \"amount\": \"string\",\n  \"currency\": \"GBP\",\n  \"as_of\": \"1996-01-21T05:48:52.780Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d8a93882-49a2-4155-aa58-5c6e9d96c49b",
+          "name": "Retrieve account program",
+          "request": {
+            "name": "Retrieve account program",
+            "description": {
+              "content": "Retrieves an account program by ID.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "account_programs",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account program."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "2068b99e-13f0-46d9-ab5e-52773a78c387",
+              "name": "The account program resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "account_programs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account program."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"e86c8ef7-c78d-e2d2-88f7-c64aef784ad1\",\n  \"type\": \"account_program\",\n  \"label\": \"string\",\n  \"account_program_type\": \"fbo_sponsored\",\n  \"status\": \"frozen\",\n  \"created_at\": \"2003-12-09T04:02:51.434Z\",\n  \"updated_at\": \"1965-07-27T10:38:12.950Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "940b6c78-0b08-4a35-b576-a8a98a950b3f",
+    "name": "Augustus Banking Account Programs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

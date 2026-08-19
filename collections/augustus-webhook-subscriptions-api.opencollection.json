@@ -1,0 +1,162 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Augustus Banking Account Programs Webhook Subscriptions API",
+    "version": "0.1.0"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Webhook Subscriptions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List webhook subscriptions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/webhook_subscriptions",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Number of results per page (1-100). Defaults to 10."
+              },
+              {
+                "name": "cursor",
+                "value": "",
+                "type": "query",
+                "description": "Opaque cursor from a previous next_cursor."
+              }
+            ]
+          },
+          "docs": "Lists webhook subscriptions for the merchant with cursor-based pagination."
+        },
+        {
+          "info": {
+            "name": "Create webhook subscription",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/webhook_subscriptions",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new webhook subscription."
+        },
+        {
+          "info": {
+            "name": "Retrieve webhook subscription",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.augustus.com/v1/webhook_subscriptions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the webhook subscription."
+              }
+            ]
+          },
+          "docs": "Retrieves a webhook subscription by ID."
+        },
+        {
+          "info": {
+            "name": "Update webhook subscription",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/webhook_subscriptions/:id",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the webhook subscription."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates the URL and/or subscribed events."
+        },
+        {
+          "info": {
+            "name": "Delete webhook subscription",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.augustus.com/v1/webhook_subscriptions/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the webhook subscription."
+              }
+            ]
+          },
+          "docs": "Permanently deletes a webhook subscription. This cannot be undone."
+        },
+        {
+          "info": {
+            "name": "Send test event",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.augustus.com/v1/webhook_subscriptions/:id/send_test_event",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the webhook subscription."
+              }
+            ]
+          },
+          "docs": "Dispatches a signed `ping.test` event to this subscription's URL through the same pipeline as real events. Useful for verifying your receiver's reachability and signature verification in any environment without creating a real business event. Test-event failures do not affect the subscription's health counters or trigger failure-notification emails."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

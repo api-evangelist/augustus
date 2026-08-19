@@ -1,0 +1,851 @@
+{
+  "item": [
+    {
+      "id": "79b90f56-12ce-4047-b492-9b1e4e2790ff",
+      "name": "Accounts",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "33373d28-6242-416b-ac63-3e0a527e7e5c",
+          "name": "List accounts",
+          "request": {
+            "name": "List accounts",
+            "description": {
+              "content": "Returns a paginated list of accounts.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of results per page (1-100). Defaults to 10."
+                },
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "<string>",
+                  "description": "Opaque cursor from a previous next_cursor."
+                },
+                {
+                  "disabled": false,
+                  "key": "account_number",
+                  "value": "<string>",
+                  "description": "Filter by exact fiat account number. Crypto wallets are excluded when set."
+                },
+                {
+                  "disabled": false,
+                  "key": "account_holder_name",
+                  "value": "<string>",
+                  "description": "Filter by account holder name (case-insensitive phrase match). Crypto wallets are excluded when set."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by account status."
+                },
+                {
+                  "disabled": false,
+                  "key": "parent_id",
+                  "value": "<uuid>",
+                  "description": "ID of the account program to list virtual accounts for."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c7ef0eb9-bd8c-466f-8865-36d54049b369",
+              "name": "List of accounts",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "cursor",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "account_number",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "account_holder_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "parent_id",
+                      "value": "<uuid>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"type\": \"account\",\n      \"currency\": \"EUR\",\n      \"account_type\": \"payment_account\",\n      \"status\": \"closed\",\n      \"asset_type\": \"crypto\",\n      \"label\": \"string\",\n      \"financial_addresses\": [\n        {\n          \"type\": \"iban\",\n          \"iban\": \"string\",\n          \"account_holder_name\": \"string\",\n          \"bic\": \"string\"\n        },\n        {\n          \"type\": \"iban\",\n          \"iban\": \"string\",\n          \"account_holder_name\": \"string\",\n          \"bic\": \"string\"\n        }\n      ],\n      \"created_at\": \"7568-02-07T16:38:02.1586165855Z\",\n      \"updated_at\": \"6800-02-29T01:18:21Z\"\n    },\n    {\n      \"id\": \"string\",\n      \"type\": \"account\",\n      \"currency\": \"SOL\",\n      \"account_type\": \"payment_account\",\n      \"status\": \"active\",\n      \"asset_type\": \"fiat\",\n      \"label\": \"string\",\n      \"financial_addresses\": [\n        {\n          \"type\": \"iban\",\n          \"iban\": \"string\",\n          \"account_holder_name\": \"string\",\n          \"bic\": \"string\"\n        },\n        {\n          \"type\": \"iban\",\n          \"iban\": \"string\",\n          \"account_holder_name\": \"string\",\n          \"bic\": \"string\"\n        }\n      ],\n      \"created_at\": \"1200-02-29T19:37:47.81Z\",\n      \"updated_at\": \"5512-07-20T10:06:47Z\"\n    }\n  ],\n  \"has_more\": true,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "98ce8062-99f7-44f4-b21e-295ed3ee673f",
+          "name": "Create account",
+          "request": {
+            "name": "Create account",
+            "description": {
+              "content": "Creates a new account.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_program_id\": \"<uuid>\",\n  \"account_type\": \"<string>\",\n  \"beneficiary_data\": {\n    \"legal_name\": \"<string>\",\n    \"residential_address\": {\n      \"street_line_1\": \"<string>\",\n      \"city\": \"<string>\",\n      \"state\": \"<string>\",\n      \"postal_code\": \"<string>\",\n      \"country\": \"<string>\",\n      \"street_line_2\": \"<string>\"\n    },\n    \"date_of_birth\": \"<date>\",\n    \"identification\": {\n      \"type\": \"<string>\",\n      \"value\": \"<string>\"\n    },\n    \"country_of_citizenship\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3fac6372-7012-44a7-bfea-7fae35b59256",
+              "name": "Account created successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"account_program_id\": \"<uuid>\",\n  \"account_type\": \"<string>\",\n  \"beneficiary_data\": {\n    \"legal_name\": \"string\",\n    \"residential_address\": {\n      \"street_line_1\": \"string\",\n      \"city\": \"string\",\n      \"state\": \"st\",\n      \"postal_code\": \"string\",\n      \"country\": \"US\",\n      \"street_line_2\": \"string\"\n    },\n    \"date_of_birth\": \"7665-09-03\",\n    \"identification\": {\n      \"type\": \"ssn\",\n      \"value\": \"302-38-3197\"\n    },\n    \"country_of_citizenship\": \"US\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"account\",\n  \"currency\": \"SOL\",\n  \"account_type\": \"collateral_account\",\n  \"status\": \"closed\",\n  \"asset_type\": \"fiat\",\n  \"label\": \"string\",\n  \"financial_addresses\": [\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    },\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    }\n  ],\n  \"created_at\": \"6800-02-29T07:22Z\",\n  \"updated_at\": \"8000-02-29T14:27Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f16f5380-c2f2-46f6-8a1e-9c4961546383",
+          "name": "Retrieve account",
+          "request": {
+            "name": "Retrieve account",
+            "description": {
+              "content": "Retrieves an account by ID.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "a211e613-f688-49ec-b657-dacd7fbce66a",
+              "name": "The account resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"account\",\n  \"currency\": \"SOL\",\n  \"account_type\": \"collateral_account\",\n  \"status\": \"closed\",\n  \"asset_type\": \"fiat\",\n  \"label\": \"string\",\n  \"financial_addresses\": [\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    },\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    }\n  ],\n  \"created_at\": \"6800-02-29T07:22Z\",\n  \"updated_at\": \"8000-02-29T14:27Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "cfdc57dc-96bc-4982-a778-9b1e48904a6c",
+          "name": "Retrieve account balance",
+          "request": {
+            "name": "Retrieve account balance",
+            "description": {
+              "content": "Retrieves the available balance for an account.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts",
+                ":id",
+                "balance"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b83aecbf-ce24-4115-a60c-31bd71139c7c",
+              "name": "The account balance resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts",
+                    ":id",
+                    "balance"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"type\": \"account_balance\",\n  \"account_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"amount\": \"string\",\n  \"currency\": \"BTC\",\n  \"as_of\": \"5200-02-29T01:32:23Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "026ef333-e546-46da-9459-aacf7cc7ca70",
+          "name": "Freeze account",
+          "request": {
+            "name": "Freeze account",
+            "description": {
+              "content": "Freezes an account",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts",
+                ":id",
+                "freeze"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account."
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "9c021aa8-082c-4f36-9f29-92195c372a44",
+              "name": "Account frozen successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts",
+                    ":id",
+                    "freeze"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"account\",\n  \"currency\": \"SOL\",\n  \"account_type\": \"collateral_account\",\n  \"status\": \"closed\",\n  \"asset_type\": \"fiat\",\n  \"label\": \"string\",\n  \"financial_addresses\": [\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    },\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    }\n  ],\n  \"created_at\": \"6800-02-29T07:22Z\",\n  \"updated_at\": \"8000-02-29T14:27Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8a7f1207-7c36-40f8-b2b7-a0048a191441",
+          "name": "Close account",
+          "request": {
+            "name": "Close account",
+            "description": {
+              "content": "Closes an account",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts",
+                ":id",
+                "close"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account."
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "fb11e812-a6c2-456f-9583-90d9dcf1f783",
+              "name": "Account closed successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts",
+                    ":id",
+                    "close"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"account\",\n  \"currency\": \"SOL\",\n  \"account_type\": \"collateral_account\",\n  \"status\": \"closed\",\n  \"asset_type\": \"fiat\",\n  \"label\": \"string\",\n  \"financial_addresses\": [\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    },\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    }\n  ],\n  \"created_at\": \"6800-02-29T07:22Z\",\n  \"updated_at\": \"8000-02-29T14:27Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "17dde6a5-bcb5-49ab-85be-d3a7baba0047",
+          "name": "Unfreeze account",
+          "request": {
+            "name": "Unfreeze account",
+            "description": {
+              "content": "Unfreezes an account",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "accounts",
+                ":id",
+                "unfreeze"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "id",
+                  "description": "(Required) Unique identifier of the account."
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f823477e-b70d-400c-96f4-11a9e731f423",
+              "name": "Account unfrozen successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "accounts",
+                    ":id",
+                    "unfreeze"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "id",
+                      "description": "(Required) Unique identifier of the account."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"type\": \"account\",\n  \"currency\": \"SOL\",\n  \"account_type\": \"collateral_account\",\n  \"status\": \"closed\",\n  \"asset_type\": \"fiat\",\n  \"label\": \"string\",\n  \"financial_addresses\": [\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    },\n    {\n      \"type\": \"iban\",\n      \"iban\": \"string\",\n      \"account_holder_name\": \"string\",\n      \"bic\": \"string\"\n    }\n  ],\n  \"created_at\": \"6800-02-29T07:22Z\",\n  \"updated_at\": \"8000-02-29T14:27Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "b9724d13-8b41-4986-95fe-c8168d794a0d",
+    "name": "Augustus Banking Account Programs Accounts API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}

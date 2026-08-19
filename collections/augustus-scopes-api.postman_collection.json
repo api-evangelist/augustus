@@ -1,0 +1,121 @@
+{
+  "item": [
+    {
+      "id": "26462196-d4e9-4d7b-b06b-c9d0e2015b93",
+      "name": "Scopes",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "cad3897a-f5ec-4381-8b52-fb6439092d6e",
+          "name": "List scopes",
+          "request": {
+            "name": "List scopes",
+            "description": {
+              "content": "Returns the catalogue of scopes available to API keys. The list is filtered by the `Api-Version` request header and defaults to the latest version when the header is omitted. Public: no authentication required.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "scopes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "cf2ae2fe-5d76-4328-8b62-35fa03210b33",
+              "name": "Scope catalogue",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "scopes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"scope\",\n      \"id\": \"returns:write\",\n      \"description\": \"string\",\n      \"resource\": \"string\",\n      \"action\": \"read\",\n      \"available_from\": \"string\",\n      \"deprecated_in\": \"string\"\n    },\n    {\n      \"type\": \"scope\",\n      \"id\": \"returns:read\",\n      \"description\": \"string\",\n      \"resource\": \"string\",\n      \"action\": \"write\",\n      \"available_from\": \"string\",\n      \"deprecated_in\": \"string\"\n    }\n  ],\n  \"has_more\": true,\n  \"next_cursor\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.augustus.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "014c7cf1-5709-4f71-99f9-f51e83073a47",
+    "name": "Augustus Banking Account Programs Scopes API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Augustus Banking API\n\nContact Support:\n Name: Augustus\n Email: developer@augustus.com",
+      "type": "text/plain"
+    }
+  }
+}
