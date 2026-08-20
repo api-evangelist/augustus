@@ -43,6 +43,16 @@ tags:
 - Payments
 - Banking
 - Open Banking
+- Stablecoins
+- Payouts
+- Foreign Exchange
+- Webhook
+tags_raw:
+- Company
+- Fintech
+- Payments
+- Banking
+- Open Banking
 - Stablecoin
 - Payouts
 - Foreign Exchange
@@ -96,6 +106,8 @@ apis:
   humanURL: https://docs.augustus.com/v1/introduction
   baseURL: https://api.augustus.com
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -112,6 +124,8 @@ apis:
   humanURL: https://docs.augustus.com/v1/introduction
   baseURL: https://api.augustus.com
   tags:
+  - APIKeys
+  tags_raw:
   - API Key
   properties:
   - type: OpenAPI
@@ -176,6 +190,8 @@ apis:
   humanURL: https://docs.augustus.com/v1/introduction
   baseURL: https://api.augustus.com
   tags:
+  - Event
+  tags_raw:
   - Events
   properties:
   - type: OpenAPI
