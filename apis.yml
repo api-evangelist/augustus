@@ -321,6 +321,9 @@ apis:
   - type: OpenAPI
     url: openapi/augustus-webhook-events-api-openapi.yml
 common:
+- type: CapabilityMap
+  url: capabilities/augustus-capability-edges.yml
+  name: Augustus Business Capability Map
 - type: DomainSecurity
   url: security/augustus-domain-security.yml
 - type: AgenticAccess
