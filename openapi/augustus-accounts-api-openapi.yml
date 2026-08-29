@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Augustus Banking Account Programs Accounts API
+  title: Augustus Banking Accounts API
   description: Augustus Banking API
   version: 0.1.0
   contact:
@@ -269,6 +269,75 @@ paths:
         source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accounts.unfreeze('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.id);"
 components:
   schemas:
+    IbanFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for IBAN financial address.
+          type: string
+          enum:
+          - iban
+        iban:
+          description: International Bank Account Number.
+          type: string
+        account_holder_name:
+          description: Name of the account holder.
+          type: string
+        bic:
+          type: string
+          description: Bank Identifier Code, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - iban
+      - account_holder_name
+      - bic
+      additionalProperties: false
+    ItinIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - itin
+        value:
+          type: string
+          pattern: ^9\d{2}-\d{2}-\d{4}$
+      required:
+      - type
+      - value
+      additionalProperties: false
+    NonUsResidentialAddress:
+      type: object
+      properties:
+        street_line_1:
+          description: Primary street address.
+          type: string
+          minLength: 1
+          maxLength: 255
+        street_line_2:
+          description: Secondary street address (apartment, suite, etc.).
+          type: string
+          maxLength: 255
+        city:
+          description: City name.
+          type: string
+          minLength: 1
+          maxLength: 255
+        postal_code:
+          description: Postal or ZIP code.
+          type: string
+          minLength: 1
+          maxLength: 30
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
+      required:
+      - street_line_1
+      - city
+      - postal_code
+      - country
+      additionalProperties: false
     AccountBalanceResourceDto:
       type: object
       properties:
@@ -309,6 +378,43 @@ components:
       - currency
       - as_of
       additionalProperties: false
+    CreateAccountBodyDto:
+      type: object
+      properties:
+        account_program_id:
+          description: ID of the account program to create the account under.
+          type: string
+          format: uuid
+          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+        account_type:
+          description: Type of account. Currently only virtual account.
+          type: string
+          enum:
+          - virtual_account
+        beneficiary_data:
+          description: Personal information of the account beneficiary.
+          anyOf:
+          - $ref: '#/components/schemas/UsBeneficiaryData'
+          - $ref: '#/components/schemas/NonUsBeneficiaryData'
+      required:
+      - account_program_id
+      - account_type
+      - beneficiary_data
+      additionalProperties: false
+    SsnIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - ssn
+        value:
+          type: string
+          pattern: ^\d{3}-\d{2}-\d{4}$
+      required:
+      - type
+      - value
+      additionalProperties: false
     CryptoWalletFinancialAddress:
       type: object
       properties:
@@ -336,128 +442,6 @@ components:
       - type
       - address
       - blockchain
-      additionalProperties: false
-    CreateAccountBodyDto:
-      type: object
-      properties:
-        account_program_id:
-          description: ID of the account program to create the account under.
-          type: string
-          format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
-        account_type:
-          description: Type of account. Currently only virtual account.
-          type: string
-          enum:
-          - virtual_account
-        beneficiary_data:
-          description: Personal information of the account beneficiary.
-          anyOf:
-          - $ref: '#/components/schemas/UsBeneficiaryData'
-          - $ref: '#/components/schemas/NonUsBeneficiaryData'
-      required:
-      - account_program_id
-      - account_type
-      - beneficiary_data
-      additionalProperties: false
-    NonUsResidentialAddress:
-      type: object
-      properties:
-        street_line_1:
-          description: Primary street address.
-          type: string
-          minLength: 1
-          maxLength: 255
-        street_line_2:
-          description: Secondary street address (apartment, suite, etc.).
-          type: string
-          maxLength: 255
-        city:
-          description: City name.
-          type: string
-          minLength: 1
-          maxLength: 255
-        postal_code:
-          description: Postal or ZIP code.
-          type: string
-          minLength: 1
-          maxLength: 30
-        country:
-          description: ISO 3166-1 alpha-2 country code.
-          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
-      required:
-      - street_line_1
-      - city
-      - postal_code
-      - country
-      additionalProperties: false
-    AbaFinancialAddress:
-      type: object
-      properties:
-        type:
-          description: Discriminator for ABA wire financial address.
-          type: string
-          enum:
-          - aba
-        routing_number:
-          description: ABA routing number (9 digits).
-          type: string
-        account_number:
-          description: Bank account number.
-          type: string
-        account_holder_name:
-          description: Name of the account holder.
-          type: string
-      required:
-      - type
-      - routing_number
-      - account_number
-      - account_holder_name
-      additionalProperties: false
-    NonUsBeneficiaryData:
-      type: object
-      properties:
-        legal_name:
-          description: Full legal name of the account holder.
-          type: string
-          minLength: 1
-          maxLength: 255
-        residential_address:
-          description: Residential address of the account holder.
-          anyOf:
-          - $ref: '#/components/schemas/UsResidentialAddress'
-          - $ref: '#/components/schemas/NonUsResidentialAddress'
-        date_of_birth:
-          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
-          type: string
-          format: date
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-        identification:
-          description: 'Government-issued identification with type: "id" (generic government-issued ID).'
-          $ref: '#/components/schemas/IdIdentification'
-        country_of_citizenship:
-          description: ISO 3166-1 alpha-2 country code of citizenship.
-          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
-      required:
-      - legal_name
-      - residential_address
-      - date_of_birth
-      - identification
-      - country_of_citizenship
-      additionalProperties: false
-    IdIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - id
-        value:
-          type: string
-          minLength: 1
-      required:
-      - type
-      - value
       additionalProperties: false
     ListAccountsResponseDto:
       type: object
@@ -804,20 +788,6 @@ components:
       - SX
       - SS
       - XK
-    ItinIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - itin
-        value:
-          type: string
-          pattern: ^9\d{2}-\d{2}-\d{4}$
-      required:
-      - type
-      - value
-      additionalProperties: false
     SortCodeFinancialAddress:
       type: object
       properties:
@@ -840,18 +810,6 @@ components:
       - sort_code
       - account_number
       - account_holder_name
-      additionalProperties: false
-    CloseAccountBodyDto:
-      type: object
-      properties:
-        reason:
-          description: Reason for closing the account.
-          type: string
-          enum:
-          - aml_risk_fraud
-          - client_request
-      required:
-      - reason
       additionalProperties: false
     UsBeneficiaryData:
       type: object
@@ -888,29 +846,81 @@ components:
       - identification
       - country_of_citizenship
       additionalProperties: false
-    IbanFinancialAddress:
+    IdIdentification:
       type: object
       properties:
         type:
-          description: Discriminator for IBAN financial address.
           type: string
           enum:
-          - iban
-        iban:
-          description: International Bank Account Number.
+          - id
+        value:
+          type: string
+          minLength: 1
+      required:
+      - type
+      - value
+      additionalProperties: false
+    AbaFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for ABA wire financial address.
+          type: string
+          enum:
+          - aba
+        routing_number:
+          description: ABA routing number (9 digits).
+          type: string
+        account_number:
+          description: Bank account number.
           type: string
         account_holder_name:
           description: Name of the account holder.
           type: string
-        bic:
-          type: string
-          description: Bank Identifier Code, or null if not provided.
-          nullable: true
       required:
       - type
-      - iban
+      - routing_number
+      - account_number
       - account_holder_name
-      - bic
+      additionalProperties: false
+    UsResidentialAddress:
+      type: object
+      properties:
+        street_line_1:
+          description: Primary street address.
+          type: string
+          minLength: 1
+          maxLength: 255
+        street_line_2:
+          description: Secondary street address (apartment, suite, etc.).
+          type: string
+          maxLength: 255
+        city:
+          description: City name.
+          type: string
+          minLength: 1
+          maxLength: 255
+        state:
+          description: Two-letter state code.
+          type: string
+          minLength: 2
+          maxLength: 2
+        postal_code:
+          description: Postal or ZIP code.
+          type: string
+          minLength: 1
+          maxLength: 30
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          type: string
+          enum:
+          - US
+      required:
+      - street_line_1
+      - city
+      - state
+      - postal_code
+      - country
       additionalProperties: false
     AccountResourceDto:
       type: object
@@ -990,58 +1000,48 @@ components:
       - created_at
       - updated_at
       additionalProperties: false
-    UsResidentialAddress:
+    NonUsBeneficiaryData:
       type: object
       properties:
-        street_line_1:
-          description: Primary street address.
+        legal_name:
+          description: Full legal name of the account holder.
           type: string
           minLength: 1
           maxLength: 255
-        street_line_2:
-          description: Secondary street address (apartment, suite, etc.).
+        residential_address:
+          description: Residential address of the account holder.
+          anyOf:
+          - $ref: '#/components/schemas/UsResidentialAddress'
+          - $ref: '#/components/schemas/NonUsResidentialAddress'
+        date_of_birth:
+          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
           type: string
-          maxLength: 255
-        city:
-          description: City name.
-          type: string
-          minLength: 1
-          maxLength: 255
-        state:
-          description: Two-letter state code.
-          type: string
-          minLength: 2
-          maxLength: 2
-        postal_code:
-          description: Postal or ZIP code.
-          type: string
-          minLength: 1
-          maxLength: 30
-        country:
-          description: ISO 3166-1 alpha-2 country code.
-          type: string
-          enum:
-          - US
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        identification:
+          description: 'Government-issued identification with type: "id" (generic government-issued ID).'
+          $ref: '#/components/schemas/IdIdentification'
+        country_of_citizenship:
+          description: ISO 3166-1 alpha-2 country code of citizenship.
+          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
       required:
-      - street_line_1
-      - city
-      - state
-      - postal_code
-      - country
+      - legal_name
+      - residential_address
+      - date_of_birth
+      - identification
+      - country_of_citizenship
       additionalProperties: false
-    SsnIdentification:
+    CloseAccountBodyDto:
       type: object
       properties:
-        type:
+        reason:
+          description: Reason for closing the account.
           type: string
           enum:
-          - ssn
-        value:
-          type: string
-          pattern: ^\d{3}-\d{2}-\d{4}$
+          - aml_risk_fraud
+          - client_request
       required:
-      - type
-      - value
+      - reason
       additionalProperties: false
   securitySchemes:
     BearerAuth:

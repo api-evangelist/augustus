@@ -310,6 +310,16 @@ apis:
     url: https://docs.augustus.com/api-reference/account-programs/list-account-programs
   - type: GettingStarted
     url: https://docs.augustus.com/docs/basics/introduction
+- aid: augustus:augustus-webhook-events-api
+  name: Augustus Webhook Events API
+  description: The Webhook Events API from Augustus — 0 operation(s) for webhook events.
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Webhook Events
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-webhook-events-api-openapi.yml
 common:
 - type: DomainSecurity
   url: security/augustus-domain-security.yml

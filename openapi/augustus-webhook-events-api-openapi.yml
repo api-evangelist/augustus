@@ -1,0 +1,1250 @@
+openapi: 3.2.0
+info:
+  title: Augustus Banking Webhook Events API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Webhook Events
+paths: {}
+webhooks:
+  payout.created:
+    post:
+      summary: payout.created
+      x-mint:
+        metadata:
+          title: payout.created
+          sidebarTitle: payout.created
+      description: Sent when a payout is created.
+      operationId: webhook_payout_created
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - payout.created
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  payout.initiated:
+    post:
+      summary: payout.initiated
+      x-mint:
+        metadata:
+          title: payout.initiated
+          sidebarTitle: payout.initiated
+      description: Sent when a payout is initiated and processing has started.
+      operationId: webhook_payout_initiated
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - payout.initiated
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  payout.paid:
+    post:
+      summary: payout.paid
+      x-mint:
+        metadata:
+          title: payout.paid
+          sidebarTitle: payout.paid
+      description: Sent when a payout has been successfully delivered.
+      operationId: webhook_payout_paid
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - payout.paid
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  payout.failed:
+    post:
+      summary: payout.failed
+      x-mint:
+        metadata:
+          title: payout.failed
+          sidebarTitle: payout.failed
+      description: Sent when a payout has failed.
+      operationId: webhook_payout_failed
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - payout.failed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PayoutResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.initiated:
+    post:
+      summary: return.initiated
+      x-mint:
+        metadata:
+          title: return.initiated
+          sidebarTitle: return.initiated
+      description: Sent when a deposit return has been initiated.
+      operationId: webhook_return_initiated
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - return.initiated
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.paid:
+    post:
+      summary: return.paid
+      x-mint:
+        metadata:
+          title: return.paid
+          sidebarTitle: return.paid
+      description: Sent when a deposit return outbound payment has been paid.
+      operationId: webhook_return_paid
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - return.paid
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.failed:
+    post:
+      summary: return.failed
+      x-mint:
+        metadata:
+          title: return.failed
+          sidebarTitle: return.failed
+      description: Sent when a deposit return has failed.
+      operationId: webhook_return_failed
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - return.failed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  return.returned:
+    post:
+      summary: return.returned
+      x-mint:
+        metadata:
+          title: return.returned
+          sidebarTitle: return.returned
+      description: Sent when a succeeded deposit return was reversed or returned.
+      operationId: webhook_return_returned
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - return.returned
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ReturnResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  deposit.received:
+    post:
+      summary: deposit.received
+      x-mint:
+        metadata:
+          title: deposit.received
+          sidebarTitle: deposit.received
+      description: Sent when a deposit is received
+      operationId: webhook_deposit_received
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - deposit.received
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/DepositResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  conversion.created:
+    post:
+      summary: conversion.created
+      x-mint:
+        metadata:
+          title: conversion.created
+          sidebarTitle: conversion.created
+      description: Sent when a conversion is created and processing has started.
+      operationId: webhook_conversion_created
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - conversion.created
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ConversionResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  conversion.completed:
+    post:
+      summary: conversion.completed
+      x-mint:
+        metadata:
+          title: conversion.completed
+          sidebarTitle: conversion.completed
+      description: Sent when a conversion has completed successfully.
+      operationId: webhook_conversion_completed
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - conversion.completed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ConversionResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  conversion.failed:
+    post:
+      summary: conversion.failed
+      x-mint:
+        metadata:
+          title: conversion.failed
+          sidebarTitle: conversion.failed
+      description: Sent when a conversion has failed.
+      operationId: webhook_conversion_failed
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - conversion.failed
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/ConversionResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+  ping.test:
+    post:
+      summary: ping.test
+      x-mint:
+        metadata:
+          title: ping.test
+          sidebarTitle: ping.test
+      description: Sent when a merchant explicitly triggers a test delivery to one of their webhook subscriptions. Does not reflect any real business activity; handlers should short-circuit on this event type.
+      operationId: webhook_ping_test
+      tags:
+      - Webhook Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the event. Stable across retries.
+                type:
+                  type: string
+                  enum:
+                  - ping.test
+                  description: Event type in resource.action format.
+                api_version:
+                  type: string
+                  description: API version the payload was rendered at. Stable across retries and redeliveries.
+                payload:
+                  $ref: '#/components/schemas/PingResourceDto'
+                  description: Full resource snapshot at the time of the event.
+                date:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 UTC timestamp when the event was created.
+              required:
+              - id
+              - type
+              - api_version
+              - payload
+              - date
+      responses:
+        '200':
+          description: Event received successfully.
+components:
+  schemas:
+    ConversionResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the conversion.
+          type: string
+          format: uuid
+        quote_id:
+          description: ID of the associated quote, or null.
+          type: string
+          format: uuid
+          nullable: true
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - conversion
+        status:
+          description: Current status of the conversion.
+          type: string
+          enum:
+          - pending
+          - completed
+          - failed
+        source_amount:
+          description: Source amount as a string decimal.
+          type: string
+        source_currency:
+          description: Source currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        target_currency:
+          description: Target currency code.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        source_account_id:
+          description: ID of the source account, or null.
+          type: string
+          nullable: true
+        target_account_id:
+          description: ID of the target account, or null.
+          type: string
+          nullable: true
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            message:
+              description: Human-readable description of the failure.
+              type: string
+          required:
+          - message
+          nullable: true
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the conversion was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the conversion was last updated.
+          type: string
+          format: date-time
+        completed_at:
+          description: ISO 8601 UTC timestamp when the conversion completed, or null.
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - quote_id
+      - type
+      - status
+      - source_amount
+      - source_currency
+      - target_currency
+      - source_account_id
+      - target_account_id
+      - failure
+      - metadata
+      - created_at
+      - updated_at
+      - completed_at
+    PingResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the ping event.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - ping
+        merchant_id:
+          description: Identifier of the merchant the ping was dispatched for.
+          type: string
+        dispatched_at:
+          description: ISO 8601 UTC timestamp when the ping was dispatched.
+          type: string
+          format: date-time
+        message:
+          description: Human-readable notice that this event was generated by the test endpoint and does not reflect any real business activity.
+          type: string
+      required:
+      - id
+      - type
+      - merchant_id
+      - dispatched_at
+      - message
+    PayoutResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the payout.
+          type: string
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - payout
+        status:
+          description: Current status of the payout.
+          type: string
+          enum:
+          - pending
+          - paid
+          - failed
+          - returned
+        source_account_id:
+          description: ID of the account that was debited.
+          type: string
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Currency code (ISO 4217 currency code or crypto currency code).
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        destination:
+          description: Bank account or crypto wallet the payout was sent to.
+          oneOf:
+          - type: object
+            properties:
+              type:
+                description: Discriminator for IBAN financial address.
+                type: string
+                enum:
+                - iban
+              iban:
+                description: International Bank Account Number.
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+              bic:
+                description: Bank Identifier Code, or null if not provided.
+                type: string
+                nullable: true
+            required:
+            - type
+            - iban
+            - account_holder_name
+            - bic
+          - type: object
+            properties:
+              type:
+                description: Discriminator for UK sort code financial address.
+                type: string
+                enum:
+                - sort_code
+              sort_code:
+                description: UK sort code (6 digits).
+                type: string
+              account_number:
+                description: UK account number (8 digits).
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+            required:
+            - type
+            - sort_code
+            - account_number
+            - account_holder_name
+          - type: object
+            properties:
+              type:
+                description: Discriminator for ABA wire financial address.
+                type: string
+                enum:
+                - aba
+              routing_number:
+                description: ABA routing number (9 digits).
+                type: string
+              account_number:
+                description: Bank account number.
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+            required:
+            - type
+            - routing_number
+            - account_number
+            - account_holder_name
+          - type: object
+            properties:
+              type:
+                description: Discriminator for crypto wallet financial address.
+                type: string
+                enum:
+                - crypto_wallet
+              address:
+                description: Wallet address on the specified blockchain.
+                type: string
+              blockchain:
+                description: Blockchain network for the crypto wallet.
+                type: string
+                enum:
+                - bitcoin
+                - ethereum
+                - solana
+                - polygon
+                - bitcoin_testnet4
+                - ethereum_sepolia
+                - solana_devnet
+                - polygon_amoy
+            required:
+            - type
+            - address
+            - blockchain
+        reference:
+          description: Payment reference.
+          type: string
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            code:
+              description: Failure code.
+              type: string
+              enum:
+              - account_closed
+              - account_blocked
+              - insufficient_funds
+              - invalid_account_format
+              - invalid_instruction
+              - invalid_amount
+              - invalid_time
+              - duplicate_transaction
+              - payee_verification_failed
+              - system_error
+              - provider_system_error
+              - rejected_by_correspondent_bank
+              - blocked_by_review
+              - unknown
+              x-enumNames:
+              - ACCOUNT_CLOSED
+              - ACCOUNT_BLOCKED
+              - INSUFFICIENT_FUNDS
+              - INVALID_ACCOUNT_FORMAT
+              - INVALID_INSTRUCTION
+              - INVALID_AMOUNT
+              - INVALID_TIME
+              - DUPLICATE_TRANSACTION
+              - PAYEE_VERIFICATION_FAILED
+              - SYSTEM_ERROR
+              - PROVIDER_SYSTEM_ERROR
+              - REJECTED_BY_CORRESPONDENT_BANK
+              - BLOCKED_BY_REVIEW
+              - UNKNOWN
+            message:
+              description: Human-readable description of the failure.
+              type: string
+            retry:
+              description: Whether the payout can be retried.
+              type: boolean
+          required:
+          - code
+          - message
+          - retry
+          nullable: true
+        metadata:
+          description: Key-value pairs stored with the payout.
+          type: object
+          additionalProperties:
+            type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the payout was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the payout was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - status
+      - source_account_id
+      - amount
+      - currency
+      - destination
+      - reference
+      - failure
+      - metadata
+      - created_at
+      - updated_at
+    DepositResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the deposit.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - deposit
+        status:
+          description: Current status of the deposit.
+          type: string
+          enum:
+          - received
+          - in_return
+          - returned
+          - return_failed
+          - return_returned
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Supported fiat or crypto currency code for the deposit amount.
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        source:
+          description: Counterparty bank account or crypto wallet that sent the funds.
+          oneOf:
+          - type: object
+            properties:
+              type:
+                description: Discriminator for IBAN source.
+                type: string
+                enum:
+                - iban
+              iban:
+                description: International Bank Account Number.
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+              bic:
+                description: Bank Identifier Code, or null if not provided.
+                type: string
+                nullable: true
+            required:
+            - type
+            - iban
+            - account_holder_name
+            - bic
+          - type: object
+            properties:
+              type:
+                description: Discriminator for UK sort code source.
+                type: string
+                enum:
+                - sort_code
+              sort_code:
+                description: UK sort code (6 digits).
+                type: string
+              account_number:
+                description: UK account number (8 digits).
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+            required:
+            - type
+            - sort_code
+            - account_number
+            - account_holder_name
+          - type: object
+            properties:
+              type:
+                description: Discriminator for ABA wire source.
+                type: string
+                enum:
+                - aba
+              routing_number:
+                description: ABA routing number (9 digits).
+                type: string
+              account_number:
+                description: Bank account number.
+                type: string
+              account_holder_name:
+                description: Name of the account holder.
+                type: string
+            required:
+            - type
+            - routing_number
+            - account_number
+            - account_holder_name
+          - type: object
+            properties:
+              type:
+                description: Discriminator for crypto wallet source.
+                type: string
+                enum:
+                - crypto_wallet
+              address:
+                description: Wallet address on the specified blockchain.
+                type: string
+              blockchain:
+                description: Blockchain network for the crypto wallet.
+                type: string
+                enum:
+                - bitcoin
+                - ethereum
+                - solana
+                - polygon
+                - bitcoin_testnet4
+                - ethereum_sepolia
+                - solana_devnet
+                - polygon_amoy
+            required:
+            - type
+            - address
+            - blockchain
+        destination_account_id:
+          description: ID of the merchant account that received the deposit.
+          type: string
+          format: uuid
+        bank_statement_reference:
+          description: Reference visible on the bank statement, or null when not applicable.
+          type: string
+          nullable: true
+        rail:
+          description: Payment rail or blockchain used for the deposit.
+          type: string
+          enum:
+          - sepa_instant
+          - faster_payments
+          - sepa
+          - elixir
+          - express_elixir
+          - sek_account_to_account
+          - sumclearing
+          - straksclearing
+          - swift
+          - internal
+          - target
+          - ach
+          - fedwire
+          - btc
+          - btc_testnet4
+          - eth
+          - eth_sepolia
+          - sol
+          - sol_devnet
+          - matic
+          - matic_amoy
+          nullable: true
+        tx_hash:
+          description: Transaction hash for crypto deposits, or null when not known.
+          type: string
+          nullable: true
+        returns:
+          description: Array of deposit return IDs associated with this deposit.
+          type: array
+          items:
+            type: string
+            format: uuid
+        created_at:
+          description: ISO 8601 UTC timestamp when the deposit was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the deposit was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - status
+      - amount
+      - currency
+      - source
+      - destination_account_id
+      - bank_statement_reference
+      - rail
+      - tx_hash
+      - returns
+      - created_at
+      - updated_at
+    ReturnResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the return.
+          type: string
+          format: uuid
+        type:
+          description: Type of the resource.
+          type: string
+          enum:
+          - return
+        status:
+          description: Current status of the return.
+          type: string
+          enum:
+          - pending
+          - paid
+          - failed
+          - returned
+        deposit_id:
+          description: ID of the parent deposit.
+          type: string
+          format: uuid
+        amount:
+          description: Amount as a string decimal (e.g. "100.50").
+          type: string
+        currency:
+          description: Currency code (ISO 4217 currency code or crypto currency code).
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          - BTC
+          - ETH
+          - SOL
+          - POL
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            code:
+              description: Failure code.
+              type: string
+              enum:
+              - account_closed
+              - account_blocked
+              - insufficient_funds
+              - invalid_account_format
+              - invalid_instruction
+              - invalid_amount
+              - invalid_time
+              - duplicate_transaction
+              - payee_verification_failed
+              - system_error
+              - provider_system_error
+              - rejected_by_correspondent_bank
+              - blocked_by_review
+              - unknown
+              x-enumNames:
+              - ACCOUNT_CLOSED
+              - ACCOUNT_BLOCKED
+              - INSUFFICIENT_FUNDS
+              - INVALID_ACCOUNT_FORMAT
+              - INVALID_INSTRUCTION
+              - INVALID_AMOUNT
+              - INVALID_TIME
+              - DUPLICATE_TRANSACTION
+              - PAYEE_VERIFICATION_FAILED
+              - SYSTEM_ERROR
+              - PROVIDER_SYSTEM_ERROR
+              - REJECTED_BY_CORRESPONDENT_BANK
+              - BLOCKED_BY_REVIEW
+              - UNKNOWN
+            message:
+              description: Human-readable description of the failure.
+              type: string
+            retry:
+              description: Whether the return can be retried.
+              type: boolean
+          required:
+          - code
+          - message
+          - retry
+          nullable: true
+        created_at:
+          description: ISO 8601 UTC timestamp when the return was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the return was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - status
+      - deposit_id
+      - amount
+      - currency
+      - failure
+      - created_at
+      - updated_at
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

@@ -1,25 +1,13 @@
 {
   "provider": "augustus",
   "sources": [
-    "augustus-account-programs-api-openapi.yml",
-    "augustus-accounts-api-openapi.yml",
-    "augustus-api-key-api-openapi.yml",
-    "augustus-api-versions-api-openapi.yml",
-    "augustus-conversions-api-openapi.yml",
-    "augustus-deposits-api-openapi.yml",
-    "augustus-events-api-openapi.yml",
-    "augustus-payouts-api-openapi.yml",
-    "augustus-quotes-api-openapi.yml",
-    "augustus-returns-api-openapi.yml",
-    "augustus-scopes-api-openapi.yml",
-    "augustus-webhook-deliveries-api-openapi.yml",
-    "augustus-webhook-subscriptions-api-openapi.yml"
+    "_original/augustus-openapi-original.yml"
   ],
   "outputs": [
-    "augustus-account-programs-api-openapi.yml",
-    "augustus-accounts-api-openapi.yml",
     "augustus-api-key-api-openapi.yml",
     "augustus-api-versions-api-openapi.yml",
+    "augustus-account-programs-api-openapi.yml",
+    "augustus-accounts-api-openapi.yml",
     "augustus-conversions-api-openapi.yml",
     "augustus-deposits-api-openapi.yml",
     "augustus-events-api-openapi.yml",
@@ -28,11 +16,43 @@
     "augustus-returns-api-openapi.yml",
     "augustus-scopes-api-openapi.yml",
     "augustus-webhook-deliveries-api-openapi.yml",
+    "augustus-webhook-events-api-openapi.yml",
     "augustus-webhook-subscriptions-api-openapi.yml"
   ],
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "augustus-openapi-original.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "augustus-openapi-original.yml: declared missing tag: API Key",
+    "augustus-openapi-original.yml: declared missing tag: API Versions",
+    "augustus-openapi-original.yml: declared missing tag: Account Programs",
+    "augustus-openapi-original.yml: declared missing tag: Accounts",
+    "augustus-openapi-original.yml: declared missing tag: Conversions",
+    "augustus-openapi-original.yml: declared missing tag: Deposits",
+    "augustus-openapi-original.yml: declared missing tag: Events",
+    "augustus-openapi-original.yml: declared missing tag: Payouts",
+    "augustus-openapi-original.yml: declared missing tag: Quotes",
+    "augustus-openapi-original.yml: declared missing tag: Returns",
+    "augustus-openapi-original.yml: declared missing tag: Scopes",
+    "augustus-openapi-original.yml: declared missing tag: Webhook Deliveries",
+    "augustus-openapi-original.yml: declared missing tag: Webhook Events",
+    "augustus-openapi-original.yml: declared missing tag: Webhook Subscriptions"
+  ],
+  "skipped": [
+    "augustus-account-programs-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-accounts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-api-key-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-api-versions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-conversions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-deposits-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-events-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-payouts-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-quotes-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-returns-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-scopes-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-webhook-deliveries-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "augustus-webhook-subscriptions-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
