@@ -173,6 +173,8 @@ apis:
   humanURL: https://docs.augustus.com/v1/introduction
   baseURL: https://api.augustus.com
   tags:
+  - Conversion
+  tags_raw:
   - Conversions
   properties:
   - type: OpenAPI
