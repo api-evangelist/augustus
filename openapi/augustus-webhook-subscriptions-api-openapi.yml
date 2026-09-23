@@ -276,19 +276,25 @@ components:
             - conversion.completed
             - conversion.failed
             - '*'
-    CreateWebhookSubscriptionBodyDto:
+    WebhookSubscriptionResourceDto:
       type: object
       properties:
-        url:
-          description: The HTTPS URL where webhook events will be delivered.
+        id:
+          description: Unique identifier of the webhook subscription.
           type: string
-          format: uri
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - webhook_subscription
+        url:
+          description: The HTTPS URL where webhook events are delivered.
+          type: string
         events:
-          description: Event types to subscribe to. Use ["*"] for all events.
+          description: Event types this subscription receives.
           type: array
-          minItems: 1
           items:
-            description: Event type to subscribe to. Use "*" for all events.
+            description: Event type the subscription receives.
             type: string
             enum:
             - payout.created
@@ -303,10 +309,21 @@ components:
             - conversion.created
             - conversion.completed
             - conversion.failed
-            - '*'
+        created_at:
+          description: ISO 8601 UTC timestamp when the subscription was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the subscription was last updated.
+          type: string
+          format: date-time
       required:
+      - id
+      - type
       - url
       - events
+      - created_at
+      - updated_at
     ListWebhookSubscriptionsResponseDto:
       type: object
       properties:
@@ -369,25 +386,19 @@ components:
       - data
       - has_more
       - next_cursor
-    WebhookSubscriptionResourceDto:
+    CreateWebhookSubscriptionBodyDto:
       type: object
       properties:
-        id:
-          description: Unique identifier of the webhook subscription.
-          type: string
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - webhook_subscription
         url:
-          description: The HTTPS URL where webhook events are delivered.
+          description: The HTTPS URL where webhook events will be delivered.
           type: string
+          format: uri
         events:
-          description: Event types this subscription receives.
+          description: Event types to subscribe to. Use ["*"] for all events.
           type: array
+          minItems: 1
           items:
-            description: Event type the subscription receives.
+            description: Event type to subscribe to. Use "*" for all events.
             type: string
             enum:
             - payout.created
@@ -402,21 +413,10 @@ components:
             - conversion.created
             - conversion.completed
             - conversion.failed
-        created_at:
-          description: ISO 8601 UTC timestamp when the subscription was created.
-          type: string
-          format: date-time
-        updated_at:
-          description: ISO 8601 UTC timestamp when the subscription was last updated.
-          type: string
-          format: date-time
+            - '*'
       required:
-      - id
-      - type
       - url
       - events
-      - created_at
-      - updated_at
   securitySchemes:
     BearerAuth:
       scheme: bearer

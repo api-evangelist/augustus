@@ -251,6 +251,30 @@ components:
       - created_at
       - updated_at
       - completed_at
+    CreateConversionBodyDto:
+      type: object
+      properties:
+        source_account_id:
+          description: ID of the source account to debit.
+          type: string
+          format: uuid
+        target_account_id:
+          description: ID of the target account to credit.
+          type: string
+          format: uuid
+        source_amount:
+          description: Amount to convert as a string decimal (e.g. "100.50").
+          type: string
+          pattern: ^\d+(\.\d+)?$
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - source_account_id
+      - target_account_id
+      - source_amount
     ListConversionsResponseDto:
       type: object
       properties:
@@ -367,30 +391,6 @@ components:
       - data
       - has_more
       - next_cursor
-    CreateConversionBodyDto:
-      type: object
-      properties:
-        source_account_id:
-          description: ID of the source account to debit.
-          type: string
-          format: uuid
-        target_account_id:
-          description: ID of the target account to credit.
-          type: string
-          format: uuid
-        source_amount:
-          description: Amount to convert as a string decimal (e.g. "100.50").
-          type: string
-          pattern: ^\d+(\.\d+)?$
-        metadata:
-          description: Key-value pairs stored with the conversion.
-          type: object
-          additionalProperties:
-            type: string
-      required:
-      - source_account_id
-      - target_account_id
-      - source_amount
   securitySchemes:
     BearerAuth:
       scheme: bearer
