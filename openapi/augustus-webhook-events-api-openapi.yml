@@ -605,33 +605,32 @@ webhooks:
           description: Event received successfully.
 components:
   schemas:
-    PayoutResourceDto:
+    DepositResourceDto:
       type: object
       properties:
         id:
-          description: Unique identifier of the payout.
+          description: Unique identifier of the deposit.
           type: string
+          format: uuid
         type:
           description: Resource type discriminator.
           type: string
           enum:
-          - payout
+          - deposit
         status:
-          description: Current status of the payout.
+          description: Current status of the deposit.
           type: string
           enum:
-          - pending
-          - paid
-          - failed
+          - received
+          - in_return
           - returned
-        source_account_id:
-          description: ID of the account that was debited.
-          type: string
+          - return_failed
+          - return_returned
         amount:
           description: Amount as a string decimal (e.g. "100.50").
           type: string
         currency:
-          description: Currency code (ISO 4217 currency code or crypto currency code).
+          description: Supported fiat or crypto currency code for the deposit amount.
           type: string
           enum:
           - EUR
@@ -642,13 +641,13 @@ components:
           - ETH
           - SOL
           - POL
-        destination:
-          description: Bank account or crypto wallet the payout was sent to.
+        source:
+          description: Counterparty bank account or crypto wallet that sent the funds.
           oneOf:
           - type: object
             properties:
               type:
-                description: Discriminator for IBAN financial address.
+                description: Discriminator for IBAN source.
                 type: string
                 enum:
                 - iban
@@ -670,7 +669,7 @@ components:
           - type: object
             properties:
               type:
-                description: Discriminator for UK sort code financial address.
+                description: Discriminator for UK sort code source.
                 type: string
                 enum:
                 - sort_code
@@ -691,7 +690,7 @@ components:
           - type: object
             properties:
               type:
-                description: Discriminator for ABA wire financial address.
+                description: Discriminator for ABA wire source.
                 type: string
                 enum:
                 - aba
@@ -712,7 +711,7 @@ components:
           - type: object
             properties:
               type:
-                description: Discriminator for crypto wallet financial address.
+                description: Discriminator for crypto wallet source.
                 type: string
                 enum:
                 - crypto_wallet
@@ -735,81 +734,70 @@ components:
             - type
             - address
             - blockchain
-        reference:
-          description: Payment reference.
+        destination_account_id:
+          description: ID of the merchant account that received the deposit.
           type: string
-        failure:
-          description: Failure details when status is failed, otherwise null.
-          type: object
-          properties:
-            code:
-              description: Failure code.
-              type: string
-              enum:
-              - account_closed
-              - account_blocked
-              - insufficient_funds
-              - invalid_account_format
-              - invalid_instruction
-              - invalid_amount
-              - invalid_time
-              - duplicate_transaction
-              - payee_verification_failed
-              - system_error
-              - provider_system_error
-              - rejected_by_correspondent_bank
-              - blocked_by_review
-              - unknown
-              x-enumNames:
-              - ACCOUNT_CLOSED
-              - ACCOUNT_BLOCKED
-              - INSUFFICIENT_FUNDS
-              - INVALID_ACCOUNT_FORMAT
-              - INVALID_INSTRUCTION
-              - INVALID_AMOUNT
-              - INVALID_TIME
-              - DUPLICATE_TRANSACTION
-              - PAYEE_VERIFICATION_FAILED
-              - SYSTEM_ERROR
-              - PROVIDER_SYSTEM_ERROR
-              - REJECTED_BY_CORRESPONDENT_BANK
-              - BLOCKED_BY_REVIEW
-              - UNKNOWN
-            message:
-              description: Human-readable description of the failure.
-              type: string
-            retry:
-              description: Whether the payout can be retried.
-              type: boolean
-          required:
-          - code
-          - message
-          - retry
+          format: uuid
+        bank_statement_reference:
+          description: Reference visible on the bank statement, or null when not applicable.
+          type: string
           nullable: true
-        metadata:
-          description: Key-value pairs stored with the payout.
-          type: object
-          additionalProperties:
+        rail:
+          description: Payment rail or blockchain used for the deposit.
+          type: string
+          enum:
+          - sepa_instant
+          - faster_payments
+          - sepa
+          - elixir
+          - express_elixir
+          - sek_account_to_account
+          - sumclearing
+          - straksclearing
+          - swift
+          - internal
+          - target
+          - ach
+          - fedwire
+          - btc
+          - btc_testnet4
+          - eth
+          - eth_sepolia
+          - sol
+          - sol_devnet
+          - matic
+          - matic_amoy
+          nullable: true
+        tx_hash:
+          description: Transaction hash for crypto deposits, or null when not known.
+          type: string
+          nullable: true
+        returns:
+          description: Array of deposit return IDs associated with this deposit.
+          type: array
+          items:
             type: string
+            format: uuid
         created_at:
-          description: ISO 8601 UTC timestamp when the payout was created.
+          description: ISO 8601 UTC timestamp when the deposit was created.
           type: string
           format: date-time
         updated_at:
-          description: ISO 8601 UTC timestamp when the payout was last updated.
+          description: ISO 8601 UTC timestamp when the deposit was last updated.
           type: string
           format: date-time
       required:
       - id
       - type
       - status
-      - source_account_id
       - amount
       - currency
-      - destination
-      - reference
-      - failure
-      - metadata
+      - source
+      - destination_account_id
+      - bank_statement_reference
+      - rail
+      - tx_hash
+      - returns
       - created_at
       - updated_at
     PingResourceDto:
@@ -1047,32 +1035,33 @@ components:
       - created_at
       - updated_at
       - completed_at
-    DepositResourceDto:
+    PayoutResourceDto:
       type: object
       properties:
         id:
-          description: Unique identifier of the deposit.
+          description: Unique identifier of the payout.
           type: string
-          format: uuid
         type:
           description: Resource type discriminator.
           type: string
           enum:
-          - deposit
+          - payout
         status:
-          description: Current status of the deposit.
+          description: Current status of the payout.
           type: string
           enum:
-          - received
-          - in_return
+          - pending
+          - paid
+          - failed
           - returned
-          - return_failed
-          - return_returned
+        source_account_id:
+          description: ID of the account that was debited.
+          type: string
         amount:
           description: Amount as a string decimal (e.g. "100.50").
           type: string
         currency:
-          description: Supported fiat or crypto currency code for the deposit amount.
+          description: Currency code (ISO 4217 currency code or crypto currency code).
           type: string
           enum:
           - EUR
@@ -1083,13 +1072,13 @@ components:
           - ETH
           - SOL
           - POL
-        source:
-          description: Counterparty bank account or crypto wallet that sent the funds.
+        destination:
+          description: Bank account or crypto wallet the payout was sent to.
           oneOf:
           - type: object
             properties:
               type:
-                description: Discriminator for IBAN source.
+                description: Discriminator for IBAN financial address.
                 type: string
                 enum:
                 - iban
@@ -1111,7 +1100,7 @@ components:
           - type: object
             properties:
               type:
-                description: Discriminator for UK sort code source.
+                description: Discriminator for UK sort code financial address.
                 type: string
                 enum:
                 - sort_code
@@ -1132,7 +1121,7 @@ components:
           - type: object
             properties:
               type:
-                description: Discriminator for ABA wire source.
+                description: Discriminator for ABA wire financial address.
                 type: string
                 enum:
                 - aba
@@ -1153,7 +1142,7 @@ components:
           - type: object
             properties:
               type:
-                description: Discriminator for crypto wallet source.
+                description: Discriminator for crypto wallet financial address.
                 type: string
                 enum:
                 - crypto_wallet
@@ -1176,70 +1165,81 @@ components:
             - type
             - address
             - blockchain
-        destination_account_id:
-          description: ID of the merchant account that received the deposit.
+        reference:
+          description: Payment reference.
           type: string
-          format: uuid
-        bank_statement_reference:
-          description: Reference visible on the bank statement, or null when not applicable.
-          type: string
+        failure:
+          description: Failure details when status is failed, otherwise null.
+          type: object
+          properties:
+            code:
+              description: Failure code.
+              type: string
+              enum:
+              - account_closed
+              - account_blocked
+              - insufficient_funds
+              - invalid_account_format
+              - invalid_instruction
+              - invalid_amount
+              - invalid_time
+              - duplicate_transaction
+              - payee_verification_failed
+              - system_error
+              - provider_system_error
+              - rejected_by_correspondent_bank
+              - blocked_by_review
+              - unknown
+              x-enumNames:
+              - ACCOUNT_CLOSED
+              - ACCOUNT_BLOCKED
+              - INSUFFICIENT_FUNDS
+              - INVALID_ACCOUNT_FORMAT
+              - INVALID_INSTRUCTION
+              - INVALID_AMOUNT
+              - INVALID_TIME
+              - DUPLICATE_TRANSACTION
+              - PAYEE_VERIFICATION_FAILED
+              - SYSTEM_ERROR
+              - PROVIDER_SYSTEM_ERROR
+              - REJECTED_BY_CORRESPONDENT_BANK
+              - BLOCKED_BY_REVIEW
+              - UNKNOWN
+            message:
+              description: Human-readable description of the failure.
+              type: string
+            retry:
+              description: Whether the payout can be retried.
+              type: boolean
+          required:
+          - code
+          - message
+          - retry
           nullable: true
-        rail:
-          description: Payment rail or blockchain used for the deposit.
-          type: string
-          enum:
-          - sepa_instant
-          - faster_payments
-          - sepa
-          - elixir
-          - express_elixir
-          - sek_account_to_account
-          - sumclearing
-          - straksclearing
-          - swift
-          - internal
-          - target
-          - ach
-          - fedwire
-          - btc
-          - btc_testnet4
-          - eth
-          - eth_sepolia
-          - sol
-          - sol_devnet
-          - matic
-          - matic_amoy
-          nullable: true
-        tx_hash:
-          description: Transaction hash for crypto deposits, or null when not known.
-          type: string
-          nullable: true
-        returns:
-          description: Array of deposit return IDs associated with this deposit.
-          type: array
-          items:
+        metadata:
+          description: Key-value pairs stored with the payout.
+          type: object
+          additionalProperties:
             type: string
-            format: uuid
         created_at:
-          description: ISO 8601 UTC timestamp when the deposit was created.
+          description: ISO 8601 UTC timestamp when the payout was created.
           type: string
           format: date-time
         updated_at:
-          description: ISO 8601 UTC timestamp when the deposit was last updated.
+          description: ISO 8601 UTC timestamp when the payout was last updated.
           type: string
           format: date-time
       required:
       - id
       - type
       - status
+      - source_account_id
       - amount
       - currency
-      - source
-      - destination_account_id
-      - bank_statement_reference
-      - rail
-      - tx_hash
-      - returns
+      - destination
+      - reference
+      - failure
+      - metadata
       - created_at
       - updated_at
   securitySchemes:

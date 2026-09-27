@@ -269,256 +269,6 @@ paths:
         source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accounts.unfreeze('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.id);"
 components:
   schemas:
-    IdIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - id
-        value:
-          type: string
-          minLength: 1
-      required:
-      - type
-      - value
-      additionalProperties: false
-    NonUsBeneficiaryData:
-      type: object
-      properties:
-        legal_name:
-          description: Full legal name of the account holder.
-          type: string
-          minLength: 1
-          maxLength: 255
-        residential_address:
-          description: Residential address of the account holder.
-          anyOf:
-          - $ref: '#/components/schemas/UsResidentialAddress'
-          - $ref: '#/components/schemas/NonUsResidentialAddress'
-        date_of_birth:
-          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
-          type: string
-          format: date
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-        identification:
-          description: 'Government-issued identification with type: "id" (generic government-issued ID).'
-          $ref: '#/components/schemas/IdIdentification'
-        country_of_citizenship:
-          description: ISO 3166-1 alpha-2 country code of citizenship.
-          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
-      required:
-      - legal_name
-      - residential_address
-      - date_of_birth
-      - identification
-      - country_of_citizenship
-      additionalProperties: false
-    SortCodeFinancialAddress:
-      type: object
-      properties:
-        type:
-          description: Discriminator for UK sort code financial address.
-          type: string
-          enum:
-          - sort_code
-        sort_code:
-          description: UK sort code (6 digits).
-          type: string
-        account_number:
-          description: UK account number (8 digits).
-          type: string
-        account_holder_name:
-          description: Name of the account holder.
-          type: string
-      required:
-      - type
-      - sort_code
-      - account_number
-      - account_holder_name
-      additionalProperties: false
-    CloseAccountBodyDto:
-      type: object
-      properties:
-        reason:
-          description: Reason for closing the account.
-          type: string
-          enum:
-          - aml_risk_fraud
-          - client_request
-      required:
-      - reason
-      additionalProperties: false
-    ListAccountsResponseDto:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: Unique identifier of the account.
-                type: string
-              type:
-                description: Resource type discriminator.
-                type: string
-                enum:
-                - account
-              currency:
-                description: ISO 4217 currency code for the account.
-                type: string
-                enum:
-                - EUR
-                - GBP
-                - USD
-                - USDC
-                - BTC
-                - ETH
-                - SOL
-                - POL
-              account_type:
-                description: Type of the account.
-                type: string
-                enum:
-                - virtual_account
-                - payment_account
-                - collateral_account
-              status:
-                description: Current status of the account.
-                type: string
-                enum:
-                - pending
-                - active
-                - frozen
-                - closed
-              asset_type:
-                description: Asset type of the account.
-                type: string
-                enum:
-                - fiat
-                - crypto
-              label:
-                description: Human-readable label for the account.
-                type: string
-              financial_addresses:
-                description: Payment identifiers (e.g. IBAN, account number, wallet address) through which this account can send or receive funds.
-                type: array
-                items:
-                  anyOf:
-                  - $ref: '#/components/schemas/IbanFinancialAddress'
-                  - $ref: '#/components/schemas/SortCodeFinancialAddress'
-                  - $ref: '#/components/schemas/AbaFinancialAddress'
-                  - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
-              created_at:
-                description: ISO 8601 UTC timestamp when the account was created.
-                type: string
-                format: date-time
-                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-              updated_at:
-                description: ISO 8601 UTC timestamp when the account was last updated.
-                type: string
-                format: date-time
-                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-            required:
-            - id
-            - type
-            - currency
-            - account_type
-            - status
-            - asset_type
-            - label
-            - financial_addresses
-            - created_at
-            - updated_at
-            additionalProperties: false
-        has_more:
-          type: boolean
-        next_cursor:
-          type: string
-          nullable: true
-      required:
-      - data
-      - has_more
-      - next_cursor
-      additionalProperties: false
-    IbanFinancialAddress:
-      type: object
-      properties:
-        type:
-          description: Discriminator for IBAN financial address.
-          type: string
-          enum:
-          - iban
-        iban:
-          description: International Bank Account Number.
-          type: string
-        account_holder_name:
-          description: Name of the account holder.
-          type: string
-        bic:
-          type: string
-          description: Bank Identifier Code, or null if not provided.
-          nullable: true
-      required:
-      - type
-      - iban
-      - account_holder_name
-      - bic
-      additionalProperties: false
-    UsResidentialAddress:
-      type: object
-      properties:
-        street_line_1:
-          description: Primary street address.
-          type: string
-          minLength: 1
-          maxLength: 255
-        street_line_2:
-          description: Secondary street address (apartment, suite, etc.).
-          type: string
-          maxLength: 255
-        city:
-          description: City name.
-          type: string
-          minLength: 1
-          maxLength: 255
-        state:
-          description: Two-letter state code.
-          type: string
-          minLength: 2
-          maxLength: 2
-        postal_code:
-          description: Postal or ZIP code.
-          type: string
-          minLength: 1
-          maxLength: 30
-        country:
-          description: ISO 3166-1 alpha-2 country code.
-          type: string
-          enum:
-          - US
-      required:
-      - street_line_1
-      - city
-      - state
-      - postal_code
-      - country
-      additionalProperties: false
-    ItinIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - itin
-        value:
-          type: string
-          pattern: ^9\d{2}-\d{2}-\d{4}$
-      required:
-      - type
-      - value
-      additionalProperties: false
     Alpha2CodeWithoutUs:
       type: string
       enum:
@@ -802,6 +552,68 @@ components:
       - postal_code
       - country
       additionalProperties: false
+    UsResidentialAddress:
+      type: object
+      properties:
+        street_line_1:
+          description: Primary street address.
+          type: string
+          minLength: 1
+          maxLength: 255
+        street_line_2:
+          description: Secondary street address (apartment, suite, etc.).
+          type: string
+          maxLength: 255
+        city:
+          description: City name.
+          type: string
+          minLength: 1
+          maxLength: 255
+        state:
+          description: Two-letter state code.
+          type: string
+          minLength: 2
+          maxLength: 2
+        postal_code:
+          description: Postal or ZIP code.
+          type: string
+          minLength: 1
+          maxLength: 30
+        country:
+          description: ISO 3166-1 alpha-2 country code.
+          type: string
+          enum:
+          - US
+      required:
+      - street_line_1
+      - city
+      - state
+      - postal_code
+      - country
+      additionalProperties: false
+    SortCodeFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for UK sort code financial address.
+          type: string
+          enum:
+          - sort_code
+        sort_code:
+          description: UK sort code (6 digits).
+          type: string
+        account_number:
+          description: UK account number (8 digits).
+          type: string
+        account_holder_name:
+          description: Name of the account holder.
+          type: string
+      required:
+      - type
+      - sort_code
+      - account_number
+      - account_holder_name
+      additionalProperties: false
     AccountResourceDto:
       type: object
       properties:
@@ -880,6 +692,34 @@ components:
       - created_at
       - updated_at
       additionalProperties: false
+    CryptoWalletFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for crypto wallet financial address.
+          type: string
+          enum:
+          - crypto_wallet
+        address:
+          description: Wallet address on the specified blockchain.
+          type: string
+        blockchain:
+          description: Blockchain network for the crypto wallet.
+          type: string
+          enum:
+          - bitcoin
+          - ethereum
+          - solana
+          - polygon
+          - bitcoin_testnet4
+          - ethereum_sepolia
+          - solana_devnet
+          - polygon_amoy
+      required:
+      - type
+      - address
+      - blockchain
+      additionalProperties: false
     AbaFinancialAddress:
       type: object
       properties:
@@ -902,6 +742,149 @@ components:
       - routing_number
       - account_number
       - account_holder_name
+      additionalProperties: false
+    IbanFinancialAddress:
+      type: object
+      properties:
+        type:
+          description: Discriminator for IBAN financial address.
+          type: string
+          enum:
+          - iban
+        iban:
+          description: International Bank Account Number.
+          type: string
+        account_holder_name:
+          description: Name of the account holder.
+          type: string
+        bic:
+          type: string
+          description: Bank Identifier Code, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - iban
+      - account_holder_name
+      - bic
+      additionalProperties: false
+    SsnIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - ssn
+        value:
+          type: string
+          pattern: ^\d{3}-\d{2}-\d{4}$
+      required:
+      - type
+      - value
+      additionalProperties: false
+    CloseAccountBodyDto:
+      type: object
+      properties:
+        reason:
+          description: Reason for closing the account.
+          type: string
+          enum:
+          - aml_risk_fraud
+          - client_request
+      required:
+      - reason
+      additionalProperties: false
+    ListAccountsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the account.
+                type: string
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - account
+              currency:
+                description: ISO 4217 currency code for the account.
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                - BTC
+                - ETH
+                - SOL
+                - POL
+              account_type:
+                description: Type of the account.
+                type: string
+                enum:
+                - virtual_account
+                - payment_account
+                - collateral_account
+              status:
+                description: Current status of the account.
+                type: string
+                enum:
+                - pending
+                - active
+                - frozen
+                - closed
+              asset_type:
+                description: Asset type of the account.
+                type: string
+                enum:
+                - fiat
+                - crypto
+              label:
+                description: Human-readable label for the account.
+                type: string
+              financial_addresses:
+                description: Payment identifiers (e.g. IBAN, account number, wallet address) through which this account can send or receive funds.
+                type: array
+                items:
+                  anyOf:
+                  - $ref: '#/components/schemas/IbanFinancialAddress'
+                  - $ref: '#/components/schemas/SortCodeFinancialAddress'
+                  - $ref: '#/components/schemas/AbaFinancialAddress'
+                  - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+              created_at:
+                description: ISO 8601 UTC timestamp when the account was created.
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+              updated_at:
+                description: ISO 8601 UTC timestamp when the account was last updated.
+                type: string
+                format: date-time
+                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+            required:
+            - id
+            - type
+            - currency
+            - account_type
+            - status
+            - asset_type
+            - label
+            - financial_addresses
+            - created_at
+            - updated_at
+            additionalProperties: false
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
       additionalProperties: false
     AccountBalanceResourceDto:
       type: object
@@ -943,6 +926,20 @@ components:
       - currency
       - as_of
       additionalProperties: false
+    ItinIdentification:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - itin
+        value:
+          type: string
+          pattern: ^9\d{2}-\d{2}-\d{4}$
+      required:
+      - type
+      - value
+      additionalProperties: false
     CreateAccountBodyDto:
       type: object
       properties:
@@ -966,19 +963,50 @@ components:
       - account_type
       - beneficiary_data
       additionalProperties: false
-    SsnIdentification:
+    IdIdentification:
       type: object
       properties:
         type:
           type: string
           enum:
-          - ssn
+          - id
         value:
           type: string
-          pattern: ^\d{3}-\d{2}-\d{4}$
+          minLength: 1
       required:
       - type
       - value
+      additionalProperties: false
+    NonUsBeneficiaryData:
+      type: object
+      properties:
+        legal_name:
+          description: Full legal name of the account holder.
+          type: string
+          minLength: 1
+          maxLength: 255
+        residential_address:
+          description: Residential address of the account holder.
+          anyOf:
+          - $ref: '#/components/schemas/UsResidentialAddress'
+          - $ref: '#/components/schemas/NonUsResidentialAddress'
+        date_of_birth:
+          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
+          type: string
+          format: date
+          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
+        identification:
+          description: 'Government-issued identification with type: "id" (generic government-issued ID).'
+          $ref: '#/components/schemas/IdIdentification'
+        country_of_citizenship:
+          description: ISO 3166-1 alpha-2 country code of citizenship.
+          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
+      required:
+      - legal_name
+      - residential_address
+      - date_of_birth
+      - identification
+      - country_of_citizenship
       additionalProperties: false
     UsBeneficiaryData:
       type: object
@@ -1014,34 +1042,6 @@ components:
       - date_of_birth
       - identification
       - country_of_citizenship
-      additionalProperties: false
-    CryptoWalletFinancialAddress:
-      type: object
-      properties:
-        type:
-          description: Discriminator for crypto wallet financial address.
-          type: string
-          enum:
-          - crypto_wallet
-        address:
-          description: Wallet address on the specified blockchain.
-          type: string
-        blockchain:
-          description: Blockchain network for the crypto wallet.
-          type: string
-          enum:
-          - bitcoin
-          - ethereum
-          - solana
-          - polygon
-          - bitcoin_testnet4
-          - ethereum_sepolia
-          - solana_devnet
-          - polygon_amoy
-      required:
-      - type
-      - address
-      - blockchain
       additionalProperties: false
   securitySchemes:
     BearerAuth:

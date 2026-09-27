@@ -149,6 +149,30 @@ paths:
         source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst conversion = await client.conversions.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(conversion.id);"
 components:
   schemas:
+    CreateConversionBodyDto:
+      type: object
+      properties:
+        source_account_id:
+          description: ID of the source account to debit.
+          type: string
+          format: uuid
+        target_account_id:
+          description: ID of the target account to credit.
+          type: string
+          format: uuid
+        source_amount:
+          description: Amount to convert as a string decimal (e.g. "100.50").
+          type: string
+          pattern: ^\d+(\.\d+)?$
+        metadata:
+          description: Key-value pairs stored with the conversion.
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - source_account_id
+      - target_account_id
+      - source_amount
     ConversionResourceDto:
       type: object
       properties:
@@ -251,30 +275,6 @@ components:
       - created_at
       - updated_at
       - completed_at
-    CreateConversionBodyDto:
-      type: object
-      properties:
-        source_account_id:
-          description: ID of the source account to debit.
-          type: string
-          format: uuid
-        target_account_id:
-          description: ID of the target account to credit.
-          type: string
-          format: uuid
-        source_amount:
-          description: Amount to convert as a string decimal (e.g. "100.50").
-          type: string
-          pattern: ^\d+(\.\d+)?$
-        metadata:
-          description: Key-value pairs stored with the conversion.
-          type: object
-          additionalProperties:
-            type: string
-      required:
-      - source_account_id
-      - target_account_id
-      - source_amount
     ListConversionsResponseDto:
       type: object
       properties:

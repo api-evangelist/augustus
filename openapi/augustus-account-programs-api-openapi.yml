@@ -104,6 +104,63 @@ paths:
         source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst accountProgram = await client.accountPrograms.retrieve(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(accountProgram.id);"
 components:
   schemas:
+    ListAccountProgramsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: Unique identifier of the account program.
+                type: string
+                format: uuid
+              type:
+                description: Resource type discriminator.
+                type: string
+                enum:
+                - account_program
+              label:
+                description: Human-readable label for the account program.
+                type: string
+              account_program_type:
+                description: 'Which for-benefit-of (FBO) program model applies: `fbo_program` (merchant program) or `fbo_sponsored` (sponsored program).'
+                type: string
+                enum:
+                - fbo_program
+                - fbo_sponsored
+              status:
+                description: Account program lifecycle status. Closed programs are not returned by this endpoint.
+                type: string
+                enum:
+                - active
+                - frozen
+              created_at:
+                description: ISO 8601 UTC timestamp when the account program was created.
+                type: string
+                format: date-time
+              updated_at:
+                description: ISO 8601 UTC timestamp when the account program was last updated.
+                type: string
+                format: date-time
+            required:
+            - id
+            - type
+            - label
+            - account_program_type
+            - status
+            - created_at
+            - updated_at
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
     AccountProgramBalanceResourceDto:
       type: object
       properties:
@@ -179,63 +236,6 @@ components:
       - status
       - created_at
       - updated_at
-    ListAccountProgramsResponseDto:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: Unique identifier of the account program.
-                type: string
-                format: uuid
-              type:
-                description: Resource type discriminator.
-                type: string
-                enum:
-                - account_program
-              label:
-                description: Human-readable label for the account program.
-                type: string
-              account_program_type:
-                description: 'Which for-benefit-of (FBO) program model applies: `fbo_program` (merchant program) or `fbo_sponsored` (sponsored program).'
-                type: string
-                enum:
-                - fbo_program
-                - fbo_sponsored
-              status:
-                description: Account program lifecycle status. Closed programs are not returned by this endpoint.
-                type: string
-                enum:
-                - active
-                - frozen
-              created_at:
-                description: ISO 8601 UTC timestamp when the account program was created.
-                type: string
-                format: date-time
-              updated_at:
-                description: ISO 8601 UTC timestamp when the account program was last updated.
-                type: string
-                format: date-time
-            required:
-            - id
-            - type
-            - label
-            - account_program_type
-            - status
-            - created_at
-            - updated_at
-        has_more:
-          type: boolean
-        next_cursor:
-          type: string
-          nullable: true
-      required:
-      - data
-      - has_more
-      - next_cursor
   securitySchemes:
     BearerAuth:
       scheme: bearer
