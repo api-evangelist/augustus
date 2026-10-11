@@ -1,0 +1,16 @@
+generated: '2026-10-12'
+method: none
+source:
+- https://zapier.com/apps/augustus/integrations
+- https://n8n.io/integrations/augustus/
+- https://composio.dev/toolkits/augustus
+- https://monid.ai/tools/augustus
+checked:
+- https://composio.dev/toolkits/augustus
+- https://monid.ai/tools/augustus
+- https://n8n.io/integrations/augustus/
+- https://zapier.com/apps/augustus/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []
