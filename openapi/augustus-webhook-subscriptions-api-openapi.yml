@@ -232,101 +232,6 @@ components:
       required:
       - url
       - events
-    EventResourceDto:
-      type: object
-      properties:
-        id:
-          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
-          type: string
-          format: uuid
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - event
-        event_type:
-          description: Event type.
-          type: string
-          enum:
-          - payout.created
-          - payout.initiated
-          - payout.paid
-          - payout.failed
-          - return.initiated
-          - return.paid
-          - return.failed
-          - return.returned
-          - deposit.received
-          - conversion.created
-          - conversion.completed
-          - conversion.failed
-          - ping.test
-        api_version:
-          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
-          type: string
-        created_at:
-          description: ISO 8601 UTC timestamp when the event was created.
-          type: string
-          format: date-time
-        data:
-          description: Event payload. Shape matches the resource schema for `event_type`.
-          type: object
-          additionalProperties: {}
-      required:
-      - id
-      - type
-      - event_type
-      - api_version
-      - created_at
-      - data
-    WebhookSubscriptionResourceDto:
-      type: object
-      properties:
-        id:
-          description: Unique identifier of the webhook subscription.
-          type: string
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - webhook_subscription
-        url:
-          description: The HTTPS URL where webhook events are delivered.
-          type: string
-        events:
-          description: Event types this subscription receives.
-          type: array
-          items:
-            description: Event type the subscription receives.
-            type: string
-            enum:
-            - payout.created
-            - payout.initiated
-            - payout.paid
-            - payout.failed
-            - return.initiated
-            - return.paid
-            - return.failed
-            - return.returned
-            - deposit.received
-            - conversion.created
-            - conversion.completed
-            - conversion.failed
-        created_at:
-          description: ISO 8601 UTC timestamp when the subscription was created.
-          type: string
-          format: date-time
-        updated_at:
-          description: ISO 8601 UTC timestamp when the subscription was last updated.
-          type: string
-          format: date-time
-      required:
-      - id
-      - type
-      - url
-      - events
-      - created_at
-      - updated_at
     ListWebhookSubscriptionsResponseDto:
       type: object
       properties:
@@ -389,6 +294,53 @@ components:
       - data
       - has_more
       - next_cursor
+    EventResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+          type: string
+          format: uuid
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - event
+        event_type:
+          description: Event type.
+          type: string
+          enum:
+          - payout.created
+          - payout.initiated
+          - payout.paid
+          - payout.failed
+          - return.initiated
+          - return.paid
+          - return.failed
+          - return.returned
+          - deposit.received
+          - conversion.created
+          - conversion.completed
+          - conversion.failed
+          - ping.test
+        api_version:
+          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+          type: string
+        created_at:
+          description: ISO 8601 UTC timestamp when the event was created.
+          type: string
+          format: date-time
+        data:
+          description: Event payload. Shape matches the resource schema for `event_type`.
+          type: object
+          additionalProperties: {}
+      required:
+      - id
+      - type
+      - event_type
+      - api_version
+      - created_at
+      - data
     UpdateWebhookSubscriptionBodyDto:
       type: object
       properties:
@@ -417,6 +369,54 @@ components:
             - conversion.completed
             - conversion.failed
             - '*'
+    WebhookSubscriptionResourceDto:
+      type: object
+      properties:
+        id:
+          description: Unique identifier of the webhook subscription.
+          type: string
+        type:
+          description: Resource type discriminator.
+          type: string
+          enum:
+          - webhook_subscription
+        url:
+          description: The HTTPS URL where webhook events are delivered.
+          type: string
+        events:
+          description: Event types this subscription receives.
+          type: array
+          items:
+            description: Event type the subscription receives.
+            type: string
+            enum:
+            - payout.created
+            - payout.initiated
+            - payout.paid
+            - payout.failed
+            - return.initiated
+            - return.paid
+            - return.failed
+            - return.returned
+            - deposit.received
+            - conversion.created
+            - conversion.completed
+            - conversion.failed
+        created_at:
+          description: ISO 8601 UTC timestamp when the subscription was created.
+          type: string
+          format: date-time
+        updated_at:
+          description: ISO 8601 UTC timestamp when the subscription was last updated.
+          type: string
+          format: date-time
+      required:
+      - id
+      - type
+      - url
+      - events
+      - created_at
+      - updated_at
   securitySchemes:
     BearerAuth:
       scheme: bearer
