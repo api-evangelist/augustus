@@ -32,9 +32,6 @@ paths:
       summary: List API versions
       tags:
       - API Versions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst apiVersions = await client.apiVersions.list();\n\nconsole.log(apiVersions.data);"
 components:
   schemas:
     ListApiVersionsResponseDto:
@@ -47,27 +44,30 @@ components:
             properties:
               type:
                 type: string
+                description: Resource type discriminator.
                 enum:
                 - api_version
               name:
+                type: string
                 description: Version identifier as sent in the `api-version` request header.
-                type: string
+                example: '2026-05-01'
               released_at:
+                type: string
+                format: date-time
                 description: When this version became publicly available, ISO 8601 UTC.
-                type: string
-                format: date-time
+                example: '2026-01-15T10:30:00Z'
               is_latest:
-                description: True for the most recently published version. New accounts and unpinned merchants resolve to this version.
                 type: boolean
+                description: True for the most recently published version. New accounts and unpinned merchants resolve to this version.
               deprecated_at:
-                description: When this version was marked deprecated, ISO 8601 UTC. Null if not deprecated.
                 type: string
                 format: date-time
+                description: When this version was marked deprecated, ISO 8601 UTC. Null if not deprecated.
                 nullable: true
               sunset_at:
-                description: When this version will stop being served, ISO 8601 UTC. Null if no sunset is scheduled.
                 type: string
                 format: date-time
+                description: When this version will stop being served, ISO 8601 UTC. Null if no sunset is scheduled.
                 nullable: true
             required:
             - type
@@ -76,15 +76,26 @@ components:
             - is_latest
             - deprecated_at
             - sunset_at
+            additionalProperties: false
         has_more:
           type: boolean
         next_cursor:
           type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
           nullable: true
       required:
       - data
       - has_more
       - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

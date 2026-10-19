@@ -32,27 +32,25 @@ paths:
       summary: Introspect current API key
       tags:
       - API Key
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.apiKeys.introspect();\n\nconsole.log(response.id);"
 components:
   schemas:
     ApiKeyResourceDto:
       type: object
       properties:
         type:
-          description: Resource type discriminator.
           type: string
+          description: Resource type discriminator.
           enum:
           - api_key
         id:
+          type: string
           description: Unique identifier of the API key.
-          type: string
+          example: 550e8400-e29b-41d4-a716-44665544000e
         merchant_id:
-          description: Identifier of the merchant the key belongs to.
           type: string
+          description: Identifier of the merchant the key belongs to.
+          example: 68e0a1b2c3d4e5f607182940
         scopes:
-          description: The effective set of scopes for this key. Stored aliases (e.g. `full_access`, `read_only`) are always expanded to concrete `resource:action` scopes against the current registry before they appear here.
           type: array
           items:
             type: string
@@ -68,33 +66,47 @@ components:
             - accounts:read
             - accounts:write
             - account_programs:read
+            - account_holders:read
+            - account_holders:write
+            - counterparties:read
+            - counterparties:write
             - webhook_subscriptions:read
             - webhook_subscriptions:write
             - events:read
             - webhook_deliveries:read
             - webhook_deliveries:write
+            - transactions:read
+            - simulations:write
+            - payout_tracking_events:read
+          description: The effective set of scopes for this key. Stored aliases (e.g. `full_access`, `read_only`) are always expanded to concrete `resource:action` scopes against the current registry before they appear here.
         ip_allow_list:
-          description: IP addresses or CIDR ranges this key is permitted to authenticate from. An empty array means the key is not IP-restricted.
           type: array
           items:
             type: string
+          description: IP addresses or CIDR ranges this key is permitted to authenticate from. An empty array means the key is not IP-restricted.
+          example:
+          - 203.0.113.0/24
         expires_at:
-          description: ISO 8601 UTC timestamp at which this key expires. `null` if the key has no expiry.
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp at which this key expires. `null` if the key has no expiry.
+          example: '2027-01-15T10:30:00Z'
           nullable: true
         created_at:
+          type: string
+          format: date-time
           description: ISO 8601 UTC timestamp at which this key was created.
-          type: string
-          format: date-time
+          example: '2026-01-15T10:30:00Z'
         updated_at:
-          description: ISO 8601 UTC timestamp of the last update to this key (e.g. roll, IP allowlist change, revoke). `null` if the key has not been updated since creation.
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp of the last update to this key (e.g. roll, IP allowlist change, revoke). `null` if the key has not been updated since creation.
+          example: '2026-01-15T10:35:00Z'
           nullable: true
         api_version:
-          description: Effective API version for the request (header value or merchant pin).
           type: string
+          description: Effective API version for the request (header value or merchant pin).
+          example: '2026-05-01'
       required:
       - type
       - id
@@ -105,6 +117,7 @@ components:
       - created_at
       - updated_at
       - api_version
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

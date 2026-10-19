@@ -1,0 +1,939 @@
+openapi: 3.2.0
+info:
+  title: Augustus Banking Transactions API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Transactions
+paths:
+  /v1/transactions/{id}:
+    get:
+      description: Retrieves a transaction by ID.
+      operationId: TransactionsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the transaction.
+        schema:
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-44665544000d
+          type: string
+      responses:
+        '200':
+          description: The transaction resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResourceDto'
+      summary: Retrieve transaction
+      tags:
+      - Transactions
+  /v1/transactions:
+    get:
+      description: Lists transactions for an account with cursor-based pagination.
+      operationId: TransactionsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: account_id
+        required: true
+        in: query
+        description: Account to list transactions for.
+        schema:
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440001
+          type: string
+      - name: booked_at.gte
+        required: false
+        in: query
+        description: Include transactions whose booked_at is greater than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          example: '2026-01-01T00:00:00Z'
+          type: string
+      - name: booked_at.lte
+        required: false
+        in: query
+        description: Include transactions whose booked_at is less than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          example: '2026-02-01T00:00:00Z'
+          type: string
+      responses:
+        '200':
+          description: Paginated list of transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTransactionsResponseDto'
+      summary: List transactions
+      tags:
+      - Transactions
+components:
+  schemas:
+    SortCodeFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for UK sort code financial address.
+          enum:
+          - sort_code
+        sort_code:
+          type: string
+          description: UK sort code (6 digits).
+        account_number:
+          type: string
+          description: UK account number (8 digits).
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+      required:
+      - type
+      - sort_code
+      - account_number
+      - account_holder_name
+      additionalProperties: false
+      title: UK Sort Code
+      example:
+        type: sort_code
+        sort_code: '040075'
+        account_number: '37778842'
+        account_holder_name: Acme Sandbox Ltd.
+    CryptoWalletFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for crypto wallet financial address.
+          enum:
+          - crypto_wallet
+        address:
+          type: string
+          description: Wallet address on the specified blockchain.
+        blockchain:
+          type: string
+          enum:
+          - bitcoin
+          - ethereum
+          - solana
+          - polygon
+          - bitcoin_testnet4
+          - ethereum_sepolia
+          - solana_devnet
+          - polygon_amoy
+          description: Blockchain network for the crypto wallet.
+          example: ethereum_sepolia
+      required:
+      - type
+      - address
+      - blockchain
+      additionalProperties: false
+      title: Wallet
+      example:
+        type: crypto_wallet
+        address: '0x1111111111111111111111111111111111111111'
+        blockchain: ethereum_sepolia
+    ListTransactionsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: Unique identifier of the transaction.
+                example: 550e8400-e29b-41d4-a716-44665544000d
+              type:
+                type: string
+                description: Resource type discriminator.
+                enum:
+                - transaction
+              side:
+                type: string
+                enum:
+                - credit
+                - debit
+                description: Direction of the movement relative to the merchant account.
+              status:
+                type: string
+                description: State of the transaction. Transactions are by definition booked.
+                enum:
+                - booked
+              amount:
+                type: string
+                description: Absolute amount as a string decimal (e.g. "100.50").
+                example: '100.50'
+              currency:
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                description: Currency code (ISO 4217 or crypto).
+                example: USD
+              account_id:
+                type: string
+                format: uuid
+                description: ID of the merchant account this transaction was credited to or debited from.
+                example: 550e8400-e29b-41d4-a716-446655440001
+              source:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                    - deposit
+                    - payout
+                    - return
+                    description: Type of the resource that originated this transaction.
+                  id:
+                    type: string
+                    format: uuid
+                    description: Identifier of the originating resource, retrievable on its own endpoint.
+                    example: 550e8400-e29b-41d4-a716-446655440003
+                required:
+                - type
+                - id
+                additionalProperties: false
+                description: The resource that originated this transaction, or null when it does not map to a retrievable resource.
+                nullable: true
+              counterparty:
+                type: object
+                properties:
+                  financial_address:
+                    oneOf:
+                    - $ref: '#/components/schemas/AbaFinancialAddress'
+                    - $ref: '#/components/schemas/IbanFinancialAddress'
+                    - $ref: '#/components/schemas/SortCodeFinancialAddress'
+                    - $ref: '#/components/schemas/BicFinancialAddress'
+                    - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+                    description: Financial address of the counterparty.
+                  physical_address:
+                    type: object
+                    properties:
+                      line_1:
+                        type: string
+                        description: Primary street address.
+                        example: 548 Market St
+                      line_2:
+                        type: string
+                        description: Secondary street address, or null if not recorded.
+                        example: Apartment 4B
+                        nullable: true
+                      city:
+                        type: string
+                        description: City or locality.
+                        example: San Francisco
+                      postal_code:
+                        type: string
+                        description: Postal or ZIP code.
+                        example: '94103'
+                      state:
+                        type: string
+                        description: State, province, or region, or null if not recorded.
+                        example: CA
+                        nullable: true
+                      country_code:
+                        example: US
+                        description: ISO 3166-1 alpha-2 country code.
+                        $ref: '#/components/schemas/Alpha2Code'
+                    required:
+                    - line_1
+                    - line_2
+                    - city
+                    - postal_code
+                    - state
+                    - country_code
+                    additionalProperties: false
+                    description: Physical address of the counterparty.
+                    nullable: true
+                required:
+                - financial_address
+                - physical_address
+                additionalProperties: false
+                description: Counterparty of the transaction.
+                nullable: true
+              counterparty_id:
+                type: string
+                format: uuid
+                description: ID of the counterparty this transaction is associated with, or null when none was resolved. Correlates with the counterparties API and a payout's counterparty_id.
+                example: 550e8400-e29b-41d4-a716-446655440000
+                nullable: true
+              unstructured_remittance_information:
+                type: string
+                description: Unstructured remittance information attached to the transfer. Not all rails support this field.
+                example: INV-2026-0042
+                nullable: true
+              tracking_reference:
+                type: string
+                description: Reference used to track the payment across the payment network, such as the UETR for SWIFT payments.
+                example: 550e8400-e29b-41d4-a716-44665544000d
+                nullable: true
+              rail:
+                type: string
+                enum:
+                - sepa
+                - sepa_instant
+                - faster_payments
+                - swift
+                - internal
+                - target
+                - ach
+                - fedwire
+                - bitcoin
+                - bitcoin_testnet4
+                - ethereum
+                - ethereum_sepolia
+                - solana
+                - solana_devnet
+                - polygon
+                - polygon_amoy
+                - null
+                description: Payment scheme or blockchain used for the transaction, or null when unknown.
+                example: ach
+                nullable: true
+              tx_hash:
+                type: string
+                description: Transaction hash for crypto transactions, or null when not known. Only blockchain rails support this field.
+                example: null
+                nullable: true
+              booked_at:
+                type: string
+                format: date-time
+                description: ISO 8601 UTC timestamp when the transaction was recorded.
+                example: '2026-01-15T10:30:00Z'
+            required:
+            - id
+            - type
+            - side
+            - status
+            - amount
+            - currency
+            - account_id
+            - source
+            - counterparty
+            - counterparty_id
+            - unstructured_remittance_information
+            - tracking_reference
+            - rail
+            - tx_hash
+            - booked_at
+            additionalProperties: false
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
+    AbaFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for ABA wire financial address.
+          enum:
+          - aba
+        routing_number:
+          type: string
+          description: ABA routing number (9 digits).
+        account_number:
+          type: string
+          description: Bank account number.
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - null
+          description: Whether the account is a checking or a savings account, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - routing_number
+      - account_number
+      - account_holder_name
+      - account_type
+      additionalProperties: false
+      title: ABA
+      example:
+        type: aba
+        routing_number: '110000000'
+        account_number: 000123456789
+        account_holder_name: Acme Sandbox Ltd.
+        account_type: checking
+    Alpha2Code:
+      type: string
+      enum:
+      - AF
+      - AL
+      - DZ
+      - AS
+      - AD
+      - AO
+      - AI
+      - AQ
+      - AG
+      - AR
+      - AM
+      - AW
+      - AU
+      - AT
+      - AZ
+      - BS
+      - BH
+      - BD
+      - BB
+      - BY
+      - BE
+      - BZ
+      - BJ
+      - BM
+      - BT
+      - BO
+      - BA
+      - BW
+      - BV
+      - BR
+      - IO
+      - BN
+      - BG
+      - BF
+      - BI
+      - KH
+      - CM
+      - CA
+      - CV
+      - KY
+      - CF
+      - TD
+      - CL
+      - CN
+      - CX
+      - CC
+      - CO
+      - KM
+      - CG
+      - CD
+      - CK
+      - CR
+      - CI
+      - HR
+      - CU
+      - CY
+      - CZ
+      - DK
+      - DJ
+      - DM
+      - DO
+      - EC
+      - EG
+      - SV
+      - GQ
+      - ER
+      - EE
+      - ET
+      - FK
+      - FO
+      - FJ
+      - FI
+      - FR
+      - GF
+      - PF
+      - TF
+      - GA
+      - GM
+      - GE
+      - DE
+      - GH
+      - GI
+      - GR
+      - GL
+      - GD
+      - GP
+      - GU
+      - GT
+      - GN
+      - GW
+      - GY
+      - HT
+      - HM
+      - VA
+      - HN
+      - HK
+      - HU
+      - IS
+      - IN
+      - ID
+      - IR
+      - IQ
+      - IE
+      - IL
+      - IT
+      - JM
+      - JP
+      - JO
+      - KZ
+      - KE
+      - KI
+      - KP
+      - KR
+      - KW
+      - KG
+      - LA
+      - LV
+      - LB
+      - LS
+      - LR
+      - LY
+      - LI
+      - LT
+      - LU
+      - MO
+      - MG
+      - MW
+      - MY
+      - MV
+      - ML
+      - MT
+      - MH
+      - MQ
+      - MR
+      - MU
+      - YT
+      - MX
+      - FM
+      - MD
+      - MC
+      - MN
+      - MS
+      - MA
+      - MZ
+      - MM
+      - NA
+      - NR
+      - NP
+      - NL
+      - NC
+      - NZ
+      - NI
+      - NE
+      - NG
+      - NU
+      - NF
+      - MP
+      - MK
+      - 'NO'
+      - OM
+      - PK
+      - PW
+      - PS
+      - PA
+      - PG
+      - PY
+      - PE
+      - PH
+      - PN
+      - PL
+      - PT
+      - PR
+      - QA
+      - RE
+      - RO
+      - RU
+      - RW
+      - SH
+      - KN
+      - LC
+      - PM
+      - VC
+      - WS
+      - SM
+      - ST
+      - SA
+      - SN
+      - SC
+      - SL
+      - SG
+      - SK
+      - SI
+      - SB
+      - SO
+      - ZA
+      - GS
+      - ES
+      - LK
+      - SD
+      - SR
+      - SJ
+      - SZ
+      - SE
+      - CH
+      - SY
+      - TW
+      - TJ
+      - TZ
+      - TH
+      - TL
+      - TG
+      - TK
+      - TO
+      - TT
+      - TN
+      - TR
+      - TM
+      - TC
+      - TV
+      - UG
+      - UA
+      - AE
+      - GB
+      - US
+      - UM
+      - UY
+      - UZ
+      - VU
+      - VE
+      - VN
+      - VG
+      - VI
+      - WF
+      - EH
+      - YE
+      - ZM
+      - ZW
+      - AX
+      - BQ
+      - CW
+      - GG
+      - IM
+      - JE
+      - ME
+      - BL
+      - MF
+      - RS
+      - SX
+      - SS
+      - XK
+      example: DE
+    BicFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for BIC + local account financial address.
+          enum:
+          - bic
+        bic:
+          type: string
+          description: ISO 9362 Bank Identifier Code (8 or 11 characters).
+        account_number:
+          type: string
+          description: Local-format bank account number.
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+        local_bank_code:
+          type: string
+          description: Domestic bank or branch code where the destination country uses one (for example the BSB in Australia), or null.
+          nullable: true
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - null
+          description: Whether the account is a checking or a savings account, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - bic
+      - account_number
+      - account_holder_name
+      - local_bank_code
+      - account_type
+      additionalProperties: false
+      title: BIC
+      example:
+        type: bic
+        bic: ANZBAU3MXXX
+        account_number: '123456789'
+        account_holder_name: Acme Sandbox Pty Ltd.
+        local_bank_code: '012003'
+        account_type: checking
+    TransactionResourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the transaction.
+          example: 550e8400-e29b-41d4-a716-44665544000d
+        type:
+          type: string
+          description: Resource type discriminator.
+          enum:
+          - transaction
+        side:
+          type: string
+          enum:
+          - credit
+          - debit
+          description: Direction of the movement relative to the merchant account.
+        status:
+          type: string
+          description: State of the transaction. Transactions are by definition booked.
+          enum:
+          - booked
+        amount:
+          type: string
+          description: Absolute amount as a string decimal (e.g. "100.50").
+          example: '100.50'
+        currency:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          description: Currency code (ISO 4217 or crypto).
+          example: USD
+        account_id:
+          type: string
+          format: uuid
+          description: ID of the merchant account this transaction was credited to or debited from.
+          example: 550e8400-e29b-41d4-a716-446655440001
+        source:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - deposit
+              - payout
+              - return
+              description: Type of the resource that originated this transaction.
+            id:
+              type: string
+              format: uuid
+              description: Identifier of the originating resource, retrievable on its own endpoint.
+              example: 550e8400-e29b-41d4-a716-446655440003
+          required:
+          - type
+          - id
+          additionalProperties: false
+          description: The resource that originated this transaction, or null when it does not map to a retrievable resource.
+          nullable: true
+        counterparty:
+          type: object
+          properties:
+            financial_address:
+              oneOf:
+              - $ref: '#/components/schemas/AbaFinancialAddress'
+              - $ref: '#/components/schemas/IbanFinancialAddress'
+              - $ref: '#/components/schemas/SortCodeFinancialAddress'
+              - $ref: '#/components/schemas/BicFinancialAddress'
+              - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+              description: Financial address of the counterparty.
+            physical_address:
+              type: object
+              properties:
+                line_1:
+                  type: string
+                  description: Primary street address.
+                  example: 548 Market St
+                line_2:
+                  type: string
+                  description: Secondary street address, or null if not recorded.
+                  example: Apartment 4B
+                  nullable: true
+                city:
+                  type: string
+                  description: City or locality.
+                  example: San Francisco
+                postal_code:
+                  type: string
+                  description: Postal or ZIP code.
+                  example: '94103'
+                state:
+                  type: string
+                  description: State, province, or region, or null if not recorded.
+                  example: CA
+                  nullable: true
+                country_code:
+                  example: US
+                  description: ISO 3166-1 alpha-2 country code.
+                  $ref: '#/components/schemas/Alpha2Code'
+              required:
+              - line_1
+              - line_2
+              - city
+              - postal_code
+              - state
+              - country_code
+              additionalProperties: false
+              description: Physical address of the counterparty.
+              nullable: true
+          required:
+          - financial_address
+          - physical_address
+          additionalProperties: false
+          description: Counterparty of the transaction.
+          nullable: true
+        counterparty_id:
+          type: string
+          format: uuid
+          description: ID of the counterparty this transaction is associated with, or null when none was resolved. Correlates with the counterparties API and a payout's counterparty_id.
+          example: 550e8400-e29b-41d4-a716-446655440000
+          nullable: true
+        unstructured_remittance_information:
+          type: string
+          description: Unstructured remittance information attached to the transfer. Not all rails support this field.
+          example: INV-2026-0042
+          nullable: true
+        tracking_reference:
+          type: string
+          description: Reference used to track the payment across the payment network, such as the UETR for SWIFT payments.
+          example: 550e8400-e29b-41d4-a716-44665544000d
+          nullable: true
+        rail:
+          type: string
+          enum:
+          - sepa
+          - sepa_instant
+          - faster_payments
+          - swift
+          - internal
+          - target
+          - ach
+          - fedwire
+          - bitcoin
+          - bitcoin_testnet4
+          - ethereum
+          - ethereum_sepolia
+          - solana
+          - solana_devnet
+          - polygon
+          - polygon_amoy
+          - null
+          description: Payment scheme or blockchain used for the transaction, or null when unknown.
+          example: ach
+          nullable: true
+        tx_hash:
+          type: string
+          description: Transaction hash for crypto transactions, or null when not known. Only blockchain rails support this field.
+          example: null
+          nullable: true
+        booked_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the transaction was recorded.
+          example: '2026-01-15T10:30:00Z'
+      required:
+      - id
+      - type
+      - side
+      - status
+      - amount
+      - currency
+      - account_id
+      - source
+      - counterparty
+      - counterparty_id
+      - unstructured_remittance_information
+      - tracking_reference
+      - rail
+      - tx_hash
+      - booked_at
+      additionalProperties: false
+    IbanFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for IBAN financial address.
+          enum:
+          - iban
+        iban:
+          type: string
+          description: International Bank Account Number.
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+        bic:
+          type: string
+          description: Bank Identifier Code, or null if not provided.
+          nullable: true
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - null
+          description: Whether the account is a checking or a savings account, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - iban
+      - account_holder_name
+      - bic
+      - account_type
+      additionalProperties: false
+      title: IBAN
+      example:
+        type: iban
+        iban: DE89370400440532013000
+        account_holder_name: Acme Sandbox Ltd.
+        bic: COBADEFFXXX
+        account_type: checking
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API

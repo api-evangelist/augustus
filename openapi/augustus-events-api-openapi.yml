@@ -28,6 +28,7 @@ paths:
         description: Unique identifier of the event.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440008
           type: string
       responses:
         '200':
@@ -39,9 +40,6 @@ paths:
       summary: Retrieve event
       tags:
       - Events
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst event = await client.events.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(event.id);"
   /v1/events:
     get:
       description: Lists webhook events for the merchant with cursor-based pagination. Events are retained for 30 days.
@@ -54,8 +52,6 @@ paths:
         schema:
           minimum: 1
           maximum: 100
-          exclusiveMaximum: false
-          exclusiveMinimum: false
           default: 10
           type: integer
       - name: cursor
@@ -71,18 +67,29 @@ paths:
         schema:
           type: string
           enum:
-          - payout.created
           - payout.initiated
-          - payout.paid
+          - payout.submitted
+          - payout.sent
           - payout.failed
+          - payout.returned
           - return.initiated
-          - return.paid
+          - return.submitted
+          - return.sent
           - return.failed
           - return.returned
-          - deposit.received
+          - deposit.settled
           - conversion.created
           - conversion.completed
           - conversion.failed
+          - account_holder.active
+          - account_holder.closed
+          - counterparty.pending
+          - counterparty.active
+          - counterparty.rejected
+          - counterparty.blocked
+          - counterparty.unblocked
+          - counterparty.updated
+          - payout_tracking_event.created
           - ping.test
       - name: created_at.gte
         required: false
@@ -90,6 +97,7 @@ paths:
         description: Include events whose created_at is greater than or equal to this ISO 8601 timestamp.
         schema:
           format: date-time
+          example: '2026-01-01T00:00:00Z'
           type: string
       - name: created_at.lte
         required: false
@@ -97,6 +105,7 @@ paths:
         description: Include events whose created_at is less than or equal to this ISO 8601 timestamp.
         schema:
           format: date-time
+          example: '2026-02-01T00:00:00Z'
           type: string
       responses:
         '200':
@@ -108,9 +117,6 @@ paths:
       summary: List events
       tags:
       - Events
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const eventListResponse of client.events.list()) {\n  console.log(eventListResponse.id);\n}"
 components:
   schemas:
     ListEventsResponseDto:
@@ -122,42 +128,56 @@ components:
             type: object
             properties:
               id:
-                description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
                 type: string
                 format: uuid
+                description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+                example: 550e8400-e29b-41d4-a716-446655440008
               type:
-                description: Resource type discriminator.
                 type: string
+                description: Resource type discriminator.
                 enum:
                 - event
               event_type:
-                description: Event type.
                 type: string
                 enum:
-                - payout.created
                 - payout.initiated
-                - payout.paid
+                - payout.submitted
+                - payout.sent
                 - payout.failed
+                - payout.returned
                 - return.initiated
-                - return.paid
+                - return.submitted
+                - return.sent
                 - return.failed
                 - return.returned
-                - deposit.received
+                - deposit.settled
                 - conversion.created
                 - conversion.completed
                 - conversion.failed
+                - account_holder.active
+                - account_holder.closed
+                - counterparty.pending
+                - counterparty.active
+                - counterparty.rejected
+                - counterparty.blocked
+                - counterparty.unblocked
+                - counterparty.updated
+                - payout_tracking_event.created
                 - ping.test
+                description: Event type.
               api_version:
-                description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
                 type: string
+                description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+                example: '2026-05-01'
               created_at:
-                description: ISO 8601 UTC timestamp when the event was created.
                 type: string
                 format: date-time
+                description: ISO 8601 UTC timestamp when the event was created.
+                example: '2026-01-15T10:30:00Z'
               data:
-                description: Event payload. Shape matches the resource schema for `event_type`.
                 type: object
                 additionalProperties: {}
+                description: Event payload. Shape matches the resource schema for `event_type`.
             required:
             - id
             - type
@@ -165,55 +185,80 @@ components:
             - api_version
             - created_at
             - data
+            additionalProperties: false
         has_more:
           type: boolean
         next_cursor:
           type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
           nullable: true
       required:
       - data
       - has_more
       - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
     EventResourceDto:
       type: object
       properties:
         id:
-          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
           type: string
           format: uuid
+          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+          example: 550e8400-e29b-41d4-a716-446655440008
         type:
-          description: Resource type discriminator.
           type: string
+          description: Resource type discriminator.
           enum:
           - event
         event_type:
-          description: Event type.
           type: string
           enum:
-          - payout.created
           - payout.initiated
-          - payout.paid
+          - payout.submitted
+          - payout.sent
           - payout.failed
+          - payout.returned
           - return.initiated
-          - return.paid
+          - return.submitted
+          - return.sent
           - return.failed
           - return.returned
-          - deposit.received
+          - deposit.settled
           - conversion.created
           - conversion.completed
           - conversion.failed
+          - account_holder.active
+          - account_holder.closed
+          - counterparty.pending
+          - counterparty.active
+          - counterparty.rejected
+          - counterparty.blocked
+          - counterparty.unblocked
+          - counterparty.updated
+          - payout_tracking_event.created
           - ping.test
+          description: Event type.
         api_version:
-          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
           type: string
+          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+          example: '2026-05-01'
         created_at:
-          description: ISO 8601 UTC timestamp when the event was created.
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp when the event was created.
+          example: '2026-01-15T10:30:00Z'
         data:
-          description: Event payload. Shape matches the resource schema for `event_type`.
           type: object
           additionalProperties: {}
+          description: Event payload. Shape matches the resource schema for `event_type`.
       required:
       - id
       - type
@@ -221,6 +266,7 @@ components:
       - api_version
       - created_at
       - data
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

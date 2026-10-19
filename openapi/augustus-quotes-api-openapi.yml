@@ -25,8 +25,9 @@ paths:
       - name: source_currency
         required: true
         in: query
-        description: Source currency code.
+        description: Currency code (ISO 4217 or crypto).
         schema:
+          example: USD
           type: string
           enum:
           - EUR
@@ -40,8 +41,9 @@ paths:
       - name: target_currency
         required: true
         in: query
-        description: Target currency code.
+        description: Currency code (ISO 4217 or crypto).
         schema:
+          example: USDC
           type: string
           enum:
           - EUR
@@ -55,9 +57,10 @@ paths:
       - name: source_amount
         required: false
         in: query
-        description: Source amount as a string decimal. Defaults to 1 unit if omitted.
+        description: Amount as a string decimal (e.g. "100.50").
         schema:
           pattern: ^\d+(\.\d+)?$
+          example: '100.50'
           type: string
       responses:
         '200':
@@ -69,44 +72,16 @@ paths:
       summary: Get indicative quote
       tags:
       - Quotes
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst indicative = await client.quotes.indicative.retrieve({\n  source_currency: 'EUR',\n  target_currency: 'EUR',\n});\n\nconsole.log(indicative.fee);"
-  /v1/quotes/{id}:
-    get:
-      description: Retrieves a persisted quote by ID.
-      operationId: QuotesController_retrieve
-      parameters:
-      - name: id
-        required: true
-        in: path
-        description: Unique identifier of the quote.
-        schema:
-          format: uuid
-          type: string
-      responses:
-        '200':
-          description: The quote resource
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RetrieveQuoteResponseDto'
-      summary: Retrieve quote
-      tags:
-      - Quotes
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst quote = await client.quotes.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(quote.id);"
 components:
   schemas:
     GetIndicativeQuoteResponseDto:
       type: object
       properties:
         source_amount:
-          description: Source amount as a string decimal.
           type: string
+          description: Amount as a string decimal (e.g. "100.50").
+          example: '100.50'
         source_currency:
-          description: Source currency code.
           type: string
           enum:
           - EUR
@@ -117,11 +92,13 @@ components:
           - ETH
           - SOL
           - POL
+          description: Currency code (ISO 4217 or crypto).
+          example: USD
         target_amount:
-          description: Target amount as a string decimal.
           type: string
+          description: Amount as a string decimal (e.g. "100.50").
+          example: '100.50'
         target_currency:
-          description: Target currency code.
           type: string
           enum:
           - EUR
@@ -132,21 +109,20 @@ components:
           - ETH
           - SOL
           - POL
+          description: Currency code (ISO 4217 or crypto).
+          example: USDC
         rate:
+          type: string
           description: Conversion rate applied.
-          type: string
-        venue:
-          description: Venue the quote was fetched from.
-          type: string
+          example: '1.0000'
         fee:
-          description: Conversion fee, or null if no fee applies.
           type: object
           properties:
             amount:
-              description: Fee amount as a string decimal.
               type: string
+              description: Fee amount as a string decimal.
+              example: '0.50'
             currency:
-              description: Fee currency code.
               type: string
               enum:
               - EUR
@@ -157,120 +133,28 @@ components:
               - ETH
               - SOL
               - POL
+              description: Fee currency code.
+              example: USD
           required:
           - amount
           - currency
+          additionalProperties: false
+          description: Conversion fee, or null if no fee applies.
           nullable: true
         quoted_at:
-          description: ISO 8601 UTC timestamp when the quote was fetched.
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp when the quote was fetched.
+          example: '2026-01-15T10:30:00Z'
       required:
       - source_amount
       - source_currency
       - target_amount
       - target_currency
       - rate
-      - venue
       - fee
       - quoted_at
-    RetrieveQuoteResponseDto:
-      type: object
-      properties:
-        id:
-          description: Unique identifier of the quote.
-          type: string
-          format: uuid
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - quote
-        status:
-          description: Current status of the quote.
-          type: string
-          enum:
-          - pending
-          - quote_accepted
-          - order_pending
-          - order_failed
-          - order_completed
-          - withdrawal_pending
-          - withdrawal_failed
-          - withdrawal_completed
-          - completed
-          - failed
-        funding_status:
-          description: Current funding status of the quote.
-          type: string
-          enum:
-          - pending
-          - sent
-          - completed
-          - failed
-          - on_hold
-        source_amount:
-          description: Source amount as a string decimal.
-          type: string
-        source_currency:
-          description: Source currency code.
-          type: string
-          enum:
-          - EUR
-          - GBP
-          - USD
-          - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
-        target_amount:
-          description: Target amount as a string decimal.
-          type: string
-        target_currency:
-          description: Target currency code.
-          type: string
-          enum:
-          - EUR
-          - GBP
-          - USD
-          - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
-        exchange_rate:
-          description: Exchange rate applied.
-          type: string
-        venue:
-          description: Execution venue (e.g. "kraken").
-          type: string
-        expires_at:
-          description: ISO 8601 UTC timestamp when the quote expires.
-          type: string
-          format: date-time
-        created_at:
-          description: ISO 8601 UTC timestamp when the quote was created.
-          type: string
-          format: date-time
-        updated_at:
-          description: ISO 8601 UTC timestamp when the quote was last updated.
-          type: string
-          format: date-time
-      required:
-      - id
-      - type
-      - status
-      - funding_status
-      - source_amount
-      - source_currency
-      - target_amount
-      - target_currency
-      - exchange_rate
-      - venue
-      - expires_at
-      - created_at
-      - updated_at
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

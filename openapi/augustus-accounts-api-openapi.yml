@@ -40,14 +40,14 @@ paths:
       - name: account_number
         required: false
         in: query
-        description: Filter by exact fiat account number. Crypto wallets are excluded when set.
+        description: Filter by exact fiat account number.
         schema:
           minLength: 1
           type: string
       - name: account_holder_name
         required: false
         in: query
-        description: Filter by account holder name (case-insensitive phrase match). Crypto wallets are excluded when set.
+        description: Filter by account holder name (case-insensitive phrase match).
         schema:
           minLength: 1
           type: string
@@ -61,13 +61,13 @@ paths:
           - pending
           - active
           - frozen
-      - name: parent_id
-        required: false
+      - name: account_program_id
+        required: true
         in: query
-        description: ID of the account program to list virtual accounts for.
+        description: ID of the account program to list accounts for.
         schema:
           format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+          example: 550e8400-e29b-41d4-a716-446655440002
           type: string
       responses:
         '200':
@@ -79,9 +79,6 @@ paths:
       summary: List accounts
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const accountListResponse of client.accounts.list()) {\n  console.log(accountListResponse.id);\n}"
     post:
       description: Creates a new account.
       operationId: AccountsController_create
@@ -89,7 +86,7 @@ paths:
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       requestBody:
@@ -109,9 +106,6 @@ paths:
       summary: Create account
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst account = await client.accounts.create({\n  account_program_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n  account_type: 'virtual_account',\n  beneficiary_data: {\n    country_of_citizenship: 'US',\n    date_of_birth: '2019-12-27',\n    identification: { type: 'ssn', value: '732-66-9102' },\n    legal_name: 'x',\n    residential_address: {\n      city: 'x',\n      country: 'US',\n      postal_code: 'x',\n      state: 'xx',\n      street_line_1: 'x',\n    },\n  },\n});\n\nconsole.log(account.id);"
   /v1/accounts/{id}:
     get:
       description: Retrieves an account by ID.
@@ -123,7 +117,7 @@ paths:
         description: Unique identifier of the account.
         schema:
           format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+          example: 550e8400-e29b-41d4-a716-446655440001
           type: string
       responses:
         '200':
@@ -135,9 +129,6 @@ paths:
       summary: Retrieve account
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst account = await client.accounts.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(account.id);"
   /v1/accounts/{id}/balance:
     get:
       description: Retrieves the available balance for an account.
@@ -149,7 +140,15 @@ paths:
         description: Unique identifier of the account.
         schema:
           format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+          example: 550e8400-e29b-41d4-a716-446655440001
+          type: string
+      - name: as_of
+        required: false
+        in: query
+        description: ISO 8601 UTC timestamp to retrieve balance at. Must be at least 5 minutes in the past.
+        schema:
+          format: date-time
+          example: '2026-01-15T10:40:00Z'
           type: string
       responses:
         '200':
@@ -161,9 +160,6 @@ paths:
       summary: Retrieve account balance
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accounts.retrieveBalance('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.account_id);"
   /v1/accounts/{id}/freeze:
     post:
       description: Freezes an account
@@ -175,12 +171,12 @@ paths:
         description: Unique identifier of the account.
         schema:
           format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+          example: 550e8400-e29b-41d4-a716-446655440001
           type: string
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       responses:
@@ -193,9 +189,6 @@ paths:
       summary: Freeze account
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accounts.freeze('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.id);"
   /v1/accounts/{id}/close:
     post:
       description: Closes an account
@@ -207,12 +200,12 @@ paths:
         description: Unique identifier of the account.
         schema:
           format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+          example: 550e8400-e29b-41d4-a716-446655440001
           type: string
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       requestBody:
@@ -232,9 +225,6 @@ paths:
       summary: Close account
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accounts.close('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', {\n  reason: 'aml_risk_fraud',\n});\n\nconsole.log(response.id);"
   /v1/accounts/{id}/unfreeze:
     post:
       description: Unfreezes an account
@@ -246,12 +236,12 @@ paths:
         description: Unique identifier of the account.
         schema:
           format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
+          example: 550e8400-e29b-41d4-a716-446655440001
           type: string
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       responses:
@@ -264,641 +254,8 @@ paths:
       summary: Unfreeze account
       tags:
       - Accounts
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.accounts.unfreeze('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.id);"
 components:
   schemas:
-    NonUsBeneficiaryData:
-      type: object
-      properties:
-        legal_name:
-          description: Full legal name of the account holder.
-          type: string
-          minLength: 1
-          maxLength: 255
-        residential_address:
-          description: Residential address of the account holder.
-          anyOf:
-          - $ref: '#/components/schemas/UsResidentialAddress'
-          - $ref: '#/components/schemas/NonUsResidentialAddress'
-        date_of_birth:
-          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
-          type: string
-          format: date
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-        identification:
-          description: 'Government-issued identification with type: "id" (generic government-issued ID).'
-          $ref: '#/components/schemas/IdIdentification'
-        country_of_citizenship:
-          description: ISO 3166-1 alpha-2 country code of citizenship.
-          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
-      required:
-      - legal_name
-      - residential_address
-      - date_of_birth
-      - identification
-      - country_of_citizenship
-      additionalProperties: false
-    UsBeneficiaryData:
-      type: object
-      properties:
-        legal_name:
-          description: Full legal name of the account holder.
-          type: string
-          minLength: 1
-          maxLength: 255
-        residential_address:
-          description: Residential address of the account holder.
-          anyOf:
-          - $ref: '#/components/schemas/UsResidentialAddress'
-          - $ref: '#/components/schemas/NonUsResidentialAddress'
-        date_of_birth:
-          description: Date of birth as an ISO 8601 calendar date (YYYY-MM-DD).
-          type: string
-          format: date
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$
-        identification:
-          description: 'Government-issued identification with type: "ssn" (Social Security Number, format ###-##-####) or "itin" (Individual Taxpayer ID, format 9##-##-####).'
-          anyOf:
-          - $ref: '#/components/schemas/SsnIdentification'
-          - $ref: '#/components/schemas/ItinIdentification'
-        country_of_citizenship:
-          description: ISO 3166-1 alpha-2 country code of citizenship.
-          type: string
-          enum:
-          - US
-      required:
-      - legal_name
-      - residential_address
-      - date_of_birth
-      - identification
-      - country_of_citizenship
-      additionalProperties: false
-    NonUsResidentialAddress:
-      type: object
-      properties:
-        street_line_1:
-          description: Primary street address.
-          type: string
-          minLength: 1
-          maxLength: 255
-        street_line_2:
-          description: Secondary street address (apartment, suite, etc.).
-          type: string
-          maxLength: 255
-        city:
-          description: City name.
-          type: string
-          minLength: 1
-          maxLength: 255
-        postal_code:
-          description: Postal or ZIP code.
-          type: string
-          minLength: 1
-          maxLength: 30
-        country:
-          description: ISO 3166-1 alpha-2 country code.
-          $ref: '#/components/schemas/Alpha2CodeWithoutUs'
-      required:
-      - street_line_1
-      - city
-      - postal_code
-      - country
-      additionalProperties: false
-    Alpha2CodeWithoutUs:
-      type: string
-      enum:
-      - AF
-      - AL
-      - DZ
-      - AS
-      - AD
-      - AO
-      - AI
-      - AQ
-      - AG
-      - AR
-      - AM
-      - AW
-      - AU
-      - AT
-      - AZ
-      - BS
-      - BH
-      - BD
-      - BB
-      - BY
-      - BE
-      - BZ
-      - BJ
-      - BM
-      - BT
-      - BO
-      - BA
-      - BW
-      - BV
-      - BR
-      - IO
-      - BN
-      - BG
-      - BF
-      - BI
-      - KH
-      - CM
-      - CA
-      - CV
-      - KY
-      - CF
-      - TD
-      - CL
-      - CN
-      - CX
-      - CC
-      - CO
-      - KM
-      - CG
-      - CD
-      - CK
-      - CR
-      - CI
-      - HR
-      - CU
-      - CY
-      - CZ
-      - DK
-      - DJ
-      - DM
-      - DO
-      - EC
-      - EG
-      - SV
-      - GQ
-      - ER
-      - EE
-      - ET
-      - FK
-      - FO
-      - FJ
-      - FI
-      - FR
-      - GF
-      - PF
-      - TF
-      - GA
-      - GM
-      - GE
-      - DE
-      - GH
-      - GI
-      - GR
-      - GL
-      - GD
-      - GP
-      - GU
-      - GT
-      - GN
-      - GW
-      - GY
-      - HT
-      - HM
-      - VA
-      - HN
-      - HK
-      - HU
-      - IS
-      - IN
-      - ID
-      - IR
-      - IQ
-      - IE
-      - IL
-      - IT
-      - JM
-      - JP
-      - JO
-      - KZ
-      - KE
-      - KI
-      - KP
-      - KR
-      - KW
-      - KG
-      - LA
-      - LV
-      - LB
-      - LS
-      - LR
-      - LY
-      - LI
-      - LT
-      - LU
-      - MO
-      - MG
-      - MW
-      - MY
-      - MV
-      - ML
-      - MT
-      - MH
-      - MQ
-      - MR
-      - MU
-      - YT
-      - MX
-      - FM
-      - MD
-      - MC
-      - MN
-      - MS
-      - MA
-      - MZ
-      - MM
-      - NA
-      - NR
-      - NP
-      - NL
-      - NC
-      - NZ
-      - NI
-      - NE
-      - NG
-      - NU
-      - NF
-      - MP
-      - MK
-      - 'NO'
-      - OM
-      - PK
-      - PW
-      - PS
-      - PA
-      - PG
-      - PY
-      - PE
-      - PH
-      - PN
-      - PL
-      - PT
-      - PR
-      - QA
-      - RE
-      - RO
-      - RU
-      - RW
-      - SH
-      - KN
-      - LC
-      - PM
-      - VC
-      - WS
-      - SM
-      - ST
-      - SA
-      - SN
-      - SC
-      - SL
-      - SG
-      - SK
-      - SI
-      - SB
-      - SO
-      - ZA
-      - GS
-      - ES
-      - LK
-      - SD
-      - SR
-      - SJ
-      - SZ
-      - SE
-      - CH
-      - SY
-      - TW
-      - TJ
-      - TZ
-      - TH
-      - TL
-      - TG
-      - TK
-      - TO
-      - TT
-      - TN
-      - TR
-      - TM
-      - TC
-      - TV
-      - UG
-      - UA
-      - AE
-      - GB
-      - UM
-      - UY
-      - UZ
-      - VU
-      - VE
-      - VN
-      - VG
-      - VI
-      - WF
-      - EH
-      - YE
-      - ZM
-      - ZW
-      - AX
-      - BQ
-      - CW
-      - GG
-      - IM
-      - JE
-      - ME
-      - BL
-      - MF
-      - RS
-      - SX
-      - SS
-      - XK
-    CreateAccountBodyDto:
-      type: object
-      properties:
-        account_program_id:
-          description: ID of the account program to create the account under.
-          type: string
-          format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
-        account_type:
-          description: Type of account. Currently only virtual account.
-          type: string
-          enum:
-          - virtual_account
-        beneficiary_data:
-          description: Personal information of the account beneficiary.
-          anyOf:
-          - $ref: '#/components/schemas/UsBeneficiaryData'
-          - $ref: '#/components/schemas/NonUsBeneficiaryData'
-      required:
-      - account_program_id
-      - account_type
-      - beneficiary_data
-      additionalProperties: false
-    UsResidentialAddress:
-      type: object
-      properties:
-        street_line_1:
-          description: Primary street address.
-          type: string
-          minLength: 1
-          maxLength: 255
-        street_line_2:
-          description: Secondary street address (apartment, suite, etc.).
-          type: string
-          maxLength: 255
-        city:
-          description: City name.
-          type: string
-          minLength: 1
-          maxLength: 255
-        state:
-          description: Two-letter state code.
-          type: string
-          minLength: 2
-          maxLength: 2
-        postal_code:
-          description: Postal or ZIP code.
-          type: string
-          minLength: 1
-          maxLength: 30
-        country:
-          description: ISO 3166-1 alpha-2 country code.
-          type: string
-          enum:
-          - US
-      required:
-      - street_line_1
-      - city
-      - state
-      - postal_code
-      - country
-      additionalProperties: false
-    SsnIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - ssn
-        value:
-          type: string
-          pattern: ^\d{3}-\d{2}-\d{4}$
-      required:
-      - type
-      - value
-      additionalProperties: false
-    IdIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - id
-        value:
-          type: string
-          minLength: 1
-      required:
-      - type
-      - value
-      additionalProperties: false
-    AccountResourceDto:
-      type: object
-      properties:
-        id:
-          description: Unique identifier of the account.
-          type: string
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - account
-        currency:
-          description: ISO 4217 currency code for the account.
-          type: string
-          enum:
-          - EUR
-          - GBP
-          - USD
-          - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
-        account_type:
-          description: Type of the account.
-          type: string
-          enum:
-          - virtual_account
-          - payment_account
-          - collateral_account
-        status:
-          description: Current status of the account.
-          type: string
-          enum:
-          - pending
-          - active
-          - frozen
-          - closed
-        asset_type:
-          description: Asset type of the account.
-          type: string
-          enum:
-          - fiat
-          - crypto
-        label:
-          description: Human-readable label for the account.
-          type: string
-        financial_addresses:
-          description: Payment identifiers (e.g. IBAN, account number, wallet address) through which this account can send or receive funds.
-          type: array
-          items:
-            anyOf:
-            - $ref: '#/components/schemas/IbanFinancialAddress'
-            - $ref: '#/components/schemas/SortCodeFinancialAddress'
-            - $ref: '#/components/schemas/AbaFinancialAddress'
-            - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
-        created_at:
-          description: ISO 8601 UTC timestamp when the account was created.
-          type: string
-          format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-        updated_at:
-          description: ISO 8601 UTC timestamp when the account was last updated.
-          type: string
-          format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-      required:
-      - id
-      - type
-      - currency
-      - account_type
-      - status
-      - asset_type
-      - label
-      - financial_addresses
-      - created_at
-      - updated_at
-      additionalProperties: false
-    AccountBalanceResourceDto:
-      type: object
-      properties:
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - account_balance
-        account_id:
-          description: Unique identifier of the account.
-          type: string
-          format: uuid
-          pattern: ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$
-        amount:
-          description: Available balance amount as a decimal string.
-          type: string
-        currency:
-          description: ISO 4217 currency code for the balance.
-          type: string
-          enum:
-          - EUR
-          - GBP
-          - USD
-          - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
-        as_of:
-          description: ISO 8601 UTC timestamp when the balance was retrieved.
-          type: string
-          format: date-time
-          pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
-      required:
-      - type
-      - account_id
-      - amount
-      - currency
-      - as_of
-      additionalProperties: false
-    AbaFinancialAddress:
-      type: object
-      properties:
-        type:
-          description: Discriminator for ABA wire financial address.
-          type: string
-          enum:
-          - aba
-        routing_number:
-          description: ABA routing number (9 digits).
-          type: string
-        account_number:
-          description: Bank account number.
-          type: string
-        account_holder_name:
-          description: Name of the account holder.
-          type: string
-      required:
-      - type
-      - routing_number
-      - account_number
-      - account_holder_name
-      additionalProperties: false
-    IbanFinancialAddress:
-      type: object
-      properties:
-        type:
-          description: Discriminator for IBAN financial address.
-          type: string
-          enum:
-          - iban
-        iban:
-          description: International Bank Account Number.
-          type: string
-        account_holder_name:
-          description: Name of the account holder.
-          type: string
-        bic:
-          type: string
-          description: Bank Identifier Code, or null if not provided.
-          nullable: true
-      required:
-      - type
-      - iban
-      - account_holder_name
-      - bic
-      additionalProperties: false
-    CloseAccountBodyDto:
-      type: object
-      properties:
-        reason:
-          description: Reason for closing the account.
-          type: string
-          enum:
-          - aml_risk_fraud
-          - client_request
-      required:
-      - reason
-      additionalProperties: false
-    ItinIdentification:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - itin
-        value:
-          type: string
-          pattern: ^9\d{2}-\d{2}-\d{4}$
-      required:
-      - type
-      - value
-      additionalProperties: false
     ListAccountsResponseDto:
       type: object
       properties:
@@ -908,126 +265,142 @@ components:
             type: object
             properties:
               id:
+                type: string
                 description: Unique identifier of the account.
-                type: string
+                example: 550e8400-e29b-41d4-a716-446655440001
               type:
-                description: Resource type discriminator.
                 type: string
+                description: Resource type discriminator.
                 enum:
                 - account
               currency:
-                description: ISO 4217 currency code for the account.
                 type: string
                 enum:
                 - EUR
                 - GBP
                 - USD
                 - USDC
-                - BTC
-                - ETH
-                - SOL
-                - POL
-              account_type:
-                description: Type of the account.
-                type: string
-                enum:
-                - virtual_account
-                - payment_account
-                - collateral_account
+                description: Currency code (ISO 4217 or crypto).
+                example: USD
               status:
-                description: Current status of the account.
                 type: string
                 enum:
                 - pending
                 - active
                 - frozen
                 - closed
+                description: Current status of the account.
+                example: active
               asset_type:
-                description: Asset type of the account.
                 type: string
                 enum:
                 - fiat
                 - crypto
+                description: Asset type of the account.
               label:
-                description: Human-readable label for the account.
                 type: string
+                description: Human-readable label for the account.
+                example: Operating USD account
               financial_addresses:
-                description: Payment identifiers (e.g. IBAN, account number, wallet address) through which this account can send or receive funds.
                 type: array
                 items:
-                  anyOf:
+                  oneOf:
+                  - $ref: '#/components/schemas/AbaFinancialAddress'
                   - $ref: '#/components/schemas/IbanFinancialAddress'
                   - $ref: '#/components/schemas/SortCodeFinancialAddress'
-                  - $ref: '#/components/schemas/AbaFinancialAddress'
+                  - $ref: '#/components/schemas/BicFinancialAddress'
                   - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+                description: Payment identifiers (e.g. IBAN, account number, wallet address) through which this account can send or receive funds.
               created_at:
+                type: string
+                format: date-time
                 description: ISO 8601 UTC timestamp when the account was created.
-                type: string
-                format: date-time
-                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                example: '2026-01-15T10:30:00Z'
               updated_at:
-                description: ISO 8601 UTC timestamp when the account was last updated.
                 type: string
                 format: date-time
-                pattern: ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$
+                description: ISO 8601 UTC timestamp when the account was last updated.
+                example: '2026-01-15T10:35:00Z'
+              metadata:
+                type: object
+                additionalProperties:
+                  type: string
+                  maxLength: 500
+                description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+                example:
+                  invoice_id: INV-2026-0042
             required:
             - id
             - type
             - currency
-            - account_type
             - status
             - asset_type
             - label
             - financial_addresses
             - created_at
             - updated_at
+            - metadata
             additionalProperties: false
         has_more:
           type: boolean
         next_cursor:
           type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
           nullable: true
       required:
       - data
       - has_more
       - next_cursor
+      - has_previous
+      - previous_cursor
       additionalProperties: false
     SortCodeFinancialAddress:
       type: object
       properties:
         type:
-          description: Discriminator for UK sort code financial address.
           type: string
+          description: Discriminator for UK sort code financial address.
           enum:
           - sort_code
         sort_code:
+          type: string
           description: UK sort code (6 digits).
-          type: string
         account_number:
+          type: string
           description: UK account number (8 digits).
-          type: string
         account_holder_name:
-          description: Name of the account holder.
           type: string
+          description: Name of the account holder.
       required:
       - type
       - sort_code
       - account_number
       - account_holder_name
       additionalProperties: false
+      title: UK Sort Code
+      example:
+        type: sort_code
+        sort_code: '040075'
+        account_number: '37778842'
+        account_holder_name: Acme Sandbox Ltd.
     CryptoWalletFinancialAddress:
       type: object
       properties:
         type:
-          description: Discriminator for crypto wallet financial address.
           type: string
+          description: Discriminator for crypto wallet financial address.
           enum:
           - crypto_wallet
         address:
-          description: Wallet address on the specified blockchain.
           type: string
+          description: Wallet address on the specified blockchain.
         blockchain:
-          description: Blockchain network for the crypto wallet.
           type: string
           enum:
           - bitcoin
@@ -1038,10 +411,311 @@ components:
           - ethereum_sepolia
           - solana_devnet
           - polygon_amoy
+          description: Blockchain network for the crypto wallet.
+          example: ethereum_sepolia
       required:
       - type
       - address
       - blockchain
+      additionalProperties: false
+      title: Wallet
+      example:
+        type: crypto_wallet
+        address: '0x1111111111111111111111111111111111111111'
+        blockchain: ethereum_sepolia
+    AbaFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for ABA wire financial address.
+          enum:
+          - aba
+        routing_number:
+          type: string
+          description: ABA routing number (9 digits).
+        account_number:
+          type: string
+          description: Bank account number.
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - null
+          description: Whether the account is a checking or a savings account, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - routing_number
+      - account_number
+      - account_holder_name
+      - account_type
+      additionalProperties: false
+      title: ABA
+      example:
+        type: aba
+        routing_number: '110000000'
+        account_number: 000123456789
+        account_holder_name: Acme Sandbox Ltd.
+        account_type: checking
+    AccountResourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the account.
+          example: 550e8400-e29b-41d4-a716-446655440001
+        type:
+          type: string
+          description: Resource type discriminator.
+          enum:
+          - account
+        currency:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          description: Currency code (ISO 4217 or crypto).
+          example: USD
+        status:
+          type: string
+          enum:
+          - pending
+          - active
+          - frozen
+          - closed
+          description: Current status of the account.
+          example: active
+        asset_type:
+          type: string
+          enum:
+          - fiat
+          - crypto
+          description: Asset type of the account.
+        label:
+          type: string
+          description: Human-readable label for the account.
+          example: Operating USD account
+        financial_addresses:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/AbaFinancialAddress'
+            - $ref: '#/components/schemas/IbanFinancialAddress'
+            - $ref: '#/components/schemas/SortCodeFinancialAddress'
+            - $ref: '#/components/schemas/BicFinancialAddress'
+            - $ref: '#/components/schemas/CryptoWalletFinancialAddress'
+          description: Payment identifiers (e.g. IBAN, account number, wallet address) through which this account can send or receive funds.
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the account was created.
+          example: '2026-01-15T10:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the account was last updated.
+          example: '2026-01-15T10:35:00Z'
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
+      required:
+      - id
+      - type
+      - currency
+      - status
+      - asset_type
+      - label
+      - financial_addresses
+      - created_at
+      - updated_at
+      - metadata
+      additionalProperties: false
+    BicFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for BIC + local account financial address.
+          enum:
+          - bic
+        bic:
+          type: string
+          description: ISO 9362 Bank Identifier Code (8 or 11 characters).
+        account_number:
+          type: string
+          description: Local-format bank account number.
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+        local_bank_code:
+          type: string
+          description: Domestic bank or branch code where the destination country uses one (for example the BSB in Australia), or null.
+          nullable: true
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - null
+          description: Whether the account is a checking or a savings account, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - bic
+      - account_number
+      - account_holder_name
+      - local_bank_code
+      - account_type
+      additionalProperties: false
+      title: BIC
+      example:
+        type: bic
+        bic: ANZBAU3MXXX
+        account_number: '123456789'
+        account_holder_name: Acme Sandbox Pty Ltd.
+        local_bank_code: '012003'
+        account_type: checking
+    IbanFinancialAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Discriminator for IBAN financial address.
+          enum:
+          - iban
+        iban:
+          type: string
+          description: International Bank Account Number.
+        account_holder_name:
+          type: string
+          description: Name of the account holder.
+        bic:
+          type: string
+          description: Bank Identifier Code, or null if not provided.
+          nullable: true
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - null
+          description: Whether the account is a checking or a savings account, or null if not provided.
+          nullable: true
+      required:
+      - type
+      - iban
+      - account_holder_name
+      - bic
+      - account_type
+      additionalProperties: false
+      title: IBAN
+      example:
+        type: iban
+        iban: DE89370400440532013000
+        account_holder_name: Acme Sandbox Ltd.
+        bic: COBADEFFXXX
+        account_type: checking
+    AccountBalanceResourceDto:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Resource type discriminator.
+          enum:
+          - account_balance
+        account_id:
+          type: string
+          format: uuid
+          description: Unique identifier of the account.
+          example: 550e8400-e29b-41d4-a716-446655440001
+        amount:
+          type: object
+          properties:
+            available:
+              type: string
+              description: Available balance as a string decimal (e.g. "100.50").
+              example: '100.50'
+            pending:
+              type: string
+              description: Pending balance as a string decimal (e.g. "7.50").
+              example: '100.50'
+          required:
+          - available
+          - pending
+          additionalProperties: false
+        currency:
+          type: string
+          enum:
+          - EUR
+          - GBP
+          - USD
+          - USDC
+          description: Currency code (ISO 4217 or crypto).
+          example: USD
+        as_of:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the balance was retrieved.
+          example: '2026-01-15T10:40:00Z'
+      required:
+      - type
+      - account_id
+      - amount
+      - currency
+      - as_of
+      additionalProperties: false
+    CloseAccountBodyDto:
+      type: object
+      properties:
+        reason:
+          type: string
+          enum:
+          - aml_risk_fraud
+          - client_request
+          description: Reason for closing the account.
+      required:
+      - reason
+      additionalProperties: false
+    CreateAccountBodyDto:
+      type: object
+      properties:
+        account_program_id:
+          type: string
+          format: uuid
+          description: ID of the account program to create the account under.
+          example: 550e8400-e29b-41d4-a716-446655440002
+        account_holder_id:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+          description: ID of an existing account holder to provision the account for.
+          example: 68e0a1b2c3d4e5f60718293a
+        metadata:
+          type: object
+          propertyNames:
+            type: string
+            maxLength: 40
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
+          nullable: true
+      required:
+      - account_program_id
+      - account_holder_id
       additionalProperties: false
   securitySchemes:
     BearerAuth:

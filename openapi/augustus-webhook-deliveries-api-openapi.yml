@@ -28,6 +28,7 @@ paths:
         description: Unique identifier of the webhook delivery.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-44665544000a
           type: string
       responses:
         '200':
@@ -39,9 +40,6 @@ paths:
       summary: Retrieve webhook delivery
       tags:
       - Webhook Deliveries
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookDelivery = await client.webhookDeliveries.retrieve(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookDelivery.id);"
   /v1/webhook_deliveries:
     get:
       description: Lists webhook deliveries for the merchant with cursor-based pagination. Deliveries are retained for 30 days.
@@ -54,8 +52,6 @@ paths:
         schema:
           minimum: 1
           maximum: 100
-          exclusiveMaximum: false
-          exclusiveMinimum: false
           default: 10
           type: integer
       - name: cursor
@@ -70,6 +66,7 @@ paths:
         description: Filter by event ID.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440008
           type: string
       - name: subscription_id
         required: false
@@ -77,6 +74,7 @@ paths:
         description: Filter by webhook subscription ID.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440009
           type: string
       - name: status
         required: false
@@ -96,6 +94,7 @@ paths:
         description: Include deliveries whose created_at is greater than or equal to this ISO 8601 timestamp.
         schema:
           format: date-time
+          example: '2026-01-01T00:00:00Z'
           type: string
       - name: created_at.lte
         required: false
@@ -103,6 +102,7 @@ paths:
         description: Include deliveries whose created_at is less than or equal to this ISO 8601 timestamp.
         schema:
           format: date-time
+          example: '2026-02-01T00:00:00Z'
           type: string
       responses:
         '200':
@@ -114,9 +114,6 @@ paths:
       summary: List webhook deliveries
       tags:
       - Webhook Deliveries
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const webhookDeliveryListResponse of client.webhookDeliveries.list()) {\n  console.log(webhookDeliveryListResponse.id);\n}"
   /v1/webhook_deliveries/{id}/redeliver:
     post:
       description: Triggers a fresh delivery attempt of the event to the same webhook subscription.
@@ -128,11 +125,12 @@ paths:
         description: Unique identifier of the webhook delivery.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-44665544000a
           type: string
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       responses:
@@ -145,33 +143,32 @@ paths:
       summary: Redeliver webhook
       tags:
       - Webhook Deliveries
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.webhookDeliveries.redeliver('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(response.id);"
 components:
   schemas:
     WebhookDeliveryResourceDto:
       type: object
       properties:
         id:
-          description: Unique identifier of the webhook delivery.
           type: string
           format: uuid
+          description: Unique identifier of the webhook delivery.
+          example: 550e8400-e29b-41d4-a716-44665544000a
         type:
-          description: Resource type discriminator.
           type: string
+          description: Resource type discriminator.
           enum:
           - webhook_delivery
         event_id:
+          type: string
+          format: uuid
           description: Identifier of the event this delivery was for.
-          type: string
-          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440008
         subscription_id:
-          description: Identifier of the webhook subscription this delivery targeted.
           type: string
           format: uuid
+          description: Identifier of the webhook subscription this delivery targeted.
+          example: 550e8400-e29b-41d4-a716-446655440009
         status:
-          description: Current status of the delivery.
           type: string
           enum:
           - pending
@@ -179,18 +176,18 @@ components:
           - failed
           - processing
           - ignored
+          description: Current status of the delivery.
         attempts:
-          description: Ordered list of HTTP delivery attempts for this delivery.
           type: array
           items:
             type: object
             properties:
               attempted_at:
-                description: ISO 8601 UTC timestamp when this attempt resolved.
                 type: string
                 format: date-time
+                description: ISO 8601 UTC timestamp when this attempt resolved.
+                example: '2026-01-15T10:30:05Z'
               status:
-                description: Current status of the delivery.
                 type: string
                 enum:
                 - pending
@@ -198,21 +195,29 @@ components:
                 - failed
                 - processing
                 - ignored
+                description: Current status of the delivery.
               status_code:
-                description: HTTP status code returned by the receiver for this attempt.
                 type: integer
+                minimum: -9007199254740991
+                maximum: 9007199254740991
+                description: HTTP status code returned by the receiver for this attempt.
+                example: 200
             required:
             - attempted_at
             - status
             - status_code
+            additionalProperties: false
+          description: Ordered list of HTTP delivery attempts for this delivery.
         created_at:
+          type: string
+          format: date-time
           description: ISO 8601 UTC timestamp when the delivery was created.
-          type: string
-          format: date-time
+          example: '2026-01-15T10:30:00Z'
         updated_at:
-          description: ISO 8601 UTC timestamp when the delivery was last updated.
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp when the delivery was last updated.
+          example: '2026-01-15T10:35:00Z'
       required:
       - id
       - type
@@ -222,6 +227,7 @@ components:
       - attempts
       - created_at
       - updated_at
+      additionalProperties: false
     ListWebhookDeliveriesResponseDto:
       type: object
       properties:
@@ -231,24 +237,26 @@ components:
             type: object
             properties:
               id:
-                description: Unique identifier of the webhook delivery.
                 type: string
                 format: uuid
+                description: Unique identifier of the webhook delivery.
+                example: 550e8400-e29b-41d4-a716-44665544000a
               type:
-                description: Resource type discriminator.
                 type: string
+                description: Resource type discriminator.
                 enum:
                 - webhook_delivery
               event_id:
+                type: string
+                format: uuid
                 description: Identifier of the event this delivery was for.
-                type: string
-                format: uuid
+                example: 550e8400-e29b-41d4-a716-446655440008
               subscription_id:
-                description: Identifier of the webhook subscription this delivery targeted.
                 type: string
                 format: uuid
+                description: Identifier of the webhook subscription this delivery targeted.
+                example: 550e8400-e29b-41d4-a716-446655440009
               status:
-                description: Current status of the delivery.
                 type: string
                 enum:
                 - pending
@@ -256,18 +264,18 @@ components:
                 - failed
                 - processing
                 - ignored
+                description: Current status of the delivery.
               attempts:
-                description: Ordered list of HTTP delivery attempts for this delivery.
                 type: array
                 items:
                   type: object
                   properties:
                     attempted_at:
-                      description: ISO 8601 UTC timestamp when this attempt resolved.
                       type: string
                       format: date-time
+                      description: ISO 8601 UTC timestamp when this attempt resolved.
+                      example: '2026-01-15T10:30:05Z'
                     status:
-                      description: Current status of the delivery.
                       type: string
                       enum:
                       - pending
@@ -275,21 +283,29 @@ components:
                       - failed
                       - processing
                       - ignored
+                      description: Current status of the delivery.
                     status_code:
-                      description: HTTP status code returned by the receiver for this attempt.
                       type: integer
+                      minimum: -9007199254740991
+                      maximum: 9007199254740991
+                      description: HTTP status code returned by the receiver for this attempt.
+                      example: 200
                   required:
                   - attempted_at
                   - status
                   - status_code
+                  additionalProperties: false
+                description: Ordered list of HTTP delivery attempts for this delivery.
               created_at:
+                type: string
+                format: date-time
                 description: ISO 8601 UTC timestamp when the delivery was created.
-                type: string
-                format: date-time
+                example: '2026-01-15T10:30:00Z'
               updated_at:
-                description: ISO 8601 UTC timestamp when the delivery was last updated.
                 type: string
                 format: date-time
+                description: ISO 8601 UTC timestamp when the delivery was last updated.
+                example: '2026-01-15T10:35:00Z'
             required:
             - id
             - type
@@ -299,15 +315,26 @@ components:
             - attempts
             - created_at
             - updated_at
+            additionalProperties: false
         has_more:
           type: boolean
         next_cursor:
           type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
           nullable: true
       required:
       - data
       - has_more
       - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

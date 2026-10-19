@@ -25,7 +25,7 @@ paths:
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       requestBody:
@@ -45,9 +45,6 @@ paths:
       summary: Create webhook subscription
       tags:
       - Webhook Subscriptions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.create({\n  events: ['payout.created'],\n  url: 'https://example.com',\n});\n\nconsole.log(webhookSubscription.id);"
     get:
       description: Lists webhook subscriptions for the merchant with cursor-based pagination.
       operationId: WebhookSubscriptionsController_list
@@ -59,8 +56,6 @@ paths:
         schema:
           minimum: 1
           maximum: 100
-          exclusiveMaximum: false
-          exclusiveMinimum: false
           default: 10
           type: integer
       - name: cursor
@@ -79,9 +74,6 @@ paths:
       summary: List webhook subscriptions
       tags:
       - Webhook Subscriptions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const webhookSubscriptionListResponse of client.webhookSubscriptions.list()) {\n  console.log(webhookSubscriptionListResponse.id);\n}"
   /v1/webhook_subscriptions/{id}:
     get:
       description: Retrieves a webhook subscription by ID.
@@ -93,6 +85,7 @@ paths:
         description: Unique identifier of the webhook subscription.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440009
           type: string
       responses:
         '200':
@@ -104,9 +97,6 @@ paths:
       summary: Retrieve webhook subscription
       tags:
       - Webhook Subscriptions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.retrieve(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookSubscription.id);"
     post:
       description: Updates the URL and/or subscribed events.
       operationId: WebhookSubscriptionsController_update
@@ -117,11 +107,12 @@ paths:
         description: Unique identifier of the webhook subscription.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440009
           type: string
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       requestBody:
@@ -141,9 +132,6 @@ paths:
       summary: Update webhook subscription
       tags:
       - Webhook Subscriptions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.update(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookSubscription.id);"
     delete:
       description: Permanently deletes a webhook subscription. This cannot be undone.
       operationId: WebhookSubscriptionsController_delete
@@ -154,6 +142,7 @@ paths:
         description: Unique identifier of the webhook subscription.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440009
           type: string
       responses:
         '200':
@@ -165,9 +154,6 @@ paths:
       summary: Delete webhook subscription
       tags:
       - Webhook Subscriptions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst webhookSubscription = await client.webhookSubscriptions.delete(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(webhookSubscription.id);"
   /v1/webhook_subscriptions/{id}/send_test_event:
     post:
       description: Dispatches a signed `ping.test` event to this subscription's URL through the same pipeline as real events. Useful for verifying your receiver's reachability and signature verification in any environment without creating a real business event. Test-event failures do not affect the subscription's health counters or trigger failure-notification emails.
@@ -179,11 +165,12 @@ paths:
         description: Unique identifier of the webhook subscription.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440009
           type: string
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       responses:
@@ -196,42 +183,145 @@ paths:
       summary: Send test event
       tags:
       - Webhook Subscriptions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst response = await client.webhookSubscriptions.sendTestEvent(\n  '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n);\n\nconsole.log(response.id);"
 components:
   schemas:
-    CreateWebhookSubscriptionBodyDto:
+    WebhookSubscriptionResourceDto:
       type: object
       properties:
-        url:
-          description: The HTTPS URL where webhook events will be delivered.
+        id:
           type: string
-          format: uri
+          description: Unique identifier of the webhook subscription.
+          example: 550e8400-e29b-41d4-a716-446655440009
+        type:
+          type: string
+          description: Resource type discriminator.
+          enum:
+          - webhook_subscription
+        url:
+          type: string
+          description: The HTTPS URL where webhook events are delivered.
+          example: https://sandbox.example.com/webhooks/augustus
         events:
-          description: Event types to subscribe to. Use ["*"] for all events.
           type: array
-          minItems: 1
           items:
-            description: Event type to subscribe to. Use "*" for all events.
             type: string
             enum:
-            - payout.created
             - payout.initiated
-            - payout.paid
+            - payout.submitted
+            - payout.sent
             - payout.failed
+            - payout.returned
             - return.initiated
-            - return.paid
+            - return.submitted
+            - return.sent
             - return.failed
             - return.returned
-            - deposit.received
+            - deposit.settled
             - conversion.created
             - conversion.completed
             - conversion.failed
-            - '*'
+            - account_holder.active
+            - account_holder.closed
+            - counterparty.pending
+            - counterparty.active
+            - counterparty.rejected
+            - counterparty.blocked
+            - counterparty.unblocked
+            - counterparty.updated
+            - payout_tracking_event.created
+            description: Event type the subscription receives.
+          description: Event types this subscription receives.
+          example:
+          - payout.sent
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the subscription was created.
+          example: '2026-01-15T10:30:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the subscription was last updated.
+          example: '2026-01-15T10:35:00Z'
       required:
+      - id
+      - type
       - url
       - events
+      - metadata
+      - created_at
+      - updated_at
+      additionalProperties: false
+    EventResourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
+          example: 550e8400-e29b-41d4-a716-446655440008
+        type:
+          type: string
+          description: Resource type discriminator.
+          enum:
+          - event
+        event_type:
+          type: string
+          enum:
+          - payout.initiated
+          - payout.submitted
+          - payout.sent
+          - payout.failed
+          - payout.returned
+          - return.initiated
+          - return.submitted
+          - return.sent
+          - return.failed
+          - return.returned
+          - deposit.settled
+          - conversion.created
+          - conversion.completed
+          - conversion.failed
+          - account_holder.active
+          - account_holder.closed
+          - counterparty.pending
+          - counterparty.active
+          - counterparty.rejected
+          - counterparty.blocked
+          - counterparty.unblocked
+          - counterparty.updated
+          - payout_tracking_event.created
+          - ping.test
+          description: Event type.
+        api_version:
+          type: string
+          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
+          example: '2026-05-01'
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the event was created.
+          example: '2026-01-15T10:30:00Z'
+        data:
+          type: object
+          additionalProperties: {}
+          description: Event payload. Shape matches the resource schema for `event_type`.
+      required:
+      - id
+      - type
+      - event_type
+      - api_version
+      - created_at
+      - data
+      additionalProperties: false
     ListWebhookSubscriptionsResponseDto:
       type: object
       properties:
@@ -241,182 +331,201 @@ components:
             type: object
             properties:
               id:
+                type: string
                 description: Unique identifier of the webhook subscription.
-                type: string
+                example: 550e8400-e29b-41d4-a716-446655440009
               type:
-                description: Resource type discriminator.
                 type: string
+                description: Resource type discriminator.
                 enum:
                 - webhook_subscription
               url:
-                description: The HTTPS URL where webhook events are delivered.
                 type: string
+                description: The HTTPS URL where webhook events are delivered.
+                example: https://sandbox.example.com/webhooks/augustus
               events:
-                description: Event types this subscription receives.
                 type: array
                 items:
-                  description: Event type the subscription receives.
                   type: string
                   enum:
-                  - payout.created
                   - payout.initiated
-                  - payout.paid
+                  - payout.submitted
+                  - payout.sent
                   - payout.failed
+                  - payout.returned
                   - return.initiated
-                  - return.paid
+                  - return.submitted
+                  - return.sent
                   - return.failed
                   - return.returned
-                  - deposit.received
+                  - deposit.settled
                   - conversion.created
                   - conversion.completed
                   - conversion.failed
+                  - account_holder.active
+                  - account_holder.closed
+                  - counterparty.pending
+                  - counterparty.active
+                  - counterparty.rejected
+                  - counterparty.blocked
+                  - counterparty.unblocked
+                  - counterparty.updated
+                  - payout_tracking_event.created
+                  description: Event type the subscription receives.
+                description: Event types this subscription receives.
+                example:
+                - payout.sent
+              metadata:
+                type: object
+                additionalProperties:
+                  type: string
+                  maxLength: 500
+                description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+                example:
+                  invoice_id: INV-2026-0042
               created_at:
+                type: string
+                format: date-time
                 description: ISO 8601 UTC timestamp when the subscription was created.
-                type: string
-                format: date-time
+                example: '2026-01-15T10:30:00Z'
               updated_at:
-                description: ISO 8601 UTC timestamp when the subscription was last updated.
                 type: string
                 format: date-time
+                description: ISO 8601 UTC timestamp when the subscription was last updated.
+                example: '2026-01-15T10:35:00Z'
             required:
             - id
             - type
             - url
             - events
+            - metadata
             - created_at
             - updated_at
+            additionalProperties: false
         has_more:
           type: boolean
         next_cursor:
           type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
           nullable: true
       required:
       - data
       - has_more
       - next_cursor
-    EventResourceDto:
-      type: object
-      properties:
-        id:
-          description: Unique identifier of the event. Matches the envelope `id` delivered in the webhook payload and is stable across subscription fan-out and retries.
-          type: string
-          format: uuid
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - event
-        event_type:
-          description: Event type.
-          type: string
-          enum:
-          - payout.created
-          - payout.initiated
-          - payout.paid
-          - payout.failed
-          - return.initiated
-          - return.paid
-          - return.failed
-          - return.returned
-          - deposit.received
-          - conversion.created
-          - conversion.completed
-          - conversion.failed
-          - ping.test
-        api_version:
-          description: API version the event payload was rendered at. Stable across retries and redeliveries, and mirrored in the webhook envelope `api_version` field.
-          type: string
-        created_at:
-          description: ISO 8601 UTC timestamp when the event was created.
-          type: string
-          format: date-time
-        data:
-          description: Event payload. Shape matches the resource schema for `event_type`.
-          type: object
-          additionalProperties: {}
-      required:
-      - id
-      - type
-      - event_type
-      - api_version
-      - created_at
-      - data
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
     UpdateWebhookSubscriptionBodyDto:
       type: object
       properties:
         url:
-          description: The HTTPS URL where webhook events will be delivered.
           type: string
           format: uri
+          pattern: ^https:\/\/.*
+          description: The new HTTPS URL. Omit or send null to keep the current URL.
+          example: https://sandbox.example.com/webhooks/augustus
+          nullable: true
         events:
-          description: Event types to subscribe to. Use ["*"] for all events.
-          type: array
           minItems: 1
+          type: array
           items:
-            description: Event type to subscribe to. Use "*" for all events.
             type: string
             enum:
-            - payout.created
             - payout.initiated
-            - payout.paid
+            - payout.submitted
+            - payout.sent
             - payout.failed
+            - payout.returned
             - return.initiated
-            - return.paid
+            - return.submitted
+            - return.sent
             - return.failed
             - return.returned
-            - deposit.received
+            - deposit.settled
             - conversion.created
             - conversion.completed
             - conversion.failed
+            - account_holder.active
+            - account_holder.closed
+            - counterparty.pending
+            - counterparty.active
+            - counterparty.rejected
+            - counterparty.blocked
+            - counterparty.unblocked
+            - counterparty.updated
+            - payout_tracking_event.created
             - '*'
-    WebhookSubscriptionResourceDto:
+            description: Event type to subscribe to. Use "*" for all events.
+          description: New event types. Omit or send null to keep the current events. Use ["*"] for all events.
+          example:
+          - payout.sent
+          nullable: true
+      additionalProperties: false
+    CreateWebhookSubscriptionBodyDto:
       type: object
       properties:
-        id:
-          description: Unique identifier of the webhook subscription.
-          type: string
-        type:
-          description: Resource type discriminator.
-          type: string
-          enum:
-          - webhook_subscription
         url:
-          description: The HTTPS URL where webhook events are delivered.
           type: string
+          format: uri
+          pattern: ^https:\/\/.*
+          description: The HTTPS URL where webhook events will be delivered.
+          example: https://sandbox.example.com/webhooks/augustus
         events:
-          description: Event types this subscription receives.
+          minItems: 1
           type: array
           items:
-            description: Event type the subscription receives.
             type: string
             enum:
-            - payout.created
             - payout.initiated
-            - payout.paid
+            - payout.submitted
+            - payout.sent
             - payout.failed
+            - payout.returned
             - return.initiated
-            - return.paid
+            - return.submitted
+            - return.sent
             - return.failed
             - return.returned
-            - deposit.received
+            - deposit.settled
             - conversion.created
             - conversion.completed
             - conversion.failed
-        created_at:
-          description: ISO 8601 UTC timestamp when the subscription was created.
-          type: string
-          format: date-time
-        updated_at:
-          description: ISO 8601 UTC timestamp when the subscription was last updated.
-          type: string
-          format: date-time
+            - account_holder.active
+            - account_holder.closed
+            - counterparty.pending
+            - counterparty.active
+            - counterparty.rejected
+            - counterparty.blocked
+            - counterparty.unblocked
+            - counterparty.updated
+            - payout_tracking_event.created
+            - '*'
+            description: Event type to subscribe to. Use "*" for all events.
+          description: Event types to subscribe to. Use ["*"] for all events.
+          example:
+          - payout.sent
+        metadata:
+          type: object
+          propertyNames:
+            type: string
+            maxLength: 40
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
+          nullable: true
       required:
-      - id
-      - type
       - url
       - events
-      - created_at
-      - updated_at
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

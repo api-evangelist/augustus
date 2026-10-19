@@ -29,8 +29,6 @@ paths:
         schema:
           minimum: 1
           maximum: 100
-          exclusiveMaximum: false
-          exclusiveMinimum: false
           default: 10
           type: integer
       - name: cursor
@@ -42,12 +40,14 @@ paths:
       - name: status
         required: false
         in: query
-        description: Current status of the return.
+        description: Filter by return status.
         schema:
+          example: sent
           type: string
           enum:
-          - pending
-          - paid
+          - initiated
+          - submitted
+          - sent
           - failed
           - returned
       - name: deposit_id
@@ -56,6 +56,7 @@ paths:
         description: Filter returns belonging to this deposit.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440004
           type: string
       - name: created_at.gte
         required: false
@@ -63,6 +64,7 @@ paths:
         description: Include returns whose created_at is greater than or equal to this ISO 8601 timestamp.
         schema:
           format: date-time
+          example: '2026-01-01T00:00:00Z'
           type: string
       - name: created_at.lte
         required: false
@@ -70,6 +72,7 @@ paths:
         description: Include returns whose created_at is less than or equal to this ISO 8601 timestamp.
         schema:
           format: date-time
+          example: '2026-02-01T00:00:00Z'
           type: string
       responses:
         '200':
@@ -81,9 +84,6 @@ paths:
       summary: List returns
       tags:
       - Returns
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const returnListResponse of client.returns.list()) {\n  console.log(returnListResponse.id);\n}"
     post:
       description: Initiates a return of funds from a deposit to the source.
       operationId: ReturnsController_create
@@ -91,7 +91,7 @@ paths:
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       requestBody:
@@ -111,9 +111,6 @@ paths:
       summary: Create return
       tags:
       - Returns
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst _return = await client.returns.create({ deposit_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e' });\n\nconsole.log(_return.id);"
   /v1/returns/{id}:
     get:
       description: Retrieves a return by ID.
@@ -125,6 +122,7 @@ paths:
         description: Unique identifier of the return.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440005
           type: string
       responses:
         '200':
@@ -136,181 +134,60 @@ paths:
       summary: Retrieve return
       tags:
       - Returns
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst _return = await client.returns.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(_return.id);"
 components:
   schemas:
-    ListReturnsResponseDto:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                description: Unique identifier of the return.
-                type: string
-                format: uuid
-              type:
-                description: Type of the resource.
-                type: string
-                enum:
-                - return
-              status:
-                description: Current status of the return.
-                type: string
-                enum:
-                - pending
-                - paid
-                - failed
-                - returned
-              deposit_id:
-                description: ID of the parent deposit.
-                type: string
-                format: uuid
-              amount:
-                description: Amount as a string decimal (e.g. "100.50").
-                type: string
-              currency:
-                description: Currency code (ISO 4217 currency code or crypto currency code).
-                type: string
-                enum:
-                - EUR
-                - GBP
-                - USD
-                - USDC
-                - BTC
-                - ETH
-                - SOL
-                - POL
-              failure:
-                description: Failure details when status is failed, otherwise null.
-                type: object
-                properties:
-                  code:
-                    description: Failure code.
-                    type: string
-                    enum:
-                    - account_closed
-                    - account_blocked
-                    - insufficient_funds
-                    - invalid_account_format
-                    - invalid_instruction
-                    - invalid_amount
-                    - invalid_time
-                    - duplicate_transaction
-                    - payee_verification_failed
-                    - system_error
-                    - provider_system_error
-                    - rejected_by_correspondent_bank
-                    - blocked_by_review
-                    - unknown
-                    x-enumNames:
-                    - ACCOUNT_CLOSED
-                    - ACCOUNT_BLOCKED
-                    - INSUFFICIENT_FUNDS
-                    - INVALID_ACCOUNT_FORMAT
-                    - INVALID_INSTRUCTION
-                    - INVALID_AMOUNT
-                    - INVALID_TIME
-                    - DUPLICATE_TRANSACTION
-                    - PAYEE_VERIFICATION_FAILED
-                    - SYSTEM_ERROR
-                    - PROVIDER_SYSTEM_ERROR
-                    - REJECTED_BY_CORRESPONDENT_BANK
-                    - BLOCKED_BY_REVIEW
-                    - UNKNOWN
-                  message:
-                    description: Human-readable description of the failure.
-                    type: string
-                  retry:
-                    description: Whether the return can be retried.
-                    type: boolean
-                required:
-                - code
-                - message
-                - retry
-                nullable: true
-              created_at:
-                description: ISO 8601 UTC timestamp when the return was created.
-                type: string
-                format: date-time
-              updated_at:
-                description: ISO 8601 UTC timestamp when the return was last updated.
-                type: string
-                format: date-time
-            required:
-            - id
-            - type
-            - status
-            - deposit_id
-            - amount
-            - currency
-            - failure
-            - created_at
-            - updated_at
-        has_more:
-          type: boolean
-        next_cursor:
-          type: string
-          nullable: true
-      required:
-      - data
-      - has_more
-      - next_cursor
     ReturnResourceDto:
       type: object
       properties:
         id:
-          description: Unique identifier of the return.
           type: string
           format: uuid
+          description: Unique identifier of the return.
+          example: 550e8400-e29b-41d4-a716-446655440005
         type:
-          description: Type of the resource.
           type: string
+          description: Resource type discriminator.
           enum:
           - return
         status:
-          description: Current status of the return.
           type: string
           enum:
-          - pending
-          - paid
+          - initiated
+          - submitted
+          - sent
           - failed
           - returned
+          description: Current status of the return.
+          example: sent
         deposit_id:
-          description: ID of the parent deposit.
           type: string
           format: uuid
+          description: ID of the parent deposit.
+          example: 550e8400-e29b-41d4-a716-446655440004
         amount:
-          description: Amount as a string decimal (e.g. "100.50").
           type: string
+          description: Amount as a string decimal (e.g. "100.50").
+          example: '100.50'
         currency:
-          description: Currency code (ISO 4217 currency code or crypto currency code).
           type: string
           enum:
           - EUR
           - GBP
           - USD
           - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
+          description: Currency code (ISO 4217 or crypto).
+          example: USD
         failure:
-          description: Failure details when status is failed, otherwise null.
           type: object
           properties:
             code:
-              description: Failure code.
               type: string
               enum:
               - account_closed
               - account_blocked
               - insufficient_funds
               - invalid_account_format
+              - invalid_routing_number
               - invalid_instruction
               - invalid_amount
               - invalid_time
@@ -321,40 +198,68 @@ components:
               - rejected_by_correspondent_bank
               - blocked_by_review
               - unknown
-              x-enumNames:
-              - ACCOUNT_CLOSED
-              - ACCOUNT_BLOCKED
-              - INSUFFICIENT_FUNDS
-              - INVALID_ACCOUNT_FORMAT
-              - INVALID_INSTRUCTION
-              - INVALID_AMOUNT
-              - INVALID_TIME
-              - DUPLICATE_TRANSACTION
-              - PAYEE_VERIFICATION_FAILED
-              - SYSTEM_ERROR
-              - PROVIDER_SYSTEM_ERROR
-              - REJECTED_BY_CORRESPONDENT_BANK
-              - BLOCKED_BY_REVIEW
-              - UNKNOWN
+              description: Failure code.
             message:
-              description: Human-readable description of the failure.
               type: string
+              description: Human-readable description of the failure.
             retry:
-              description: Whether the return can be retried.
               type: boolean
+              description: Whether the return can be retried.
           required:
           - code
           - message
           - retry
+          additionalProperties: false
+          description: Failure details when status is failed, otherwise null.
+          example: null
           nullable: true
-        created_at:
-          description: ISO 8601 UTC timestamp when the return was created.
+        initiated_at:
           type: string
           format: date-time
-        updated_at:
-          description: ISO 8601 UTC timestamp when the return was last updated.
+          description: ISO 8601 UTC timestamp when the return was initiated.
+          example: '2026-01-15T10:30:00Z'
+        sent_at:
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp when the return was sent.
+          example: '2026-01-15T10:35:00Z'
+          nullable: true
+        tx_hash:
+          type: string
+          description: Transaction hash for crypto returns, or null when not known. Only blockchain rails support this field.
+          example: null
+          nullable: true
+        rail:
+          type: string
+          enum:
+          - sepa
+          - sepa_instant
+          - faster_payments
+          - swift
+          - internal
+          - target
+          - ach
+          - fedwire
+          - bitcoin
+          - bitcoin_testnet4
+          - ethereum
+          - ethereum_sepolia
+          - solana
+          - solana_devnet
+          - polygon
+          - polygon_amoy
+          - null
+          description: Payment scheme or blockchain used for the return, or null when unknown.
+          example: ach
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
       required:
       - id
       - type
@@ -363,24 +268,197 @@ components:
       - amount
       - currency
       - failure
-      - created_at
-      - updated_at
+      - initiated_at
+      - sent_at
+      - tx_hash
+      - rail
+      - metadata
+      additionalProperties: false
+    ListReturnsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: Unique identifier of the return.
+                example: 550e8400-e29b-41d4-a716-446655440005
+              type:
+                type: string
+                description: Resource type discriminator.
+                enum:
+                - return
+              status:
+                type: string
+                enum:
+                - initiated
+                - submitted
+                - sent
+                - failed
+                - returned
+                description: Current status of the return.
+                example: sent
+              deposit_id:
+                type: string
+                format: uuid
+                description: ID of the parent deposit.
+                example: 550e8400-e29b-41d4-a716-446655440004
+              amount:
+                type: string
+                description: Amount as a string decimal (e.g. "100.50").
+                example: '100.50'
+              currency:
+                type: string
+                enum:
+                - EUR
+                - GBP
+                - USD
+                - USDC
+                description: Currency code (ISO 4217 or crypto).
+                example: USD
+              failure:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    enum:
+                    - account_closed
+                    - account_blocked
+                    - insufficient_funds
+                    - invalid_account_format
+                    - invalid_routing_number
+                    - invalid_instruction
+                    - invalid_amount
+                    - invalid_time
+                    - duplicate_transaction
+                    - payee_verification_failed
+                    - system_error
+                    - provider_system_error
+                    - rejected_by_correspondent_bank
+                    - blocked_by_review
+                    - unknown
+                    description: Failure code.
+                  message:
+                    type: string
+                    description: Human-readable description of the failure.
+                  retry:
+                    type: boolean
+                    description: Whether the return can be retried.
+                required:
+                - code
+                - message
+                - retry
+                additionalProperties: false
+                description: Failure details when status is failed, otherwise null.
+                example: null
+                nullable: true
+              initiated_at:
+                type: string
+                format: date-time
+                description: ISO 8601 UTC timestamp when the return was initiated.
+                example: '2026-01-15T10:30:00Z'
+              sent_at:
+                type: string
+                format: date-time
+                description: ISO 8601 UTC timestamp when the return was sent.
+                example: '2026-01-15T10:35:00Z'
+                nullable: true
+              tx_hash:
+                type: string
+                description: Transaction hash for crypto returns, or null when not known. Only blockchain rails support this field.
+                example: null
+                nullable: true
+              rail:
+                type: string
+                enum:
+                - sepa
+                - sepa_instant
+                - faster_payments
+                - swift
+                - internal
+                - target
+                - ach
+                - fedwire
+                - bitcoin
+                - bitcoin_testnet4
+                - ethereum
+                - ethereum_sepolia
+                - solana
+                - solana_devnet
+                - polygon
+                - polygon_amoy
+                - null
+                description: Payment scheme or blockchain used for the return, or null when unknown.
+                example: ach
+                nullable: true
+              metadata:
+                type: object
+                additionalProperties:
+                  type: string
+                  maxLength: 500
+                description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+                example:
+                  invoice_id: INV-2026-0042
+            required:
+            - id
+            - type
+            - status
+            - deposit_id
+            - amount
+            - currency
+            - failure
+            - initiated_at
+            - sent_at
+            - tx_hash
+            - rail
+            - metadata
+            additionalProperties: false
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
     CreateReturnBodyDto:
       type: object
       properties:
         deposit_id:
-          description: Deposit to return funds from.
           type: string
           format: uuid
-        rail:
-          description: Payment rail when the deposit allows multiple schemes.
-          type: string
-          enum:
-          - sepa_instant
-          - sepa
-          - faster_payments
+          description: Deposit to return funds from.
+          example: 550e8400-e29b-41d4-a716-446655440004
+        metadata:
+          type: object
+          propertyNames:
+            type: string
+            maxLength: 40
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
+          nullable: true
       required:
       - deposit_id
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

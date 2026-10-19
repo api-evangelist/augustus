@@ -29,8 +29,6 @@ paths:
         schema:
           minimum: 1
           maximum: 100
-          exclusiveMaximum: false
-          exclusiveMinimum: false
           default: 10
           type: integer
       - name: cursor
@@ -54,31 +52,25 @@ paths:
         in: query
         description: Filter by source currency code.
         schema:
+          example: USD
           type: string
           enum:
           - EUR
           - GBP
           - USD
           - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
       - name: target_currency
         required: false
         in: query
         description: Filter by target currency code.
         schema:
+          example: USDC
           type: string
           enum:
           - EUR
           - GBP
           - USD
           - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
       responses:
         '200':
           description: List of conversions
@@ -89,17 +81,14 @@ paths:
       summary: List conversions
       tags:
       - Conversions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\n// Automatically fetches more pages as needed.\nfor await (const conversionListResponse of client.conversions.list()) {\n  console.log(conversionListResponse.id);\n}"
     post:
-      description: Creates and executes a conversion.
+      description: Starts a conversion.
       operationId: ConversionsController_create
       parameters:
       - name: Idempotency-Key
         in: header
         description: Idempotency key for safe retries. Reusing a key with an identical request body returns the cached response. Reusing a key with a different body returns 409.
-        required: false
+        required: true
         schema:
           type: string
       requestBody:
@@ -119,9 +108,6 @@ paths:
       summary: Create conversion
       tags:
       - Conversions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst conversion = await client.conversions.create({\n  source_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n  source_amount: '321669910225',\n  target_account_id: '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',\n});\n\nconsole.log(conversion.id);"
   /v1/conversions/{id}:
     get:
       description: Retrieves a conversion by ID.
@@ -133,6 +119,7 @@ paths:
         description: Unique identifier of the conversion.
         schema:
           format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440006
           type: string
       responses:
         '200':
@@ -144,35 +131,8 @@ paths:
       summary: Retrieve conversion
       tags:
       - Conversions
-      x-codeSamples:
-      - lang: JavaScript
-        source: "import Augustus from '@augustusbank/typescript-sdk';\n\nconst client = new Augustus({\n  apiKey: process.env['AUGUSTUS_API_KEY'], // This is the default and can be omitted\n});\n\nconst conversion = await client.conversions.retrieve('182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e');\n\nconsole.log(conversion.id);"
 components:
   schemas:
-    CreateConversionBodyDto:
-      type: object
-      properties:
-        source_account_id:
-          description: ID of the source account to debit.
-          type: string
-          format: uuid
-        target_account_id:
-          description: ID of the target account to credit.
-          type: string
-          format: uuid
-        source_amount:
-          description: Amount to convert as a string decimal (e.g. "100.50").
-          type: string
-          pattern: ^\d+(\.\d+)?$
-        metadata:
-          description: Key-value pairs stored with the conversion.
-          type: object
-          additionalProperties:
-            type: string
-      required:
-      - source_account_id
-      - target_account_id
-      - source_amount
     ListConversionsResponseDto:
       type: object
       properties:
@@ -182,215 +142,210 @@ components:
             type: object
             properties:
               id:
+                type: string
+                format: uuid
                 description: Unique identifier of the conversion.
-                type: string
-                format: uuid
-              quote_id:
-                description: ID of the associated quote, or null.
-                type: string
-                format: uuid
-                nullable: true
+                example: 550e8400-e29b-41d4-a716-446655440006
               type:
-                description: Resource type discriminator.
                 type: string
+                description: Resource type discriminator.
                 enum:
                 - conversion
               status:
-                description: Current status of the conversion.
                 type: string
                 enum:
                 - pending
                 - completed
                 - failed
+                description: Current status of the conversion.
               source_amount:
-                description: Source amount as a string decimal.
                 type: string
-              source_currency:
-                description: Source currency code.
+                description: Amount as a string decimal (e.g. "100.50").
+                example: '100.50'
+              target_amount:
                 type: string
-                enum:
-                - EUR
-                - GBP
-                - USD
-                - USDC
-                - BTC
-                - ETH
-                - SOL
-                - POL
-              target_currency:
-                description: Target currency code.
-                type: string
-                enum:
-                - EUR
-                - GBP
-                - USD
-                - USDC
-                - BTC
-                - ETH
-                - SOL
-                - POL
+                description: Amount as a string decimal (e.g. "100.50").
+                example: '100.50'
               source_account_id:
-                description: ID of the source account, or null.
                 type: string
+                format: uuid
+                description: ID of the source account, or null.
+                example: 550e8400-e29b-41d4-a716-44665544000b
                 nullable: true
               target_account_id:
-                description: ID of the target account, or null.
                 type: string
-                nullable: true
-              failure:
-                description: Failure details when status is failed, otherwise null.
-                type: object
-                properties:
-                  message:
-                    description: Human-readable description of the failure.
-                    type: string
-                required:
-                - message
+                format: uuid
+                description: ID of the target account, or null.
+                example: 550e8400-e29b-41d4-a716-44665544000c
                 nullable: true
               metadata:
-                description: Key-value pairs stored with the conversion.
                 type: object
                 additionalProperties:
                   type: string
+                  maxLength: 500
+                description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+                example:
+                  invoice_id: INV-2026-0042
               created_at:
+                type: string
+                format: date-time
                 description: ISO 8601 UTC timestamp when the conversion was created.
-                type: string
-                format: date-time
+                example: '2026-01-15T10:30:00Z'
               updated_at:
+                type: string
+                format: date-time
                 description: ISO 8601 UTC timestamp when the conversion was last updated.
-                type: string
-                format: date-time
+                example: '2026-01-15T10:35:00Z'
               completed_at:
-                description: ISO 8601 UTC timestamp when the conversion completed, or null.
                 type: string
                 format: date-time
+                description: ISO 8601 UTC timestamp when the conversion completed, or null.
+                example: '2026-01-15T10:36:00Z'
                 nullable: true
             required:
             - id
-            - quote_id
             - type
             - status
             - source_amount
-            - source_currency
-            - target_currency
+            - target_amount
             - source_account_id
             - target_account_id
-            - failure
             - metadata
             - created_at
             - updated_at
             - completed_at
+            additionalProperties: false
         has_more:
           type: boolean
         next_cursor:
           type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
           nullable: true
       required:
       - data
       - has_more
       - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
+    CreateConversionBodyDto:
+      type: object
+      properties:
+        source_account_id:
+          type: string
+          format: uuid
+          description: ID of the source account to debit.
+          example: 550e8400-e29b-41d4-a716-44665544000b
+        target_account_id:
+          type: string
+          format: uuid
+          description: ID of the target account to credit.
+          example: 550e8400-e29b-41d4-a716-44665544000c
+        source_amount:
+          type: string
+          pattern: ^\d+(\.\d+)?$
+          description: Amount as a string decimal (e.g. "100.50").
+          example: '100.50'
+        metadata:
+          type: object
+          propertyNames:
+            type: string
+            maxLength: 40
+          additionalProperties:
+            type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
+          nullable: true
+      required:
+      - source_account_id
+      - target_account_id
+      - source_amount
+      additionalProperties: false
     ConversionResourceDto:
       type: object
       properties:
         id:
+          type: string
+          format: uuid
           description: Unique identifier of the conversion.
-          type: string
-          format: uuid
-        quote_id:
-          description: ID of the associated quote, or null.
-          type: string
-          format: uuid
-          nullable: true
+          example: 550e8400-e29b-41d4-a716-446655440006
         type:
-          description: Resource type discriminator.
           type: string
+          description: Resource type discriminator.
           enum:
           - conversion
         status:
-          description: Current status of the conversion.
           type: string
           enum:
           - pending
           - completed
           - failed
+          description: Current status of the conversion.
         source_amount:
-          description: Source amount as a string decimal.
           type: string
-        source_currency:
-          description: Source currency code.
+          description: Amount as a string decimal (e.g. "100.50").
+          example: '100.50'
+        target_amount:
           type: string
-          enum:
-          - EUR
-          - GBP
-          - USD
-          - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
-        target_currency:
-          description: Target currency code.
-          type: string
-          enum:
-          - EUR
-          - GBP
-          - USD
-          - USDC
-          - BTC
-          - ETH
-          - SOL
-          - POL
+          description: Amount as a string decimal (e.g. "100.50").
+          example: '100.50'
         source_account_id:
-          description: ID of the source account, or null.
           type: string
+          format: uuid
+          description: ID of the source account, or null.
+          example: 550e8400-e29b-41d4-a716-44665544000b
           nullable: true
         target_account_id:
-          description: ID of the target account, or null.
           type: string
-          nullable: true
-        failure:
-          description: Failure details when status is failed, otherwise null.
-          type: object
-          properties:
-            message:
-              description: Human-readable description of the failure.
-              type: string
-          required:
-          - message
+          format: uuid
+          description: ID of the target account, or null.
+          example: 550e8400-e29b-41d4-a716-44665544000c
           nullable: true
         metadata:
-          description: Key-value pairs stored with the conversion.
           type: object
           additionalProperties:
             type: string
+            maxLength: 500
+          description: Set of up to 50 key-value string pairs you can attach to store structured information, such as correlating this resource with an object in your own system. Keys may be up to 40 characters and values up to 500 characters.
+          example:
+            invoice_id: INV-2026-0042
         created_at:
+          type: string
+          format: date-time
           description: ISO 8601 UTC timestamp when the conversion was created.
-          type: string
-          format: date-time
+          example: '2026-01-15T10:30:00Z'
         updated_at:
+          type: string
+          format: date-time
           description: ISO 8601 UTC timestamp when the conversion was last updated.
-          type: string
-          format: date-time
+          example: '2026-01-15T10:35:00Z'
         completed_at:
-          description: ISO 8601 UTC timestamp when the conversion completed, or null.
           type: string
           format: date-time
+          description: ISO 8601 UTC timestamp when the conversion completed, or null.
+          example: '2026-01-15T10:36:00Z'
           nullable: true
       required:
       - id
-      - quote_id
       - type
       - status
       - source_amount
-      - source_currency
-      - target_currency
+      - target_amount
       - source_account_id
       - target_account_id
-      - failure
       - metadata
       - created_at
       - updated_at
       - completed_at
+      additionalProperties: false
   securitySchemes:
     BearerAuth:
       scheme: bearer

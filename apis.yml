@@ -328,6 +328,57 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/augustus-webhook-events-api-openapi.yml
+- aid: augustus:augustus-account-holders-api
+  name: Augustus Account Holders API
+  description: The Account Holders API from Augustus — 2 operation(s) for account holders.
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Account Holders
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-account-holders-api-openapi.yml
+- aid: augustus:augustus-counterparties-api
+  name: Augustus Counterparties API
+  description: The Counterparties API from Augustus — 2 operation(s) for counterparties.
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Counterparties
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-counterparties-api-openapi.yml
+- aid: augustus:augustus-payout-tracking-events-api
+  name: Augustus Payout Tracking Events API
+  description: >-
+    The Payout Tracking Events API from Augustus — 2 operation(s) for payout tracking events.
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Payout Tracking Events
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-payout-tracking-events-api-openapi.yml
+- aid: augustus:augustus-simulations-api
+  name: Augustus Simulations API
+  description: The Simulations API from Augustus — 20 operation(s) for simulations.
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Simulations
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-simulations-api-openapi.yml
+- aid: augustus:augustus-transactions-api
+  name: Augustus Transactions API
+  description: The Transactions API from Augustus — 2 operation(s) for transactions.
+  humanURL: https://docs.augustus.com/reference/introduction
+  baseURL: https://api.getivy.de
+  tags:
+  - Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/augustus-transactions-api-openapi.yml
 common:
 - type: CapabilityMap
   url: capabilities/augustus-capability-edges.yml

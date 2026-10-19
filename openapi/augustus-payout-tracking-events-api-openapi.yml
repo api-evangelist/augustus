@@ -1,0 +1,541 @@
+openapi: 3.2.0
+info:
+  title: Augustus Banking Payout Tracking Events API
+  description: Augustus Banking API
+  version: 0.1.0
+  contact:
+    name: Augustus
+    url: https://docs.augustus.com
+    email: developer@augustus.com
+servers:
+- url: https://api.augustus.com
+  description: Production
+- url: https://api.sandbox.augustus.com
+  description: Sandbox
+security:
+- BearerAuth: []
+tags:
+- name: Payout Tracking Events
+paths:
+  /v1/payout_tracking_events:
+    get:
+      description: Returns a paginated list of payout tracking events, newest first.
+      operationId: PayoutTrackingEventsController_list
+      parameters:
+      - name: limit
+        required: false
+        in: query
+        description: Number of results per page (1-100). Defaults to 10.
+        schema:
+          minimum: 1
+          maximum: 100
+          default: 10
+          type: integer
+      - name: cursor
+        required: false
+        in: query
+        description: Opaque cursor from a previous next_cursor.
+        schema:
+          type: string
+      - name: payout_id
+        required: false
+        in: query
+        description: Filter tracking events belonging to this payout.
+        schema:
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440003
+          type: string
+      - name: milestone
+        required: false
+        in: query
+        description: Filter by milestone.
+        schema:
+          example: credited
+          type: string
+          enum:
+          - initiated
+          - submitted
+          - sent
+          - failed
+          - returned
+          - accepted
+          - settled
+          - forwarded
+          - credited
+          - rejected
+          - returning
+          - visibility_lost
+          - other
+      - name: is_terminal
+        required: false
+        in: query
+        description: Filter by whether Augustus considers delivery finished.
+        schema:
+          type: boolean
+      - name: created_at.gte
+        required: false
+        in: query
+        description: Include tracking events whose created_at is greater than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          example: '2026-01-01T00:00:00Z'
+          type: string
+      - name: created_at.lte
+        required: false
+        in: query
+        description: Include tracking events whose created_at is less than or equal to this ISO 8601 timestamp.
+        schema:
+          format: date-time
+          example: '2026-02-01T00:00:00Z'
+          type: string
+      responses:
+        '200':
+          description: List of payout tracking events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListPayoutTrackingEventsResponseDto'
+      summary: List payout tracking events
+      tags:
+      - Payout Tracking Events
+  /v1/payout_tracking_events/{id}:
+    get:
+      description: Retrieves a payout tracking event by ID.
+      operationId: PayoutTrackingEventsController_retrieve
+      parameters:
+      - name: id
+        required: true
+        in: path
+        description: Unique identifier of the tracking event.
+        schema:
+          format: uuid
+          example: 550e8400-e29b-41d4-a716-446655440008
+          type: string
+      responses:
+        '200':
+          description: The payout tracking event resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayoutTrackingEventResourceDto'
+      summary: Retrieve payout tracking event
+      tags:
+      - Payout Tracking Events
+components:
+  schemas:
+    ListPayoutTrackingEventsResponseDto:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: Unique identifier of the tracking event.
+                example: 550e8400-e29b-41d4-a716-446655440008
+              type:
+                type: string
+                description: Resource type discriminator.
+                enum:
+                - payout_tracking_event
+              payout_id:
+                type: string
+                format: uuid
+                description: ID of the payout this event belongs to.
+                example: 550e8400-e29b-41d4-a716-446655440003
+              sequence:
+                type: integer
+                exclusiveMinimum: true
+                maximum: 9007199254740991
+                description: Gap-free counter per payout, in the order Augustus recorded the events. A gap means you missed a recorded event, such as a dropped webhook. A sequence without gaps does not mean every network step was observed.
+                example: 4
+                minimum: 0
+              milestone:
+                type: string
+                enum:
+                - initiated
+                - submitted
+                - sent
+                - failed
+                - returned
+                - accepted
+                - settled
+                - forwarded
+                - credited
+                - rejected
+                - returning
+                - visibility_lost
+                - other
+                description: Normalized point in the payout journey. New values may be added.
+                example: credited
+              scope:
+                type: string
+                enum:
+                - network
+                - end_to_end
+                description: 'How far Augustus can follow the payout: end_to_end when the rail confirms the beneficiary credit, network when it only confirms settlement. New values may be added.'
+                example: end_to_end
+              source:
+                type: string
+                enum:
+                - augustus
+                - swift_gpi
+                - other
+                description: 'Where Augustus learned this step: augustus for steps Augustus records itself, swift_gpi for SWIFT gpi statuses, other for any other source. New values may be added.'
+                example: swift_gpi
+              is_terminal:
+                type: boolean
+                description: Whether Augustus considers delivery finished. A later event, such as returned, can still follow.
+              occurred_at:
+                type: string
+                format: date-time
+                description: ISO 8601 UTC timestamp when the step happened. Null when the source has no timestamp. Can be out of order with sequence.
+                example: '2026-01-15T10:30:00Z'
+                nullable: true
+              created_at:
+                type: string
+                format: date-time
+                description: ISO 8601 UTC timestamp when Augustus recorded the event.
+                example: '2026-01-15T10:35:00Z'
+              institution:
+                type: object
+                properties:
+                  identifier:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: Identifier scheme. Only bic today.
+                        enum:
+                        - bic
+                      value:
+                        type: string
+                        description: ISO 9362 Bank Identifier Code (8 or 11 characters).
+                        example: CHASUS33XXX
+                    required:
+                    - type
+                    - value
+                    additionalProperties: false
+                    description: Identifier of the institution, typed by scheme.
+                required:
+                - identifier
+                additionalProperties: false
+                description: Institution that acted on or reported this step. Null when unknown.
+                nullable: true
+              network_status:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Status code reported by the network, such as ACSP, ACSC, ACCC or RJCT.
+                    example: ACCC
+                  reason_code:
+                    type: string
+                    description: Reason code for the status, such as G000. Null when the network reports none.
+                    example: G000
+                    nullable: true
+                required:
+                - code
+                - reason_code
+                additionalProperties: false
+                description: Raw network status. Null when the step has none.
+                nullable: true
+              fee:
+                type: object
+                properties:
+                  amount:
+                    type: string
+                    description: Fee amount as a string decimal (e.g. "10.00").
+                    example: '10.00'
+                  currency:
+                    type: string
+                    description: ISO 4217 currency code of the fee.
+                    example: USD
+                  borne_by:
+                    type: string
+                    enum:
+                    - debtor
+                    - creditor
+                    - shared
+                    - other
+                    description: 'Who bears the charges under the payment charge agreement: debtor (OUR), creditor (BEN), shared (SHA), or other for any other agreement. New values may be added.'
+                    example: shared
+                required:
+                - amount
+                - currency
+                - borne_by
+                additionalProperties: false
+                description: Fee deducted at this step. Null when none was reported.
+                nullable: true
+              beneficiary_amount:
+                type: object
+                properties:
+                  amount:
+                    type: string
+                    description: Credited amount as a string decimal (e.g. "100.50").
+                    example: '100.50'
+                  currency:
+                    type: string
+                    description: ISO 4217 currency code of the credited amount.
+                    example: USD
+                required:
+                - amount
+                - currency
+                additionalProperties: false
+                description: Amount credited to the beneficiary. Set only on a credited event, otherwise null.
+                nullable: true
+              status_reason:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Normalized reason code assigned by Augustus. New codes may be added.
+                    example: BENEFICIARY_ACCOUNT_CLOSED
+                  description:
+                    type: string
+                    description: Explanation of the reason code, written by Augustus.
+                    example: The beneficiary bank reported the account as closed.
+                required:
+                - code
+                - description
+                additionalProperties: false
+                description: Reason for the current state. Null when none applies.
+                nullable: true
+            required:
+            - id
+            - type
+            - payout_id
+            - sequence
+            - milestone
+            - scope
+            - source
+            - is_terminal
+            - occurred_at
+            - created_at
+            - institution
+            - network_status
+            - fee
+            - beneficiary_amount
+            - status_reason
+            additionalProperties: false
+        has_more:
+          type: boolean
+        next_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+        has_previous:
+          type: boolean
+        previous_cursor:
+          type: string
+          example: eyJsYXN0X2lkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMDA2In0
+          nullable: true
+      required:
+      - data
+      - has_more
+      - next_cursor
+      - has_previous
+      - previous_cursor
+      additionalProperties: false
+    PayoutTrackingEventResourceDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the tracking event.
+          example: 550e8400-e29b-41d4-a716-446655440008
+        type:
+          type: string
+          description: Resource type discriminator.
+          enum:
+          - payout_tracking_event
+        payout_id:
+          type: string
+          format: uuid
+          description: ID of the payout this event belongs to.
+          example: 550e8400-e29b-41d4-a716-446655440003
+        sequence:
+          type: integer
+          exclusiveMinimum: true
+          maximum: 9007199254740991
+          description: Gap-free counter per payout, in the order Augustus recorded the events. A gap means you missed a recorded event, such as a dropped webhook. A sequence without gaps does not mean every network step was observed.
+          example: 4
+          minimum: 0
+        milestone:
+          type: string
+          enum:
+          - initiated
+          - submitted
+          - sent
+          - failed
+          - returned
+          - accepted
+          - settled
+          - forwarded
+          - credited
+          - rejected
+          - returning
+          - visibility_lost
+          - other
+          description: Normalized point in the payout journey. New values may be added.
+          example: credited
+        scope:
+          type: string
+          enum:
+          - network
+          - end_to_end
+          description: 'How far Augustus can follow the payout: end_to_end when the rail confirms the beneficiary credit, network when it only confirms settlement. New values may be added.'
+          example: end_to_end
+        source:
+          type: string
+          enum:
+          - augustus
+          - swift_gpi
+          - other
+          description: 'Where Augustus learned this step: augustus for steps Augustus records itself, swift_gpi for SWIFT gpi statuses, other for any other source. New values may be added.'
+          example: swift_gpi
+        is_terminal:
+          type: boolean
+          description: Whether Augustus considers delivery finished. A later event, such as returned, can still follow.
+        occurred_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when the step happened. Null when the source has no timestamp. Can be out of order with sequence.
+          example: '2026-01-15T10:30:00Z'
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC timestamp when Augustus recorded the event.
+          example: '2026-01-15T10:35:00Z'
+        institution:
+          type: object
+          properties:
+            identifier:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: Identifier scheme. Only bic today.
+                  enum:
+                  - bic
+                value:
+                  type: string
+                  description: ISO 9362 Bank Identifier Code (8 or 11 characters).
+                  example: CHASUS33XXX
+              required:
+              - type
+              - value
+              additionalProperties: false
+              description: Identifier of the institution, typed by scheme.
+          required:
+          - identifier
+          additionalProperties: false
+          description: Institution that acted on or reported this step. Null when unknown.
+          nullable: true
+        network_status:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Status code reported by the network, such as ACSP, ACSC, ACCC or RJCT.
+              example: ACCC
+            reason_code:
+              type: string
+              description: Reason code for the status, such as G000. Null when the network reports none.
+              example: G000
+              nullable: true
+          required:
+          - code
+          - reason_code
+          additionalProperties: false
+          description: Raw network status. Null when the step has none.
+          nullable: true
+        fee:
+          type: object
+          properties:
+            amount:
+              type: string
+              description: Fee amount as a string decimal (e.g. "10.00").
+              example: '10.00'
+            currency:
+              type: string
+              description: ISO 4217 currency code of the fee.
+              example: USD
+            borne_by:
+              type: string
+              enum:
+              - debtor
+              - creditor
+              - shared
+              - other
+              description: 'Who bears the charges under the payment charge agreement: debtor (OUR), creditor (BEN), shared (SHA), or other for any other agreement. New values may be added.'
+              example: shared
+          required:
+          - amount
+          - currency
+          - borne_by
+          additionalProperties: false
+          description: Fee deducted at this step. Null when none was reported.
+          nullable: true
+        beneficiary_amount:
+          type: object
+          properties:
+            amount:
+              type: string
+              description: Credited amount as a string decimal (e.g. "100.50").
+              example: '100.50'
+            currency:
+              type: string
+              description: ISO 4217 currency code of the credited amount.
+              example: USD
+          required:
+          - amount
+          - currency
+          additionalProperties: false
+          description: Amount credited to the beneficiary. Set only on a credited event, otherwise null.
+          nullable: true
+        status_reason:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Normalized reason code assigned by Augustus. New codes may be added.
+              example: BENEFICIARY_ACCOUNT_CLOSED
+            description:
+              type: string
+              description: Explanation of the reason code, written by Augustus.
+              example: The beneficiary bank reported the account as closed.
+          required:
+          - code
+          - description
+          additionalProperties: false
+          description: Reason for the current state. Null when none applies.
+          nullable: true
+      required:
+      - id
+      - type
+      - payout_id
+      - sequence
+      - milestone
+      - scope
+      - source
+      - is_terminal
+      - occurred_at
+      - created_at
+      - institution
+      - network_status
+      - fee
+      - beneficiary_amount
+      - status_reason
+      additionalProperties: false
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Bearer token for authentication with Augustus Banking API
