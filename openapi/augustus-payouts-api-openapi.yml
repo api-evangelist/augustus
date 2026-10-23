@@ -1665,3 +1665,9 @@ components:
       bearerFormat: JWT
       type: http
       description: Bearer token for authentication with Augustus Banking API
+x-provenance:
+  method: harvested
+  publisher: Augustus
+  source: https://api.augustus.com/openapi/2026-05-01.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
