@@ -365,6 +365,8 @@ apis:
   humanURL: https://docs.augustus.com/reference/introduction
   baseURL: https://api.getivy.de
   tags:
+  - Simulation
+  tags_raw:
   - Simulations
   properties:
   - type: OpenAPI
@@ -375,6 +377,8 @@ apis:
   humanURL: https://docs.augustus.com/reference/introduction
   baseURL: https://api.getivy.de
   tags:
+  - Transaction
+  tags_raw:
   - Transactions
   properties:
   - type: OpenAPI
