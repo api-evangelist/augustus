@@ -64,6 +64,156 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Augustus is a company surfaced as a portfolio company of creandum and added to the API Evangelist network as a stub for enrichment. Sector: fintech. This profile is a lead awaiting the enrichment pipeline.
+Augustus (formerly Ivy, getivy.io) is a global payments and banking platform that lets developers move money between fiat and stablecoins, accept Open Banking bank payments, send payouts, run FX conversions, and hold balances through a single REST API. Building blocks include accounts and virtual accounts, account programs, checkout sessions and orders, deposits, payouts, refunds and returns, conversions and quotes, plus webhooks for real-time events. Augustus runs the Ivy Open Banking API (version 2023-01-01) alongside the newer Augustus Banking API (version 2026-05-01), authenticates with scoped bearer API keys, supports idempotent POSTs and cursor pagination, and is building an AI-native, stablecoin-based clearing bank. Backed by Creandum and Valar Ventures.
 
-Backed by: creandum — https://www.getivy.io/
+**Areas:** Company · Fintech · Payments · Banking · Open Banking · Stablecoins · Payouts · Foreign Exchange · Webhook
+
+## Augustus on APIs.io
+
+Everything profiled for Augustus is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/augustus/](https://apis.io/providers/augustus/)** — or go straight to one of the APIs or properties below.
+
+### APIs (15)
+
+- [Ivy API (Open Banking)](https://apis.io/apis/augustus/ivy-api/) — The 2023-01-01 Ivy API for Open Banking pay-ins and Manual Bank Transfer. Checkout sessions, orders, customers, refunds, banks, capabilities, and…
+- [Augustus Account Programs API](https://apis.io/apis/augustus/augustus-account-programs-api/) — The Account Programs API from Augustus — 3 operation(s) for account programs.
+- [Augustus Accounts API](https://apis.io/apis/augustus/augustus-accounts-api/) — The Accounts API from Augustus — 6 operation(s) for accounts.
+- [Augustus API Key API](https://apis.io/apis/augustus/augustus-api-key-api/) — The API Key API from Augustus — 1 operation(s) for api key.
+- [Augustus API Versions API](https://apis.io/apis/augustus/augustus-api-versions-api/) — The API Versions API from Augustus — 1 operation(s) for api versions.
+- [Augustus Conversions API](https://apis.io/apis/augustus/augustus-conversions-api/) — The Conversions API from Augustus — 2 operation(s) for conversions.
+- [Augustus Deposits API](https://apis.io/apis/augustus/augustus-deposits-api/) — The Deposits API from Augustus — 2 operation(s) for deposits.
+- [Augustus Events API](https://apis.io/apis/augustus/augustus-events-api/) — The Events API from Augustus — 2 operation(s) for events.
+- [Augustus Payouts API](https://apis.io/apis/augustus/augustus-payouts-api/) — The Payouts API from Augustus — 2 operation(s) for payouts.
+- [Augustus Quotes API](https://apis.io/apis/augustus/augustus-quotes-api/) — The Quotes API from Augustus — 2 operation(s) for quotes.
+- [Augustus Returns API](https://apis.io/apis/augustus/augustus-returns-api/) — The Returns API from Augustus — 2 operation(s) for returns.
+- [Augustus Scopes API](https://apis.io/apis/augustus/augustus-scopes-api/) — The Scopes API from Augustus — 1 operation(s) for scopes.
+- [Augustus Webhook Deliveries API](https://apis.io/apis/augustus/augustus-webhook-deliveries-api/) — The Webhook Deliveries API from Augustus — 3 operation(s) for webhook deliveries.
+- [Augustus Webhook Subscriptions API](https://apis.io/apis/augustus/augustus-webhook-subscriptions-api/) — The Webhook Subscriptions API from Augustus — 3 operation(s) for webhook subscriptions.
+- [Augustus Webhook Events API](https://apis.io/apis/augustus/augustus-webhook-events-api/) — The Webhook Events API from Augustus — 0 operation(s) for webhook events.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Augustus Webhooks](https://apis.io/asyncapis/augustus/augustus-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [augustus](https://apis.io/servers/augustus/augustus/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Augustus Agentic Access](https://apis.io/agentic-access/augustus/augustus-agentic-access/)
+
+#### Collections (13)
+
+Postman and Open Collection request collections.
+
+- [Augustus Banking Account Programs API](https://apis.io/collections/augustus/open-augustus-account-programs-api/)
+- [Augustus Banking Account Programs Accounts API](https://apis.io/collections/augustus/open-augustus-accounts-api/)
+- [Augustus Banking Account Programs API Key API](https://apis.io/collections/augustus/open-augustus-api-key-api/)
+- [Augustus Banking Account Programs API Versions API](https://apis.io/collections/augustus/open-augustus-api-versions-api/)
+- [Augustus Banking Account Programs Conversions API](https://apis.io/collections/augustus/open-augustus-conversions-api/)
+- [Augustus Banking Account Programs Deposits API](https://apis.io/collections/augustus/open-augustus-deposits-api/)
+- [Augustus Banking Account Programs Events API](https://apis.io/collections/augustus/open-augustus-events-api/)
+- [Augustus Banking Account Programs Payouts API](https://apis.io/collections/augustus/open-augustus-payouts-api/)
+- [Augustus Banking Account Programs Quotes API](https://apis.io/collections/augustus/open-augustus-quotes-api/)
+- [Augustus Banking Account Programs Returns API](https://apis.io/collections/augustus/open-augustus-returns-api/)
+- [Augustus Banking Account Programs Scopes API](https://apis.io/collections/augustus/open-augustus-scopes-api/)
+- [Augustus Banking Account Programs Webhook Deliveries API](https://apis.io/collections/augustus/open-augustus-webhook-deliveries-api/)
+- [Augustus Banking Account Programs Webhook Subscriptions API](https://apis.io/collections/augustus/open-augustus-webhook-subscriptions-api/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Augustus Banking Overlay](https://apis.io/overlays/augustus/augustus-banking-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Augustus Authentication](https://apis.io/security/augustus/augustus-authentication/)
+- [Augustus Domain Security](https://apis.io/security/augustus/augustus-domain-security/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Augustus Scopes](https://apis.io/scopes/augustus/augustus-scopes/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://augustus.com/)
+- [Documentation](https://docs.augustus.com/docs/basics/introduction)
+- [Getting started](https://docs.augustus.com/docs/basics/introduction)
+- [API reference](https://docs.augustus.com/v1/introduction)
+- [Sign up](https://dashboard.augustus.com/sign-up)
+- [Support](https://augustus.com/company/contact)
+- [Terms of service](https://augustus.com/legal/terms)
+- [Privacy policy](https://augustus.com/legal/privacy)
+- [Status](https://status.getivy.io)
+
+## API Evangelist rating
+
+**Kin Score 46.0** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 73.2 |
+| Contract quality | 56.9 |
+| Contract governance | 4.5 |
+| Operational transparency | 23.7 |
+| Developer ergonomics | 70.8 |
+| Access clarity | 27.6 |
+
+**Agent readiness 35.5** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | verified |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | — |
+| Event Surface Described | yes |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | paginated |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 33.1** — Banking & Open Finance
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/augustus/](https://apis.io/providers/augustus/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Augustus: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/augustus/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
